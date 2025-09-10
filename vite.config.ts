@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import svgr from 'vite-plugin-svgr'
+import checker from 'vite-plugin-checker'
 
 
 
@@ -64,6 +65,10 @@ export default defineConfig(({ command, mode }) => ({
           ],
         },
       },
+    }),
+    checker({
+      // Use TypeScript check on the fly in development
+      typescript: true,
     }),
   ],
 }))
