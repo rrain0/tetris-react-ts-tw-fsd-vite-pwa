@@ -1,0 +1,85 @@
+import { isdef, ifBool, type Pu } from '@utils/ts/tsBase.ts'
+
+
+
+
+export type PlacedShortStyle = Pu<{
+  aligned: string | boolean // { alignSelf } // true => 'center'
+  alignedStart: boolean // true => { alignSelf: 'start' }
+  alignedEnd: boolean // true => { alignSelf: 'end' }
+  alignedStretch: boolean // true => { alignSelf: 'stretch' }
+  
+  justified: string | boolean // { justifySelf } // true => 'center'
+  justifiedStart: boolean // true => { justifySelf: 'end' }
+  justifiedEnd: boolean // true => { justifySelf: 'end' }
+  justifiedStretch: boolean // true => { justifySelf: 'stretch' }
+  
+  placed: string | boolean // { placeSelf } // true => { placeSelf: 'center' }
+  started: boolean // true => { placeSelf: 'start' }
+  ended: boolean // true => { placeSelf: 'end' }
+  stretched: boolean // true => { placeSelf: 'stretch' }
+  startedEnded: boolean // true => { placeSelf: 'start end' }
+  
+  basis: number | string // { flexBasis }
+  order: number | string // { order }
+  grow: number | string | boolean // { flexGrow } // true => { flexGrow: 1 }
+  shrink: number | string | boolean // { flexShrink } // true => { flexShrink: 1 }
+  noShrink: boolean // true => { flexShrink: 0 }
+  flexed: number | string // { flex }
+  
+  gridRow: number | string // { gridRow }
+  gridCol: number | string // { gridCol }
+  gridArea: number | string // { gridArea }
+}>
+
+
+
+export const processPlacedShortStyle = <P extends object>(
+  props: P & PlacedShortStyle
+) => {
+  const {
+    aligned, alignedStart, alignedEnd, alignedStretch,
+    justified, justifiedStart, justifiedEnd, justifiedStretch,
+    placed, started, ended, stretched,
+    startedEnded,
+    basis, order, grow, shrink, noShrink, flexed,
+    gridRow, gridCol, gridArea,
+    ...placedRest
+  } = props
+  
+  
+  
+  const placedCss = {
+    ...isdef(aligned) && { alignSelf: ifBool(aligned, 'center') },
+    ...alignedStart && { alignSelf: 'start' },
+    ...alignedEnd && { alignSelf: 'end' },
+    ...alignedStretch && { alignSelf: 'stretch' },
+    
+    ...isdef(justified) && { justifySelf: ifBool(justified, 'center') },
+    ...justifiedStart && { justifySelf: 'start' },
+    ...justifiedEnd && { justifySelf: 'end' },
+    ...justifiedStretch && { justifySelf: 'stretch' },
+    
+    ...started && { placeSelf: 'start' },
+    ...ended && { placeSelf: 'end' },
+    ...stretched && { placeSelf: 'stretch' },
+    ...isdef(placed) && { placeSelf: ifBool(placed, 'center') },
+    ...startedEnded && { placeSelf: 'start end' },
+    
+    ...noShrink && { flexShrink: 0 },
+    ...isdef(basis) && { flexBasis: basis },
+    ...isdef(order) && { order: order },
+    ...isdef(grow) && { flexGrow: ifBool(grow, 1) },
+    ...isdef(shrink) && { flexShrink: ifBool(shrink, 1) },
+    ...isdef(flexed) && { flex: flexed },
+    
+    ...isdef(gridRow) && { gridRow: gridRow },
+    ...isdef(gridCol) && { gridColumn: gridCol },
+    ...isdef(gridArea) && { gridArea: gridArea },
+  }
+  
+  return { placedCss, placedRest }
+}
+
+
+

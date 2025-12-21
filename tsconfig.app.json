@@ -5,14 +5,14 @@
     // A file for storing compilation information to build faster
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     // Output JS version, newer used features might be downleveled to run on older JS version
-    "target": "ES2022",
+    "target": "ESNext",
     // Specify available built-in type definitions
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     // Sets the module system for the program, influences 'import' / 'export' translation into JS
     "module": "ESNext",
     // Skip any errors in d.ts files (including node_modules), invalid types treated as 'any'
     "skipLibCheck": true,
-
+    
     /* Bundler mode */
     // Use bundler-specific features when resolving imports. Vite is bundler
     "moduleResolution": "bundler",
@@ -66,12 +66,12 @@
       
       "src/*": ["src/*"],
       
-      "@utils/*": ["src/utils/*"],
-      "@assets/*": ["src/assets/*"],
-      "@mini-libs/*": ["src/mini-libs/*"],
+      "@app/*": ["src/app/*"],
       
-      "@im/*": ["src/res/im/*"],
-      "@ic/*": ["src/res/ic/*"],
+      "@libs/*": ["src/shared/libs/*"],
+      "@utils/*": ["src/shared/utils/*"],
+      
+      "@assets/*": ["src/shared/assets/*"],
     }
   }
 }
