@@ -1,6 +1,6 @@
 import {
   type GridViewShortStyle, processGridViewShortStyle,
-} from '@libs/short-style/view-processors/processGridViewShortStyle.ts'
+} from '@lib/short-style/view-processors/processGridViewShortStyle.ts'
 
 
 

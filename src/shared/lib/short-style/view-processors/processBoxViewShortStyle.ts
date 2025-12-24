@@ -1,23 +1,23 @@
 import {
   type ContentShortStyle, processContentShortStyle,
-} from '@libs/short-style/processors/processContentShortStyle.ts'
+} from '@lib/short-style/processors/processContentShortStyle.ts'
 import {
   type PlacedShortStyle, processPlacedShortStyle,
-} from '@libs/short-style/processors/processPlacedShortStyle.ts'
+} from '@lib/short-style/processors/processPlacedShortStyle.ts'
 import {
   type PointerShortStyle, processPointerShortStyle,
-} from '@libs/short-style/processors/processPointerShortStyle.ts'
+} from '@lib/short-style/processors/processPointerShortStyle.ts'
 import {
   type PositionShortStyle, processPositionShortStyle,
-} from '@libs/short-style/processors/processPositionShortStyle.ts'
+} from '@lib/short-style/processors/processPositionShortStyle.ts'
 import {
   processSizeShortStyle,
   type SizeShortStyle,
-} from '@libs/short-style/processors/processSizeShortStyle.ts'
+} from '@lib/short-style/processors/processSizeShortStyle.ts'
 import {
   processTextShortStyle,
   type TextShortStyle,
-} from '@libs/short-style/processors/processTextShortStyle.ts'
+} from '@lib/short-style/processors/processTextShortStyle.ts'
 
 
 

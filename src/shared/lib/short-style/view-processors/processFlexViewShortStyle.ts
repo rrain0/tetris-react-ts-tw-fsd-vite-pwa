@@ -1,10 +1,10 @@
 import {
   type FlexShortStyle,
   processFlexShortStyle,
-} from '@libs/short-style/processors/processFlexShortStyle.ts'
+} from '@lib/short-style/processors/processFlexShortStyle.ts'
 import {
   type BoxViewShortStyle, processBoxViewShortStyle,
-} from '@libs/short-style/view-processors/processBoxViewShortStyle.ts'
+} from '@lib/short-style/view-processors/processBoxViewShortStyle.ts'
 
 
 

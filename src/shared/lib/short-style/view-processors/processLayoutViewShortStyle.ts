@@ -1,14 +1,14 @@
 import { isstring } from '@utils/ts/tsBase.ts'
 import {
   processBoxViewShortStyle,
-} from '@libs/short-style/view-processors/processBoxViewShortStyle.ts'
+} from '@lib/short-style/view-processors/processBoxViewShortStyle.ts'
 import {
   processFlexViewShortStyle,
-} from '@libs/short-style/view-processors/processFlexViewShortStyle.ts'
+} from '@lib/short-style/view-processors/processFlexViewShortStyle.ts'
 import {
   processGridViewShortStyle,
-} from '@libs/short-style/view-processors/processGridViewShortStyle.ts'
-import type { LayoutViewShortStyle } from '@libs/short-style/view-style/layoutStyle.ts'
+} from '@lib/short-style/view-processors/processGridViewShortStyle.ts'
+import type { LayoutViewShortStyle } from '@lib/short-style/view-style/layoutStyle.ts'
 
 
 

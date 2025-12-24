@@ -1,7 +1,7 @@
 import React, { type ComponentProps } from 'react'
 import {
   type BoxViewShortStyle, processBoxViewShortStyle,
-} from '@libs/short-style/view-processors/processBoxViewShortStyle.ts'
+} from '@lib/short-style/view-processors/processBoxViewShortStyle.ts'
 
 
 

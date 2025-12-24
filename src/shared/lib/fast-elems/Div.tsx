@@ -1,8 +1,8 @@
 import React, { type ComponentProps } from 'react'
 import {
   processLayoutViewShortStyle
-} from '@libs/short-style/view-processors/processLayoutViewShortStyle.ts'
-import type { LayoutViewShortStyle } from '@libs/short-style/view-style/layoutStyle.ts'
+} from '@lib/short-style/view-processors/processLayoutViewShortStyle.ts'
+import type { LayoutViewShortStyle } from '@lib/short-style/view-style/layoutStyle.ts'
 
 
 

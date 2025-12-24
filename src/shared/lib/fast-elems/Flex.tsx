@@ -1,7 +1,7 @@
 import React, { type ComponentProps } from 'react'
 import {
   type FlexViewShortStyle, processFlexViewShortStyle,
-} from '@libs/short-style/view-processors/processFlexViewShortStyle.ts'
+} from '@lib/short-style/view-processors/processFlexViewShortStyle.ts'
 
 
 

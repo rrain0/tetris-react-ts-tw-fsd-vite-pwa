@@ -1,10 +1,10 @@
 import {
   type GridShortStyle,
   processGridShortStyle,
-} from '@libs/short-style/processors/processGridShortStyle.ts'
+} from '@lib/short-style/processors/processGridShortStyle.ts'
 import {
   type BoxViewShortStyle, processBoxViewShortStyle,
-} from '@libs/short-style/view-processors/processBoxViewShortStyle.ts'
+} from '@lib/short-style/view-processors/processBoxViewShortStyle.ts'
 
 
 

@@ -60,7 +60,7 @@ export default defineConfig(({ command, mode }) => {
         '@entities': fileURLToPath(new URL('./src/entities', import.meta.url)),
         
         '@assets': fileURLToPath(new URL('./src/shared/assets', import.meta.url)),
-        '@libs': fileURLToPath(new URL('./src/shared/libs', import.meta.url)),
+        '@lib': fileURLToPath(new URL('./src/shared/lib', import.meta.url)),
         '@utils': fileURLToPath(new URL('./src/shared/utils', import.meta.url)),
       },
     },

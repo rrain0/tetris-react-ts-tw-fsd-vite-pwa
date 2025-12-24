@@ -1,4 +1,4 @@
-import Flex from '@libs/fast-elems/Flex.tsx'
+import Flex from '@lib/fast-elems/Flex.tsx'
 import { useState } from 'react'
 import * as React from 'react'
 import TetrisGlass from '@features/TetrisGlass/TetrisGlass.tsx'

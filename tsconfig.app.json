@@ -74,7 +74,7 @@
       "@entities/*": ["src/entities/*"],
       
       "@assets/*": ["src/shared/assets/*"],
-      "@libs/*": ["src/shared/libs/*"],
+      "@lib/*": ["src/shared/lib/*"],
       "@utils/*": ["src/shared/utils/*"],
     }
   }

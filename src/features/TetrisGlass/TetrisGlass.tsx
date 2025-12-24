@@ -1,9 +1,9 @@
+import Block from '@entities/block/ui/Block.tsx'
 import { array } from '@utils/array/arrayCreate.ts'
 import type { Producer } from '@utils/ts/tsBase.ts'
-import Grid from '@libs/fast-elems/Grid.tsx'
+import Grid from '@lib/fast-elems/Grid.tsx'
 import { useEffect, useState } from 'react'
 import * as React from 'react'
-import { mapBlockUiTypeToSrc } from '@entities/block/lib/blockUi.ts'
 import type { BlockUiType } from '@entities/block/model/blockUi.ts'
 
 
@@ -82,10 +82,10 @@ function TetrisGlass() {
       rows='repeat(20, 1fr)' cols='repeat(10, 1fr)'
     >
       {blocks.map((r, ri) => r.map((it, ci) => {
-        const src = mapBlockUiTypeToSrc(it)
-        if (!src) return undefined
+        if (!it) return undefined
         return (
-          <img key={`${ri} ${ci}`} css={blockStyle} src={src}
+          <Block type={it}
+            key={`${ri} ${ci}`}
             style={{ gridArea: `${ri + 1} / ${ci + 1}` }}
           />
         )
@@ -101,11 +101,4 @@ const glassStyle = {
   border: '3px solid',
   borderColor: '#808080',
   borderRadius: '4px',
-}
-const blockStyle = {
-  width: '100%',
-  height: 'auto',
-  aspectRatio: '1',
-  objectPosition: 'center',
-  objectFit: 'cover',
 }

@@ -5,16 +5,16 @@ import {
 } from '@utils/ts/tsBase.ts'
 import type {
   FlexViewShortStyle
-} from '@libs/short-style/view-processors/processFlexViewShortStyle.ts'
-import { boxStyle } from '@libs/short-style/view-style/boxStyle.ts'
-import { flexStyle } from '@libs/short-style/view-style/flexStyle.ts'
-import { gridStyle } from '@libs/short-style/view-style/gridStyle.ts'
+} from '@lib/short-style/view-processors/processFlexViewShortStyle.ts'
+import { boxStyle } from '@lib/short-style/view-style/boxStyle.ts'
+import { flexStyle } from '@lib/short-style/view-style/flexStyle.ts'
+import { gridStyle } from '@lib/short-style/view-style/gridStyle.ts'
 import type {
   BoxViewShortStyle
-} from '@libs/short-style/view-processors/processBoxViewShortStyle.ts'
+} from '@lib/short-style/view-processors/processBoxViewShortStyle.ts'
 import type {
   GridViewShortStyle
-} from '@libs/short-style/view-processors/processGridViewShortStyle.ts'
+} from '@lib/short-style/view-processors/processGridViewShortStyle.ts'
 
 
 
