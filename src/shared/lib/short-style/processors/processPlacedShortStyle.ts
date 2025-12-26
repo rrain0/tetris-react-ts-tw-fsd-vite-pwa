@@ -1,4 +1,4 @@
-import { isdef, ifBool, type Pu } from '@utils/ts/tsBase.ts'
+import { isdef, ifBool, type Pu } from '@utils/ts/ts.ts'
 
 
 

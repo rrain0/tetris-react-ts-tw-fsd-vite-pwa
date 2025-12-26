@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react'
-import type { Pu } from '@utils/ts/tsBase.ts'
+import type { Pu } from '@utils/ts/ts.ts'
 
 
 

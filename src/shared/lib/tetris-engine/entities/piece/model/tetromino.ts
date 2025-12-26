@@ -1,13 +1,11 @@
-import type { Array4 } from '@lib/tetris-engine/shared/array.ts'
+import type { Position } from '@lib/tetris-engine/entities/piece/model/piece.ts'
 
 
 
-export type Rotation = (0 | 1)[][]
-export type Rotations = Array4<Rotation>
-
-
+export type TetrominoType = 'I' | 'J' | 'L' | 'O' | 'S' | 'T' | 'Z'
 
 export interface Tetromino {
+  position: Position
   // >0 - clockwise, <0 - counterclockwise
   toRotated(direction: number): Tetromino
 }

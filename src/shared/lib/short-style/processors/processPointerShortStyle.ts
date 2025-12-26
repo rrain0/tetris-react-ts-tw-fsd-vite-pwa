@@ -1,4 +1,4 @@
-import type { Pu } from '@utils/ts/tsBase.ts'
+import type { Pu } from '@utils/ts/ts.ts'
 
 
 

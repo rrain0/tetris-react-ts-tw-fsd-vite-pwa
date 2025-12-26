@@ -2,7 +2,7 @@ import {
   isstring,
   type ObjectShallowPropsUnion,
   type Pu,
-} from '@utils/ts/tsBase.ts'
+} from '@utils/ts/ts.ts'
 import type {
   FlexViewShortStyle
 } from '@lib/short-style/view-processors/processFlexViewShortStyle.ts'

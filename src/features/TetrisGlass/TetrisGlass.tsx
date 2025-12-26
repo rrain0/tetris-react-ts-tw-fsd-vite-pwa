@@ -1,6 +1,6 @@
 import Block from '@entities/block/ui/Block.tsx'
 import { array } from '@utils/array/arrayCreate.ts'
-import type { Producer } from '@utils/ts/tsBase.ts'
+import type { Producer } from '@utils/ts/ts.ts'
 import Grid from '@lib/fast-elems/Grid.tsx'
 import { useEffect, useState } from 'react'
 import * as React from 'react'
@@ -13,7 +13,7 @@ const newEmptyGlass: Producer<BlockUiType[][]> = () => (
 
 // TODO loading screen to save images to RAM (dataUrl)
 
-// TODO Figures: TetraJ TetraL TetraI TetraO TetraT TetraS TetraZ
+// TODO Pieces: TetraJ TetraL TetraI TetraO TetraT TetraS TetraZ
 
 function TetrisGlass() {
   

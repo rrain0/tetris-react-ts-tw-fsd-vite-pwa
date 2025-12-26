@@ -3,7 +3,7 @@
 
 // ℹ️ Primitive shortcuts
 
-export type emptyval = null | undefined
+export type nullish = null | undefined
 export type anyval = {} | null | undefined
 
 export type anyfun = (...args: any[]) => any
@@ -38,7 +38,7 @@ export type HtmlDataAttrs = { [Prop in `data-${string}`]?: string | undefined }
 
 // ℹ️ Value modifiers
 
-export type Nonemptyval<T> = T & {}
+export type Nonnullishval<T> = T & {}
 export type DefinedVal<T> = Exclude<T, undefined>
 
 
@@ -176,10 +176,10 @@ export function isnull<T>(value: T | null): value is null {
 export function isnotnull<T>(value: T | null): value is T {
   return value !== null
 }
-export function isnotnullundef<E extends {}, T>(value: T | E): value is E {
+export function isnotnullish<E extends {}, T>(value: T | E): value is E {
   return value !== null && value !== undefined
 }
-export function isnullundef<NE extends emptyval, T>(value: T | NE): value is NE {
+export function isnullish<NE extends nullish, T>(value: T | NE): value is NE {
   return value === null || value === undefined
 }
 export function isbool<B extends boolean, T>(value: T | B): value is B {

@@ -1,4 +1,4 @@
-import { isstring } from '@utils/ts/tsBase.ts'
+import { isstring } from '@utils/ts/ts.ts'
 import {
   processBoxViewShortStyle,
 } from '@lib/short-style/view-processors/processBoxViewShortStyle.ts'

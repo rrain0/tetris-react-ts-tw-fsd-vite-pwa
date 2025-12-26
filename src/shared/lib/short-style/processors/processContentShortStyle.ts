@@ -1,4 +1,4 @@
-import { isdef, type Pu } from '@utils/ts/tsBase.ts'
+import { isdef, type Pu } from '@utils/ts/ts.ts'
 
 
 

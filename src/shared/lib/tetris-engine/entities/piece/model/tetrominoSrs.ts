@@ -1,37 +1,42 @@
-import { tetroISrs } from '@lib/tetris-engine/entities/piece/lib/tetroISrs.ts'
-import { tetroJSrs } from '@lib/tetris-engine/entities/piece/lib/tetroJSrs.ts'
-import { tetroLSrs } from '@lib/tetris-engine/entities/piece/lib/tetroLSrs.ts'
-import { tetroOSrs } from '@lib/tetris-engine/entities/piece/lib/tetroOSrs.ts'
-import { tetroSSrs } from '@lib/tetris-engine/entities/piece/lib/tetroSSrs.ts'
-import { tetroTSrs } from '@lib/tetris-engine/entities/piece/lib/tetroTSrs.ts'
-import { tetroZSrs } from '@lib/tetris-engine/entities/piece/lib/tetroZSrs.ts'
-import type { Rotations, Tetromino } from '@lib/tetris-engine/entities/piece/model/tetromino.ts'
-import type { Array4, num2 } from '@lib/tetris-engine/shared/array.ts'
+import { pieceISrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceISrs.ts'
+import { pieceJSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceJSrs.ts'
+import { pieceLSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceLSrs.ts'
+import { pieceOSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceOSrs.ts'
+import { pieceSSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceSSrs.ts'
+import { pieceTSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceTSrs.ts'
+import { pieceZSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceZSrs.ts'
+import type { Position } from '@lib/tetris-engine/entities/piece/model/piece.ts'
+import type { OffsetsSrs, SrsPiece } from '@lib/tetris-engine/entities/piece/model/pieceSrs.ts'
+import type { Tetromino, TetrominoType } from '@lib/tetris-engine/entities/piece/model/tetromino.ts'
 
 
 
-// Srs - Super Rotation System https://harddrop.com/wiki/SRS
 
-export type OffsetsSrs = Array4<num2>[]
-export type TetrominoSrsData = {
-  rotations: Rotations
-  offsets: OffsetsSrs
-}
 
 export class TetrominoSrs implements Tetromino {
+  type: TetrominoType
+  position: Position
+  offsets: OffsetsSrs
   
-  constructor(public data: TetrominoSrsData) { }
+  private constructor(
+    type: TetrominoType,
+    { position, offsets }: SrsPiece,
+  ) {
+    this.type = type
+    this.position = position
+    this.offsets = offsets
+  }
   
   toRotated(direction: number): Tetromino {
     throw new Error('Not implemented')
   }
   
-  static tetroI = () => new TetrominoSrs(tetroISrs)
-  static tetroJ = () => new TetrominoSrs(tetroJSrs)
-  static tetroL = () => new TetrominoSrs(tetroLSrs)
-  static tetroO = () => new TetrominoSrs(tetroOSrs)
-  static tetroS = () => new TetrominoSrs(tetroSSrs)
-  static tetroT = () => new TetrominoSrs(tetroTSrs)
-  static tetroZ = () => new TetrominoSrs(tetroZSrs)
+  
+  static newI = () => new TetrominoSrs('I', pieceISrs)
+  static newJ = () => new TetrominoSrs('J', pieceJSrs)
+  static newL = () => new TetrominoSrs('L', pieceLSrs)
+  static newO = () => new TetrominoSrs('O', pieceOSrs)
+  static newS = () => new TetrominoSrs('S', pieceSSrs)
+  static newT = () => new TetrominoSrs('T', pieceTSrs)
+  static newZ = () => new TetrominoSrs('Z', pieceZSrs)
 }
-

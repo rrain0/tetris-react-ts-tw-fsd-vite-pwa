@@ -104,7 +104,7 @@ export default defineConfig(({ command, mode }) => {
         modernPolyfills: true,
         renderModernChunks: true,
         modernTargets: [
-          `since ${buildDate.getFullYear() - 4}-01-01`,
+          `since 2021-01-01`,
           // A browser is not dead
           // if it has not been without official support or updates for 24 months.
           'not dead',
