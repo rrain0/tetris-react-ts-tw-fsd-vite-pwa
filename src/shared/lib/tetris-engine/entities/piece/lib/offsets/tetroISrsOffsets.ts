@@ -1,4 +1,4 @@
-import type { OffsetsSrs } from '@lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
+import type { OffsetsSrs } from '@lib/tetris-engine/entities/piece/model/pieceSrs.ts'
 
 
 
@@ -34,3 +34,6 @@ export const tetroISrsOffsets: OffsetsSrs = [
     [0, 2],
   ],
 ]
+
+// invert y-axis
+tetroISrsOffsets.forEach(it => it.forEach(it => it[1] = -it[1]))
