@@ -7,7 +7,6 @@ import { pieceSSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceSSr
 import { pieceTSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceTSrs.ts'
 import { pieceZSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceZSrs.ts'
 import {
-  type OffsetsSrs,
   PieceSrs,
   type PieceSrsData,
 } from '@lib/tetris-engine/entities/piece/model/pieceSrs.ts'
@@ -20,25 +19,15 @@ import type { Id } from '@lib/tetris-engine/shared/utils/id.ts'
 
 export class TetrominoSrs extends PieceSrs {
   declare type: TetrominoType
-  offsets: OffsetsSrs
   
   private constructor(
     id: Id,
     type: TetrominoType,
     { position, offsets }: PieceSrsData,
   ) {
-    super(id, type, position)
+    super(id, type, position, offsets)
     this.offsets = offsets
   }
-  
-  override toRotated(direction: number): TetrominoSrs {
-    const rotated = super.toRotated(direction)
-    if (this === rotated) return this
-    return new TetrominoSrs(this.id, this.type, {
-      position: rotated.position, offsets: this.offsets,
-    })
-  }
-  
   
   
   

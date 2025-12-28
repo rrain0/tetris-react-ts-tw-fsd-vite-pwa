@@ -1,9 +1,10 @@
 import type { FieldPiece } from '@lib/tetris-engine/entities/field-piece/model/fieldPiece.ts'
+import type { Id } from '@lib/tetris-engine/shared/utils/id.ts'
 import { array } from '@utils/array/arrayCreate.ts'
 
 
 
-export type PieceBlock = { type: string, pieceId: number | string }
+export type PieceBlock = { type: Id, pieceId: Id }
 export type FieldBlock = PieceBlock | null
 
 export class Field {
