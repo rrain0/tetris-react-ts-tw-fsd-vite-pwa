@@ -1,9 +1,10 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 import tsconfigPaths from 'vite-tsconfig-paths'
-import legacy from '@vitejs/plugin-legacy'
+import tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
+import legacy from '@vitejs/plugin-legacy'
 import checker from 'vite-plugin-checker'
 
 
@@ -84,6 +85,10 @@ export default defineConfig(({ command, mode }) => {
     
     plugins: [
       
+      tsconfigPaths(),
+      
+      tailwindcss(),
+      
       react({
         jsxImportSource: '@emotion/react',
         babel: {
@@ -92,23 +97,6 @@ export default defineConfig(({ command, mode }) => {
             'babel-plugin-react-compiler',
           ],
         },
-      }),
-      
-      tsconfigPaths(),
-      
-      // Add polyfills to build (in dev mode there is no polyfills)
-      legacy({
-        polyfills: false,
-        renderLegacyChunks: false,
-        
-        modernPolyfills: true,
-        renderModernChunks: true,
-        modernTargets: [
-          `since 2021-01-01`,
-          // A browser is not dead
-          // if it has not been without official support or updates for 24 months.
-          'not dead',
-        ],
       }),
       
       svgr({
@@ -140,6 +128,21 @@ export default defineConfig(({ command, mode }) => {
             ],
           },
         },
+      }),
+      
+      // Add polyfills to build (in dev mode there is no polyfills)
+      legacy({
+        polyfills: false,
+        renderLegacyChunks: false,
+        
+        modernPolyfills: true,
+        renderModernChunks: true,
+        modernTargets: [
+          `since 2021-01-01`,
+          // A browser is not dead
+          // if it has not been without official support or updates for 24 months.
+          'not dead',
+        ],
       }),
       
       checker({

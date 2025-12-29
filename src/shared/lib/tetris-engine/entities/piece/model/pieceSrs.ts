@@ -10,10 +10,12 @@ import { mod } from '@utils/math/mathOperators.ts'
 
 export type OffsetsSrs = Arr4<num2>[]
 
-export type PieceSrsData = {
+export type PieceSrsConfig = {
   position: Position
   offsets: OffsetsSrs
 }
+
+
 
 export class PieceSrs extends Piece {
   offsets: OffsetsSrs

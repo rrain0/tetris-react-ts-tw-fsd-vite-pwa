@@ -2,7 +2,6 @@ import Block from '@entities/block/ui/Block.tsx'
 import { FieldPiece } from '@lib/tetris-engine/entities/field-piece/model/fieldPiece.ts'
 import { Field } from '@lib/tetris-engine/entities/field/model/field.ts'
 import { TetrominoSrs } from '@lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
-import Grid from '@lib/fast-elems/Grid.tsx'
 import { mapPieceTypeToBlockUiType } from 'entities/block/lib/blockUi.ts'
 import * as React from 'react'
 
@@ -26,8 +25,11 @@ field.addPiece(new FieldPiece([8, 16], TetrominoSrs.newT().toRotated(-1)))
 function TetrisField() {
   
   return (
-    <Grid w={300} h='ct' css={glassStyle}
-      rows='repeat(20, 1fr)' cols='repeat(10, 1fr)'
+    <div className={`
+        grid w--300 h--ct
+        rows-[repeat(20,1fr)] cols-[repeat(10,1fr)]
+        ${fieldStyle}
+      `}
     >
       {[...field].map(({ x, y, block }) => {
         if (!block) return undefined
@@ -42,15 +44,11 @@ function TetrisField() {
           />
         )
       })}
-    </Grid>
+    </div>
   )
 }
 export default TetrisField
 
 
 
-const glassStyle = {
-  border: '3px solid',
-  borderColor: '#808080',
-  borderRadius: '4px',
-}
+const fieldStyle = 'border-[3px] border-solid border-[#808080] rounded-[4px]'

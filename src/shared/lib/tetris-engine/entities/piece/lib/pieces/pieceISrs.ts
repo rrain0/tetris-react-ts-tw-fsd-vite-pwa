@@ -1,9 +1,9 @@
 import { tetroISrsOffsets } from '@lib/tetris-engine/entities/piece/lib/offsets/tetroISrsOffsets.ts'
-import type { PieceSrsData } from '@lib/tetris-engine/entities/piece/model/pieceSrs.ts'
+import type { PieceSrsConfig } from '@lib/tetris-engine/entities/piece/model/pieceSrs.ts'
 
 
 
-export const pieceISrs: PieceSrsData = {
+export const pieceISrs: PieceSrsConfig = {
   position: [
     [0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0],

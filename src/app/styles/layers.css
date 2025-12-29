@@ -17,3 +17,8 @@
 
 /* Local widget defaults */
 @layer widget;
+
+
+
+/* Tailwind classes */
+@layer utilities;

@@ -15,7 +15,7 @@ export abstract class Piece {
   position: Position
   rotI = 0
   
-  constructor(
+  protected constructor(
     id: Id,
     type: Id,
     position: Position,

@@ -8,7 +8,7 @@ import { pieceTSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceTSr
 import { pieceZSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceZSrs.ts'
 import {
   PieceSrs,
-  type PieceSrsData,
+  type PieceSrsConfig,
 } from '@lib/tetris-engine/entities/piece/model/pieceSrs.ts'
 import type { TetrominoType } from '@lib/tetris-engine/entities/piece/model/tetromino.ts'
 import type { Id } from '@lib/tetris-engine/shared/utils/id.ts'
@@ -23,7 +23,7 @@ export class TetrominoSrs extends PieceSrs {
   private constructor(
     id: Id,
     type: TetrominoType,
-    { position, offsets }: PieceSrsData,
+    { position, offsets }: PieceSrsConfig,
   ) {
     super(id, type, position, offsets)
     this.offsets = offsets

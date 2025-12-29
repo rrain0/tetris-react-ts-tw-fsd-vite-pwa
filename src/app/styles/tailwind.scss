@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+
+
+// Registering a custom variant
+// https://tailwindcss.com/docs/hover-focus-and-other-states#registering-a-custom-variant
+@custom-variant hoverable-hover (@media ((hover: hover) and (pointer: fine)) { &:hover });
+
+
+
+@utility w--ct { width: fit-content; }
+@utility w--* { width: --value(number)px; }
+@utility w--* { width: --value([*]); }
+
+@utility h--ct { height: fit-content; }
+@utility h--* { height: --value(number)px; }
+@utility h--* { height: --value([*]); }
+
+
+
+@utility grid { display: grid; }
+@utility grid-* { display: grid; grid: --value([*]); }
+
+@utility rows-* { grid-template-rows: --value([*]); }
+@utility cols-* { grid-template-columns: --value([*]); }
