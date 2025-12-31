@@ -29,11 +29,11 @@ export abstract class Piece {
     this.position = position
   }
   
-  *[Symbol.iterator]() {
-    const [x, y] = this.xy
-    for (let yp = 0; yp < this.position.length; yp++) {
-      for (let xp = 0; xp < this.position[yp].length; xp++) {
-        const element = this.position[yp][xp]
+  ;*[Symbol.iterator]() {
+    const { xy: [x, y], position: p } = this
+    for (let yp = 0; yp < p.length; yp++) {
+      for (let xp = 0; xp < p[yp].length; xp++) {
+        const element = p[yp][xp]
         yield { x: x + xp, y: y + yp, xp, yp, element }
       }
     }

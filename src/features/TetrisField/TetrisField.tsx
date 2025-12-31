@@ -26,7 +26,7 @@ field.addPiece(newTSrs(undefined, [8, 16]).toRotated(-1))
 
 
 
-function TetrisField() {
+export default function TetrisField() {
   
   return (
     <div className={`
@@ -51,7 +51,6 @@ function TetrisField() {
     </div>
   )
 }
-export default TetrisField
 
 
 
