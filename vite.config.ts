@@ -57,8 +57,10 @@ export default defineConfig(({ command, mode }) => {
         'src': fileURLToPath(new URL('./src', import.meta.url)),
         
         '@app': fileURLToPath(new URL('./src/app', import.meta.url)),
-        '@features': fileURLToPath(new URL('./src/features', import.meta.url)),
         '@entities': fileURLToPath(new URL('./src/entities', import.meta.url)),
+        '@features': fileURLToPath(new URL('./src/features', import.meta.url)),
+        '@screens': fileURLToPath(new URL('./src/screens', import.meta.url)),
+        '@widgets': fileURLToPath(new URL('./src/widgets', import.meta.url)),
         
         '@assets': fileURLToPath(new URL('./src/shared/assets', import.meta.url)),
         '@lib': fileURLToPath(new URL('./src/shared/lib', import.meta.url)),

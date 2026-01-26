@@ -1,7 +1,7 @@
 import type { ClassStyle } from '@utils/react/props/reactPropTypes.ts'
 import * as React from 'react'
-import type { BlockType } from 'src/entities/block/model/block.ts'
-import { mapBlockUiTypeToSrc } from 'src/entities/block/lib/blockUi.ts'
+import type { BlockType } from 'widgets/tetris-field/entities/block/model/block.ts'
+import { mapBlockUiTypeToSrc } from 'widgets/tetris-field/entities/block/lib/blockUi.ts'
 
 
 

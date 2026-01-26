@@ -1,13 +1,9 @@
-import Block from '@entities/block/ui/Block.tsx'
+import Block from 'widgets/tetris-field/entities/block/ui/Block.tsx'
 import { Field } from '@lib/tetris-engine/entities/field/model/field.ts'
 import {
-  newISrs, newJSrs, newLSrs,
-  newOSrs, newSSrs,
-  newTSrs,
-  newZSrs,
+  newISrs, newJSrs, newLSrs, newOSrs, newSSrs, newTSrs, newZSrs,
 } from '@lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
-import { mapPieceTypeToBlockUiType } from 'entities/block/lib/blockUi.ts'
-import * as React from 'react'
+import { mapPieceTypeToBlockUiType } from 'widgets/tetris-field/entities/block/lib/blockUi.ts'
 
 
 // TODO loading screen to save images to RAM (dataUrl)
@@ -32,6 +28,7 @@ export default function TetrisField() {
     <div className={`
         grid w-[300] h-ct
         rows-[repeat(20,1fr)] cols-[repeat(10,1fr)]
+        in-focus:bg-[white]
         ${fieldStyle}
       `}
     >

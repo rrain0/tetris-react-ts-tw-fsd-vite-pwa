@@ -2,8 +2,17 @@
 
 
 
-/* Hoverable Hover */
-@custom-variant hoverable-hover (@media (hover: hover) and (pointer: fine) { &:hover });
+/* in-focus - :hovrr or :active or :focus-visible */
+@custom-variant in-focus {
+  @media (hover: hover) and (pointer: fine) { &:hover { @slot; } }
+  &:active { @slot; }
+  &:focus-visible { @slot; }
+}
+/* hovrr - hoverable hover */
+@custom-variant hovrr {
+  @media (hover: hover) and (pointer: fine) { &:hover { @slot; } }
+}
+
 
 
 /* Pointer */
@@ -18,7 +27,7 @@
 @utility fixed-tlwh { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 @utility fixed-top { position: fixed; top: 0; left: 0; right: 0; }
 @utility fixed-left { position: fixed; top: 0; left: 0; bottom: 0; }
-@utility fixed-bottom { position: fixed; bottom: 0; left: 0; right: 0; }
+@utility fixed-bot { position: fixed; bottom: 0; left: 0; right: 0; }
 
 @utility abs-trbl { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
 @utility abs-tlwh { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }

@@ -1,12 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import * as React from 'react'
-import TetrisGlass from '@features/TetrisField/TetrisField.tsx'
+import TetrisGlass from '@widgets/tetris-field/ui/TetrisField.tsx'
 
 
 
-export default function AppRest() {
+export default function InGameScreen() {
   
   const [cnt, setCnt] = useState(0)
+  
+  useEffect(() => {
+    console.log('InGameScreen eff')
+    return () => console.log('InGameScreen clr')
+  })
   
   return (
     <>

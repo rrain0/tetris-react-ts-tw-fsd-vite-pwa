@@ -1,6 +1,6 @@
 import { Piece, type Position } from '@lib/tetris-engine/entities/piece/model/piece.ts'
 import type { Arr4, num2 } from '@lib/tetris-engine/shared/utils/array.ts'
-import type { Id } from '@lib/tetris-engine/shared/utils/id.ts'
+import type { Id } from '@utils/app/id.ts'
 import { rectMatrixToRotated } from '@lib/tetris-engine/shared/utils/matrix.ts'
 import { mod } from '@utils/math/mathOperators.ts'
 

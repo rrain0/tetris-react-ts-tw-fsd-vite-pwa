@@ -1,9 +1,33 @@
+/* Must be there to enable tailwind in css file */
+@import 'tailwindcss';
 
 
 
 /* Registering a custom variant */
 /* https://tailwindcss.com/docs/hover-focus-and-other-states#registering-a-custom-variant */
-@custom-variant hoverable-hover (@media (hover: hover) and (pointer: fine) { &:hover });
+
+/* theme-midnight - just selector variant */
+@custom-variant theme-midnight (&:where([data-theme="midnight"] *));
+/* in-focus - :hovrr or :active or :focus-visible */
+@custom-variant in-focus {
+  /* ⚠️ Tailwind не поддерживает вложенные @custom-variants */
+  /* ⚠️ Tailwind 4+ не предназначен для совместного использования с css препроцессорами */
+  /* ⚠️ Tailwind не поддерживает миксины */
+  @media (hover: hover) and (pointer: fine) { &:hover { @slot; } }
+  &:active { @slot; }
+  &:focus-visible { @slot; }
+}
+/* hovrr - hoverable hover */
+@custom-variant hovrr {
+  @media (hover: hover) and (pointer: fine) { &:hover { @slot; } }
+}
+/*
+Ответ Google AI:
+Why can't I just use @variant hovrr?
+The @custom-variant directive is designed to map a utility prefix to a raw CSS selector or at-rule.
+It does not create a "function" that the Tailwind engine can re-run inside other CSS blocks.
+It only "registers" the name for use in your HTML classes (e.g., hovrr:bg-red-500).
+ */
 
 
 

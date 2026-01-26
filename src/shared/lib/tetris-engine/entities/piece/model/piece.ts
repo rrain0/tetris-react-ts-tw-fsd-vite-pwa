@@ -1,5 +1,5 @@
 import type { num2 } from '@lib/tetris-engine/shared/utils/array.ts'
-import type { Id } from '@lib/tetris-engine/shared/utils/id.ts'
+import type { Id } from '@utils/app/id.ts'
 
 
 

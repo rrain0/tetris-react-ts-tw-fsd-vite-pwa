@@ -6,7 +6,7 @@ import { pieceSSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceSSr
 import { pieceTSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceTSrs.ts'
 import { pieceZSrs } from '@lib/tetris-engine/entities/piece/lib/pieces/pieceZSrs.ts'
 import { PieceSrs } from '@lib/tetris-engine/entities/piece/model/pieceSrs.ts'
-import { randomInArray } from '@utils/random/randomInArray.ts'
+import { randomFromArray } from '@utils/random/randomFromArray.ts'
 import * as uuid from 'uuid'
 
 
@@ -36,7 +36,7 @@ export function newZSrs(id = uuid.v4(), xy = pieceZSrs.xy) {
 
 
 export function randomTetrominoSrs() {
-  return randomInArray([
+  return randomFromArray([
     newISrs, newJSrs, newLSrs,
     newOSrs, newSSrs, newTSrs,
     newZSrs,

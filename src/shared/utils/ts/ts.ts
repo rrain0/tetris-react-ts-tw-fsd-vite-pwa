@@ -112,6 +112,7 @@ export type ObjectShallowPropsUnion<O1 extends object, O2 extends object> =
 
 
 
+// Test
 {
   interface OriginalType {
     requiredKey: string;
@@ -211,7 +212,7 @@ export function assertNever(value: never): never {
 
 
 // ℹ️ Object type predicates
-// Check type through 'instanceof'
+// Checks type through 'instanceof'
 
 export function isObject<O extends object, T>(value: T | O): value is O {
   return value instanceof Object
@@ -231,10 +232,10 @@ export function isRecord<R extends object, T>(value: R | any[] | anyfun | T): va
 // ℹ️ Number checks
 
 export function isFinitenumber<N extends number, T>(v: T | N): v is N {
-  return typeof v === 'number' && Number.isFinite(v)
+  return Number.isFinite(v) // internally checks typeof v === 'number'
 }
 export function isInt<N extends number, T>(v: T | N): v is N {
-  return typeof v === 'number' && Number.isInteger(v)
+  return Number.isInteger(v) // internally checks typeof v === 'number'
 }
 
 

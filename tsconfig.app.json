@@ -70,8 +70,10 @@
       "src/*": ["src/*"],
       
       "@app/*": ["src/app/*"],
-      "@features/*": ["src/features/*"],
       "@entities/*": ["src/entities/*"],
+      "@features/*": ["src/features/*"],
+      "@screens/*": ["src/screens/*"],
+      "@widgets/*": ["src/widgets/*"],
       
       "@assets/*": ["src/shared/assets/*"],
       "@lib/*": ["src/shared/lib/*"],
