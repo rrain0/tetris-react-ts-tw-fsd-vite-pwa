@@ -92,10 +92,8 @@ export default defineConfig(({ command, mode }) => {
       tailwindcss(),
       
       react({
-        jsxImportSource: '@emotion/react',
         babel: {
           plugins: [
-            '@emotion/babel-plugin',
             'babel-plugin-react-compiler',
           ],
         },

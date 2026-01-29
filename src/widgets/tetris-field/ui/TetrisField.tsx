@@ -1,7 +1,8 @@
 import { AppActivityContext } from '@lib/activity-manager/context/AppActivityContext.ts'
 import { useKeyClick } from '@utils/events/useKeyClick.ts'
 import { combineProps } from '@utils/react/props/combineProps.ts'
-import { use, useLayoutEffect, useState } from 'react'
+import { useAsCb } from '@utils/react/state/useAsCb.ts'
+import { use, useEffect, useLayoutEffect, useState } from 'react'
 import Block from '@widgets/tetris-field/entities/block/ui/Block.tsx'
 import { Field } from '@lib/tetris-engine/entities/field/model/field.ts'
 import {
@@ -56,6 +57,16 @@ export default function TetrisField() {
   }, [])
   
   
+  const [cnt, setCnt] = useState(0)
+  
+  const log = () => console.log(cnt)
+  
+  const logCb = useAsCb(log)
+  useEffect(() => {
+    console.log('logCb')
+  }, [logCb])
+  
+  
   return (
     <div
       className={`
@@ -73,15 +84,16 @@ export default function TetrisField() {
         console.log('keyUp', ev.code, ev.key, ev)
       }} */
       {...combineProps(onKeyClick, {
-        onBlur: ev => { console.log('container blur') },
+        onClick: () => setCnt(cnt + 1),
       })}
       //onFocus={ev => { console.log('container focus') }}
       //onBlur={ev => { console.log('container blur') }}
     >
+      {cnt}
       {[...field].map(({ x, y, block }) => {
-        if (!block) return undefined
+        if (!block) return
         const type = mapPieceTypeToBlockUiType(block.type)
-        if (!type) return undefined
+        if (!type) return
         const ri = y + 1
         const ci = x + 1
         return (

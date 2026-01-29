@@ -11,8 +11,6 @@
   },
   "@COMMENT": "'terser' used by @vitejs/plugin-legacy for minification",
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
     "@tailwindcss/vite": "^4.1.18",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -21,7 +19,6 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
-    "@emotion/babel-plugin": "^11.13.5",
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
     "@stylistic/eslint-plugin": "^5.7.1",

@@ -6,8 +6,6 @@ export function combineProps(...propsList: any[]): object {
   const callbacks: Record<string, any[]> = { }
   let combinedProps
   
-  console.log('rerender')
-  
   for (let i = 0; i < propsList.length; i++) {
     const props = propsList[i]
     if (isobject(props)) {
@@ -32,6 +30,15 @@ export function combineProps(...propsList: any[]): object {
               }
             }
             callbacks[p].push(v)
+          }
+          // combine styles to single object
+          else if (p === 'style') {
+            // @ts-ignore
+            combinedProps[p] = { ...combinedProps[p], ...v }
+          }
+          // combine css classes to single string
+          else if (p === 'className') {
+            combinedProps[p] = v0 + ' ' + v
           }
           // combine callbacks to single callback
           else if (isfunction(v)) {
