@@ -5,7 +5,7 @@ import orangeBlock from '@assets/im/blocks/block-orange-39x39.png'
 import redBlock from '@assets/im/blocks/block-red-39x39.png'
 import violetBlock from '@assets/im/blocks/block-violet-39x39.png'
 import yellowBlock from '@assets/im/blocks/block-yellow-39x39.png'
-import type { BlockType } from 'widgets/tetris-field/entities/block/model/block.ts'
+import type { BlockType } from '@widgets/tetris-field/entities/block/model/block.ts'
 
 
 

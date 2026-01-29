@@ -155,10 +155,8 @@ export type ObjectShallowPropsUnion<O1 extends object, O2 extends object> =
 
 
 
-// ℹ️ Primitive type predicates
-// Check type through 'typeof' or '===' or '!=='
+// ℹ️ Проверка типа через typeof
 
-// Типы и предикаты для оператора typeof (за исключением того, что null это null, а не объект)
 export type Isobject<T> = T extends object ? T extends anyfun ? never : T : never
 
 // Value is undefined

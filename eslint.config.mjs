@@ -22,9 +22,6 @@ import promise from 'eslint-plugin-promise'
 // yarn add --dev eslint-plugin-react-refresh
 import reactRefresh from 'eslint-plugin-react-refresh'
 
-// yarn add --dev eslint-plugin-jsx-a11y
-import jsxA11y from 'eslint-plugin-jsx-a11y'
-
 // https://github.com/prettier/eslint-plugin-prettier
 // package.json.devDependencies."eslint-plugin-prettier": "^5.2.1",
 //import prettierConfigRecommended from 'eslint-plugin-prettier/recommended'
@@ -51,7 +48,7 @@ export default defineConfig([
       'no-unexpected-multiline': 'off',
       'prefer-const': 'warn',
       '@typescript-eslint/no-unused-expressions': 'off',
-      '@typescript-eslint/ban-ts-comment': ['warn', { 'ts-expect-error': false }],
+      '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/ban-types': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
@@ -305,33 +302,6 @@ export default defineConfig([
       'promise/always-return': 'off',
       'promise/catch-or-return': 'off',
       'promise/no-callback-in-promise': 'off',
-    },
-  },
-  
-  
-  // jsx-a11y config
-  // https://www.npmjs.com/package/eslint-plugin-jsx-a11y
-  jsxA11y.flatConfigs.recommended,
-  {
-    files: ['**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}'],
-    languageOptions: {
-      ...jsxA11y.flatConfigs.recommended.languageOptions,
-      globals: {
-        ...globals.serviceworker,
-        ...globals.browser,
-      },
-    },
-    /*plugins: {
-      'jsx-a11y': jsxA11y,
-    },*/
-    rules: {
-      'jsx-a11y/alt-text': 'off',
-      'jsx-a11y/tabindex-no-positive': 'off',
-      'jsx-a11y/no-autofocus': 'off',
-      // for now, I do not concern about accessibility
-      'jsx-a11y/no-static-element-interactions': 'off',
-      // for now, I do not concern about accessibility
-      'jsx-a11y/click-events-have-key-events': 'off',
     },
   },
   

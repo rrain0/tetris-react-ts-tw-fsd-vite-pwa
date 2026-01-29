@@ -1,10 +1,9 @@
-import type { Id } from '@utils/app/id.ts'
 
 
 
 export interface AppActivities {
-  activities: AppActivity[]
-  global: AppActivity
+  main: AppActivity | undefined
+  global: AppActivity | undefined
 }
 
 /*
@@ -16,9 +15,16 @@ export interface AppActivities {
 export type AppActivityType = 'global' | 'main' | 'modal' | 'popover'
 
 export interface AppActivity {
-  id: Id
   type: AppActivityType
   name: string
   modals: AppActivity[]
   popovers: AppActivity[]
+}
+
+
+
+export interface AppActivityState {
+  name: string
+  rendered: boolean
+  interactive: boolean
 }

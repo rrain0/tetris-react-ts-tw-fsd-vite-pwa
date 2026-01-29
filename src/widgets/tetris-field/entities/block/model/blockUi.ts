@@ -1,4 +1,4 @@
-import type { BlockType } from 'widgets/tetris-field/entities/block/model/block.ts'
+import type { BlockType } from '@widgets/tetris-field/entities/block/model/block.ts'
 
 
 

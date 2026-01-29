@@ -1,9 +1,13 @@
-import Block from 'widgets/tetris-field/entities/block/ui/Block.tsx'
+import { AppActivityContext } from '@lib/activity-manager/context/AppActivityContext.ts'
+import { useKeyClick } from '@utils/events/useKeyClick.ts'
+import { combineProps } from '@utils/react/props/combineProps.ts'
+import { use, useLayoutEffect, useState } from 'react'
+import Block from '@widgets/tetris-field/entities/block/ui/Block.tsx'
 import { Field } from '@lib/tetris-engine/entities/field/model/field.ts'
 import {
   newISrs, newJSrs, newLSrs, newOSrs, newSSrs, newTSrs, newZSrs,
 } from '@lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
-import { mapPieceTypeToBlockUiType } from 'widgets/tetris-field/entities/block/lib/blockUi.ts'
+import { mapPieceTypeToBlockUiType } from '@widgets/tetris-field/entities/block/lib/blockUi.ts'
 
 
 // TODO loading screen to save images to RAM (dataUrl)
@@ -24,13 +28,55 @@ field.addPiece(newTSrs(undefined, [8, 16]).toRotated(-1))
 
 export default function TetrisField() {
   
+  const { interactive } = use(AppActivityContext)
+  
+  const canUseInput = ({ key, mx, my }: {
+    key?: string | undefined
+    mx?: boolean | undefined
+    my?: boolean | undefined
+  }) => {
+    if (!interactive) return false
+    return true
+  }
+  
+  const onKeyClick = useKeyClick(ev => {
+    console.log('keyclick', ev)
+  })
+  
+  
+  useLayoutEffect(() => {
+    const onFocus = () => console.log('window focus')
+    const onBlur = () => console.log('window blur')
+    window.addEventListener('focus', onFocus)
+    window.addEventListener('blur', onBlur)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      window.removeEventListener('blur', onBlur)
+    }
+  }, [])
+  
+  
   return (
-    <div className={`
+    <div
+      className={`
         grid w-[300] h-ct
         rows-[repeat(20,1fr)] cols-[repeat(10,1fr)]
-        in-focus:bg-[white]
+        in-focus:bg-[yellow]
         ${fieldStyle}
       `}
+      //tabIndex={-1}
+      //onClick={ev => { console.log('click', ev) }}
+      /* onKeyDown={ev => {
+        console.log('keyDown', ev.code, ev.key, ev)
+      }}
+      onKeyUp={ev => {
+        console.log('keyUp', ev.code, ev.key, ev)
+      }} */
+      {...combineProps(onKeyClick, {
+        onBlur: ev => { console.log('container blur') },
+      })}
+      //onFocus={ev => { console.log('container focus') }}
+      //onBlur={ev => { console.log('container blur') }}
     >
       {[...field].map(({ x, y, block }) => {
         if (!block) return undefined
@@ -42,6 +88,8 @@ export default function TetrisField() {
           <Block type={type}
             key={`${ri} ${ci}`}
             style={{ gridArea: `${ri} / ${ci}` }}
+            onFocus={ev => { console.log('block focus') }}
+            onBlur={ev => { console.log('block blur') }}
           />
         )
       })}
