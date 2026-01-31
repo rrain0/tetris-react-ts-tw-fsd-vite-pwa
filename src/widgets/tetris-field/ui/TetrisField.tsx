@@ -1,10 +1,10 @@
 import { AppActivityContext } from '@lib/activity-manager/context/AppActivityContext.ts'
+import { Game } from '@lib/tetris-engine/entities/game/model/game.ts'
 import { useKeyClick } from '@utils/events/useKeyClick.ts'
 import { useKeyHold } from '@utils/events/useKeyHold.ts'
 import { combineProps } from '@utils/react/props/combineProps.ts'
-import { use } from 'react'
+import { use, useState } from 'react'
 import Block from '@widgets/tetris-field/entities/block/ui/Block.tsx'
-import { Field } from '@lib/tetris-engine/entities/field/model/field.ts'
 import {
   newISrs, newJSrs, newLSrs, newOSrs, newSSrs, newTSrs, newZSrs,
 } from '@lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
@@ -14,16 +14,16 @@ import { mapPieceTypeToBlockUiType } from '@widgets/tetris-field/entities/block/
 // TODO loading screen to save images to RAM (dataUrl)
 
 
-const field = new Field()
-field.addPiece(newOSrs(undefined, [4, 5]))
-field.addPiece(newTSrs(undefined, [0, 14]).toRotated(2))
-field.addPiece(newISrs(undefined, [-2, 15]).toRotated(1))
-field.addPiece(newZSrs(undefined, [1, 18]))
-field.addPiece(newSSrs(undefined, [3, 15]).toRotated(-1))
-field.addPiece(newJSrs(undefined, [4, 18]))
-field.addPiece(newLSrs(undefined, [6, 14]).toRotated(1))
-field.addPiece(newOSrs(undefined, [6, 18]))
-field.addPiece(newTSrs(undefined, [8, 16]).toRotated(-1))
+const game = new Game()
+game.current = newOSrs(undefined, [4, 5])
+game.field.addPiece(newTSrs(undefined, [0, 14]).toRotated(2))
+game.field.addPiece(newISrs(undefined, [-2, 15]).toRotated(1))
+game.field.addPiece(newZSrs(undefined, [1, 18]))
+game.field.addPiece(newSSrs(undefined, [3, 15]).toRotated(-1))
+game.field.addPiece(newJSrs(undefined, [4, 18]))
+game.field.addPiece(newLSrs(undefined, [6, 14]).toRotated(1))
+game.field.addPiece(newOSrs(undefined, [6, 18]))
+game.field.addPiece(newTSrs(undefined, [8, 16]).toRotated(-1))
 
 
 
@@ -40,8 +40,23 @@ export default function TetrisField() {
     return true
   }
   
+  const [field, setField] = useState(() => game.renderField())
+  
+  
   const onKeyHold = useKeyHold({ interval: 350 }, ev => {
     console.log('keyhold', ev)
+    if (ev.code === 'KeyA') {
+      game.moveCurrentPieceLeft()
+      setField(game.renderField())
+    }
+    else if (ev.code === 'KeyS') {
+      game.moveCurrentPieceDown()
+      setField(game.renderField())
+    }
+    else if (ev.code === 'KeyD') {
+      game.moveCurrentPieceRight()
+      setField(game.renderField())
+    }
   })
   const onKeyClick = useKeyClick(ev => {
     console.log('keyclick', ev)
@@ -52,10 +67,11 @@ export default function TetrisField() {
   
   return (
     <div
+      // in-focus:bg-[yellow]
       className={`
         grid w-[300] h-ct
         rows-[repeat(20,1fr)] cols-[repeat(10,1fr)]
-        in-focus:bg-[yellow]
+        
         ${fieldStyle}
       `}
       //tabIndex={-1}

@@ -27,6 +27,7 @@ export class Field {
     for (const pieceBlock of piece) {
       const { x, y, element } = pieceBlock
       if (element) {
+        if (x < 0 || x >= 10 || y >= 20) return false
         const fieldBlock = this.blocks[y]?.[x]
         if (fieldBlock) return false
       }

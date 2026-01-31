@@ -5,7 +5,7 @@ import InGameScreen from '@screens/InGame/InGameScreen.tsx'
 
 
 
-export default function AppLogic() {
+export default function AppContainer() {
   
   return (
     <AppActivitiesProvider name='InGame'>
