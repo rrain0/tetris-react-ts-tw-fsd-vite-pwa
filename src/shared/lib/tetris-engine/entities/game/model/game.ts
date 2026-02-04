@@ -1,6 +1,5 @@
 import { Field } from '@lib/tetris-engine/entities/field/model/field.ts'
 import type { Piece } from '@lib/tetris-engine/entities/piece/model/piece.ts'
-import { PieceSrs } from '@lib/tetris-engine/entities/piece/model/pieceSrs.ts'
 import { randomTetrominoSrs } from '@lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
 import { matrixCopy } from '@lib/tetris-engine/shared/utils/matrix.ts'
 
@@ -47,14 +46,14 @@ export class Game {
     this.tryPlaceNewCurrentPiece(moved)
   }
   rotateCurrentPieceLeft() {
-    if (this.current instanceof PieceSrs) {
-      const rotated = this.current.toRotated(-1)
-      this.tryPlaceNewCurrentPiece(rotated)
+    for (const rotated of this.current.toRotatedLeft()) {
+      if (this.tryPlaceNewCurrentPiece(rotated)) return
     }
   }
   rotateCurrentPieceRight() {
-    const rotated = this.current.toRotated(1)
-    this.tryPlaceNewCurrentPiece(rotated)
+    for (const rotated of this.current.toRotatedRight()) {
+      if (this.tryPlaceNewCurrentPiece(rotated)) return
+    }
   }
   
   

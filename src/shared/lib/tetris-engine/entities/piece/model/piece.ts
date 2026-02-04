@@ -44,5 +44,6 @@ export abstract class Piece {
   }
   
   abstract toMoved(dxy: num2): Piece
-  abstract toRotated(direction: number): Piece
+  abstract toRotatedRight(): Generator<Piece>
+  abstract toRotatedLeft(): Generator<Piece>
 }
