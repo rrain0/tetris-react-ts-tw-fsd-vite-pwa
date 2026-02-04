@@ -15,6 +15,8 @@ export abstract class Piece {
   type: Id
   xy: num2
   position: Position
+  // Поворот с системой координат как у часов
+  // 0 - 0°, 1 - 90°, 2 - 180°, 3 - 270°/-90°
   rotI = 0
   
   protected constructor(
@@ -22,11 +24,13 @@ export abstract class Piece {
     type: Id,
     xy: num2,
     position: Position,
+    rotI = 0,
   ) {
     this.id = id
     this.type = type
     this.xy = xy
     this.position = position
+    this.rotI = rotI
   }
   
   ;*[Symbol.iterator]() {
@@ -39,5 +43,6 @@ export abstract class Piece {
     }
   }
   
+  abstract toMoved(dxy: num2): Piece
   abstract toRotated(direction: number): Piece
 }

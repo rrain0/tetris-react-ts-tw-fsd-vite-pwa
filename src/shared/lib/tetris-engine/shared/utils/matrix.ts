@@ -6,7 +6,7 @@ export function matrixCopy<T extends any[][]>(matrix: T): T {
   return matrix.map(it => [...it]) as T
 }
 
-// direction: 1 - clockwise, 2 - twice-clockwise, 3 - triple-clockwise (counterclockwise)
+// direction: 1 - clockwise, 2 - twice-clockwise, -1 - counterclockwise
 export function rectMatrixToRotated<T>(matrix: T[][], direction: number): T[][] {
   const m = matrix
   if (direction === 1) {
@@ -31,7 +31,7 @@ export function rectMatrixToRotated<T>(matrix: T[][], direction: number): T[][] 
     }
     return rotated
   }
-  if (direction === 3) {
+  if (direction === -1) {
     const ryLen = m[0].length
     const rxLen = m.length
     const rotated = array(ryLen).map(() => array(rxLen)) as T[][]

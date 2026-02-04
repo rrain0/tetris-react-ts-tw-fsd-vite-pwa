@@ -9,7 +9,7 @@ import { type Cb, isdef, type Pu } from '@utils/ts/ts.ts'
 // В настройки добавить график (или функцию) зависимости скорости от положения стика/пальца
 // для настройки интенсивности реакции на стик и жесты.
 
-// TODO ReactiveInterval
+// TODO Repeat
 // Массив последовательных задержек между интервалами
 
 // TODO options
@@ -17,8 +17,8 @@ import { type Cb, isdef, type Pu } from '@utils/ts/ts.ts'
 // чтобы можно было прямо в настройках потыкать настроеннное управление.
 
 
-// TODO ReactiveInterval
-export class ReactiveInterval {
+// TODO Repeat
+export class Repeat {
   delay: number
   interval: number
   cb: Cb | undefined
@@ -30,6 +30,7 @@ export class ReactiveInterval {
   constructor({
     delay = 0,
     interval = 100,
+    // delays: [200, 200, 200, 100, 100, 100]
     cb,
   }: ReactiveIntervalParams) {
     this.delay = delay
@@ -40,16 +41,31 @@ export class ReactiveInterval {
   start() {
     this.stop()
     this.startedAt = Date.now()
-    this.timeoutId = setTimeout(() => {
+    
+    const applyInterval = () => {
       this.intervalId = setInterval(() => {
         this.cb?.()
       }, this.interval)
-      this.cb?.()
-    }, this.delay)
+    }
+    const applyTimeout = () => {
+      if (this.delay > 0) {
+        this.timeoutId = setTimeout(() => {
+          applyInterval()
+          this.cb?.()
+        }, this.delay)
+      }
+      else {
+        applyInterval()
+        this.cb?.()
+      }
+    }
+    
+    applyTimeout()
     return this
   }
   
   update({ delay, interval, cb }: ReactiveIntervalParams) {
+    throw new Error('NOT IMPLEMENTED')
     if (isdef(cb)) this.cb = cb
     return this
   }

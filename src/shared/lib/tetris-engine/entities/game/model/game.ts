@@ -1,5 +1,6 @@
 import { Field } from '@lib/tetris-engine/entities/field/model/field.ts'
 import type { Piece } from '@lib/tetris-engine/entities/piece/model/piece.ts'
+import { PieceSrs } from '@lib/tetris-engine/entities/piece/model/pieceSrs.ts'
 import { randomTetrominoSrs } from '@lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
 import { matrixCopy } from '@lib/tetris-engine/shared/utils/matrix.ts'
 
@@ -33,17 +34,36 @@ export class Game {
   }
   
   
-  moveCurrentPieceRight() {
-    this.current.xy[0]++
-    if (!this.field.canPlacePiece(this.current)) this.current.xy[0]--
-  }
   moveCurrentPieceLeft() {
-    this.current.xy[0]--
-    if (!this.field.canPlacePiece(this.current)) this.current.xy[0]++
+    const moved = this.current.toMoved([-1, 0])
+    this.tryPlaceNewCurrentPiece(moved)
+  }
+  moveCurrentPieceRight() {
+    const moved = this.current.toMoved([1, 0])
+    this.tryPlaceNewCurrentPiece(moved)
   }
   moveCurrentPieceDown() {
-    this.current.xy[1]++
-    if (!this.field.canPlacePiece(this.current)) this.current.xy[1]--
+    const moved = this.current.toMoved([0, 1])
+    this.tryPlaceNewCurrentPiece(moved)
+  }
+  rotateCurrentPieceLeft() {
+    if (this.current instanceof PieceSrs) {
+      const rotated = this.current.toRotated(-1)
+      this.tryPlaceNewCurrentPiece(rotated)
+    }
+  }
+  rotateCurrentPieceRight() {
+    const rotated = this.current.toRotated(1)
+    this.tryPlaceNewCurrentPiece(rotated)
+  }
+  
+  
+  tryPlaceNewCurrentPiece(current: Piece): boolean {
+    if (this.field.canPlacePiece(current)) {
+      this.current = current
+      return true
+    }
+    return false
   }
   
   

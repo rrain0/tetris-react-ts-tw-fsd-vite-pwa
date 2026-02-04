@@ -62,15 +62,13 @@ export function useKeyHold<T = HTMLDivElement>(
   const onKeyUp: React.KeyboardEventHandler<T> = ev => {
     finishEv(ev)
   }
-  // Делает элемент фокусируемым (но не через Tab)
-  const tabIndex = -1 as const
   // При потере фокуса из дерева элемента, удаляем все сохранённые кнопки
   const onBlur = () => {
     cancelAllEvs()
   }
   
   
-  return { onKeyDown, onKeyUp, tabIndex, onBlur } // all stable
+  return { onKeyDown, onKeyUp, onBlur } // all stable
 }
 
 

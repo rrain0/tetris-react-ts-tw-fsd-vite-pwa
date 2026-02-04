@@ -8,7 +8,12 @@ import { mod } from '@utils/math/mathOperators.ts'
 
 // Srs - Super Rotation System https://harddrop.com/wiki/SRS
 
-export type OffsetsSrs = Arr4<num2>[]
+export type OffsetsSrs = {
+  '0': num2[]
+  'R': num2[]
+  '2': num2[]
+  'L': num2[]
+}
 
 export type PieceSrsConfig = {
   xy: num2
@@ -26,18 +31,34 @@ export class PieceSrs extends Piece {
     type: Id,
     xy: num2,
     position: Position,
+    rotI = 0,
     offsets: OffsetsSrs,
   ) {
-    super(id, type, xy, position)
+    super(id, type, xy, position, rotI)
     this.offsets = offsets
   }
   
-  // Mathematical rotation
-  toRotated(direction: number): PieceSrs {
-    const d = mod(direction, 4)
-    const position = rectMatrixToRotated(this.position, d)
-    this.rotI = mod(this.rotI + d, 4)
-    if (!position) return this
-    return new PieceSrs(this.id, this.type, this.xy, position, this.offsets)
+  toMoved(dxy: num2): PieceSrs {
+    const xy: num2 = [this.xy[0] + dxy[0], this.xy[1] + dxy[1]]
+    return new PieceSrs(this.id, this.type, xy, this.position, this.rotI, this.offsets)
+  }
+  
+  // Uses mathematical rotation then applies wall kicks
+  toRotated(direction: 1 | -1): PieceSrs {
+    const position = rectMatrixToRotated(this.position, direction)
+    const rotI = mod(this.rotI + direction, 4)
+    
+    const fromRot = (['0', 'R', '2', 'L'] as const)[this.rotI]
+    const toRot = (['0', 'R', '2', 'L'] as const)[rotI]
+    const kickTranslation: num2 = [
+      this.offsets[fromRot][0][0] - this.offsets[toRot][0][0],
+      this.offsets[fromRot][0][1] - this.offsets[toRot][0][1],
+    ]
+    const xy: num2 = [
+      this.xy[0] + kickTranslation[0],
+      this.xy[1] + kickTranslation[1],
+    ]
+    
+    return new PieceSrs(this.id, this.type, xy, position, rotI, this.offsets)
   }
 }

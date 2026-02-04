@@ -12,25 +12,25 @@ import * as uuid from 'uuid'
 
 
 export function newISrs(id = uuid.v4(), xy = pieceISrs.xy) {
-  return new PieceSrs(id, 'I', xy, pieceISrs.position, pieceISrs.offsets)
+  return new PieceSrs(id, 'I', xy, pieceISrs.position, 0, pieceISrs.offsets)
 }
 export function newJSrs(id = uuid.v4(), xy = pieceJSrs.xy) {
-  return new PieceSrs(id, 'J', xy, pieceJSrs.position, pieceJSrs.offsets)
+  return new PieceSrs(id, 'J', xy, pieceJSrs.position, 0, pieceJSrs.offsets)
 }
 export function newLSrs(id = uuid.v4(), xy = pieceLSrs.xy) {
-  return new PieceSrs(id, 'L', xy, pieceLSrs.position, pieceLSrs.offsets)
+  return new PieceSrs(id, 'L', xy, pieceLSrs.position, 0, pieceLSrs.offsets)
 }
 export function newOSrs(id = uuid.v4(), xy = pieceOSrs.xy) {
-  return new PieceSrs(id, 'O', xy, pieceOSrs.position, pieceOSrs.offsets)
+  return new PieceSrs(id, 'O', xy, pieceOSrs.position, 0, pieceOSrs.offsets)
 }
 export function newSSrs(id = uuid.v4(), xy = pieceSSrs.xy) {
-  return new PieceSrs(id, 'S', xy, pieceSSrs.position, pieceSSrs.offsets)
+  return new PieceSrs(id, 'S', xy, pieceSSrs.position, 0, pieceSSrs.offsets)
 }
 export function newTSrs(id = uuid.v4(), xy = pieceTSrs.xy) {
-  return new PieceSrs(id, 'T', xy, pieceTSrs.position, pieceTSrs.offsets)
+  return new PieceSrs(id, 'T', xy, pieceTSrs.position, 0, pieceTSrs.offsets)
 }
 export function newZSrs(id = uuid.v4(), xy = pieceZSrs.xy) {
-  return new PieceSrs(id, 'Z', xy, pieceZSrs.position, pieceZSrs.offsets)
+  return new PieceSrs(id, 'Z', xy, pieceZSrs.position, 0, pieceZSrs.offsets)
 }
 
 

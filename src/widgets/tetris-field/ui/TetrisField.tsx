@@ -1,8 +1,10 @@
 import { AppActivityContext } from '@lib/activity-manager/context/AppActivityContext.ts'
 import { Game } from '@lib/tetris-engine/entities/game/model/game.ts'
 import { useKeyClick } from '@utils/events/useKeyClick.ts'
+import { useKeyDownClick } from '@utils/events/useKeyDownClick.ts'
 import { useKeyHold } from '@utils/events/useKeyHold.ts'
 import { combineProps } from '@utils/react/props/combineProps.ts'
+import { isKeyboardAction } from 'entities/input-layout/lib/isKeyboardAction.ts'
 import { use, useState } from 'react'
 import Block from '@widgets/tetris-field/entities/block/ui/Block.tsx'
 import {
@@ -16,8 +18,8 @@ import { mapPieceTypeToBlockUiType } from '@widgets/tetris-field/entities/block/
 
 const game = new Game()
 game.current = newOSrs(undefined, [4, 5])
-game.field.addPiece(newTSrs(undefined, [0, 14]).toRotated(2))
-game.field.addPiece(newISrs(undefined, [-2, 15]).toRotated(1))
+game.field.addPiece(newTSrs(undefined, [0, 14]).toRotated(1).toRotated(1))
+game.field.addPiece(newISrs(undefined, [-3, 15]).toRotated(1))
 game.field.addPiece(newZSrs(undefined, [1, 18]))
 game.field.addPiece(newSSrs(undefined, [3, 15]).toRotated(-1))
 game.field.addPiece(newJSrs(undefined, [4, 18]))
@@ -43,25 +45,39 @@ export default function TetrisField() {
   const [field, setField] = useState(() => game.renderField())
   
   
-  const onKeyHold = useKeyHold({ interval: 350 }, ev => {
-    console.log('keyhold', ev)
-    if (ev.code === 'KeyA') {
+  const focusOnMount = { ref: (elem: HTMLElement | null) => elem?.focus() }
+  
+  const onMove = useKeyHold({ interval: 150 }, ev => {
+    if (isKeyboardAction('ingame', 'moveLeft', ev)) {
       game.moveCurrentPieceLeft()
       setField(game.renderField())
     }
-    else if (ev.code === 'KeyS') {
-      game.moveCurrentPieceDown()
-      setField(game.renderField())
-    }
-    else if (ev.code === 'KeyD') {
+    if (isKeyboardAction('ingame', 'moveRight', ev)) {
       game.moveCurrentPieceRight()
       setField(game.renderField())
     }
+    if (isKeyboardAction('ingame', 'moveDown', ev)) {
+      game.moveCurrentPieceDown()
+      setField(game.renderField())
+    }
   })
+  
+  const onRotate = useKeyDownClick(ev => {
+    if (isKeyboardAction('ingame', 'rotateLeft', ev)) {
+      game.rotateCurrentPieceLeft()
+      setField(game.renderField())
+    }
+    if (isKeyboardAction('ingame', 'rotateRight', ev)) {
+      game.rotateCurrentPieceRight()
+      setField(game.renderField())
+    }
+  })
+  
+  
+  
   const onKeyClick = useKeyClick(ev => {
     console.log('keyclick', ev)
   })
-  
   
   
   
@@ -74,18 +90,11 @@ export default function TetrisField() {
         
         ${fieldStyle}
       `}
-      //tabIndex={-1}
-      //onClick={ev => { console.log('click', ev) }}
-      /* onKeyDown={ev => {
-        console.log('keyDown', ev.code, ev.key, ev)
-      }}
-      onKeyUp={ev => {
-        console.log('keyUp', ev.code, ev.key, ev)
-      }} */
-      {...combineProps(onKeyClick, onKeyHold, {
-      })}
-      //onFocus={ev => { console.log('container focus') }}
-      //onBlur={ev => { console.log('container blur') }}
+      {...combineProps(
+        { tabIndex: -1 }, focusOnMount,
+        onMove, onRotate,
+        onKeyClick,
+      )}
     >
       {[...field].map(({ x, y, block }) => {
         if (!block) return
