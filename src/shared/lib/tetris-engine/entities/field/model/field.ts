@@ -1,6 +1,6 @@
 import type { Piece } from '@lib/tetris-engine/entities/piece/model/piece.ts'
 import type { Id } from '@utils/app/id.ts'
-import { array } from '@utils/array/arrayCreate.ts'
+import { array } from '@utils/array/arrCreate.ts'
 
 
 

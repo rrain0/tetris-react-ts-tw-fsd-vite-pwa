@@ -1,16 +1,21 @@
 import { AppActivityContext } from '@lib/activity-manager/context/AppActivityContext.ts'
+import { GamepadInputContext } from '@lib/gamepad-input/context/GamepadInputContext.ts'
+import type { GamepadInputEv } from '@lib/gamepad-input/model/gamepadInput.model.ts'
 import { Game } from '@lib/tetris-engine/entities/game/model/game.ts'
 import { useKeyClick } from '@utils/events/useKeyClick.ts'
 import { useKeyDownClick } from '@utils/events/useKeyDownClick.ts'
 import { useKeyHold } from '@utils/events/useKeyHold.ts'
 import { combineProps } from '@utils/react/props/combineProps.ts'
+import { isdef } from '@utils/ts/ts.ts'
 import { isKeyboardAction } from 'entities/input-layout/lib/isKeyboardAction.ts'
-import { use, useState } from 'react'
+import { use, useLayoutEffect, useState } from 'react'
 import Block from '@widgets/tetris-field/entities/block/ui/Block.tsx'
 import {
   newISrs, newJSrs, newLSrs, newOSrs, newSSrs, newTSrs, newZSrs,
 } from '@lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
 import { mapPieceTypeToBlockUiType } from '@widgets/tetris-field/entities/block/lib/blockUi.ts'
+
+
 
 
 // TODO loading screen to save images to RAM (dataUrl)
@@ -31,6 +36,24 @@ game.field.addPiece(newTSrs(undefined, [8, 16]).toRotatedLeft().next().value!)
 
 
 export default function TetrisField() {
+  
+  
+  
+  const gamepadInputContext = use(GamepadInputContext)
+  useLayoutEffect(() => {
+    const onGamepadInput = (ev: GamepadInputEv) => {
+      if (isdef(ev.buttonI)) {
+        console.log(`B${ev.buttonI}[${ev.buttonValue}] of ${ev.gp.id}`)
+      }
+      if (isdef(ev.axisI)) {
+        console.log(`A${ev.axisI}[${ev.axisValue}] of ${ev.gp.id}`)
+      }
+    }
+    gamepadInputContext.onGamepadInput(onGamepadInput)
+    return () => gamepadInputContext.offGamepadInput(onGamepadInput)
+  }, [gamepadInputContext])
+  
+  
   
   const { interactive } = use(AppActivityContext)
   

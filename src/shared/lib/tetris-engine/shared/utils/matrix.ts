@@ -1,4 +1,4 @@
-import { array } from '@utils/array/arrayCreate.ts'
+import { array } from '@utils/array/arrCreate.ts'
 
 
 
