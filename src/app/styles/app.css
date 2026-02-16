@@ -1,3 +1,9 @@
+@import './parts/layers.css'; /* MUST be FIRST of all CSS */
+@import './parts/reset.css';
+@import './parts/fonts.css';
+@import './parts/tailwind.css';
+
+
 
 @layer app {
   

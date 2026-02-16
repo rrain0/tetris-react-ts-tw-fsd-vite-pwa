@@ -1,12 +1,12 @@
 import {
-  GamepadInputContext,
+  GamepadRawInputContext,
   type GamepadInputContextValue,
-} from '@lib/gamepad-input/context/GamepadInputContext.ts'
+} from '@lib/gamepad-input/raw/context/GamepadRawInputContext.ts'
 import {
   type GamepadInputEv,
   type GamepadState,
   gamepadToId, gamepadToState,
-} from '@lib/gamepad-input/model/gamepadInput.model.ts'
+} from '@lib/gamepad-input/raw/model/gamepadRawInput.model.ts'
 import { arrRemoveI } from '@utils/array/arrRemoveI.ts'
 import type { Children } from '@utils/react/props/propTypes.ts'
 import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'
@@ -15,7 +15,7 @@ import { useLayoutEffect } from 'react'
 
 
 
-export default function GamepadInputProvider({ children }: Children) {
+export default function GamepadRawInputProvider({ children }: Children) {
   const [getListeners] = useRefGetSet<Set<Cb1<GamepadInputEv>>>(new Set())
   
   const [getState] = useRefGetSet<GamepadState[]>([])
@@ -51,6 +51,7 @@ export default function GamepadInputProvider({ children }: Children) {
                 ts,
                 gpId: gpState.gpId,
                 gp: gpState.gp,
+                button: true,
                 buttonI: i,
                 buttonValue: curr,
               })
@@ -70,6 +71,7 @@ export default function GamepadInputProvider({ children }: Children) {
                 ts,
                 gpId: gpState.gpId,
                 gp: gpState.gp,
+                axis: true,
                 axisI: i,
                 axisValue: curr,
               })
@@ -114,7 +116,9 @@ export default function GamepadInputProvider({ children }: Children) {
       const gp = ev.gamepad
       
       //const { index: i, id, buttons: { length: buttonsCnt }, axes: { length: axesCnt } } = gp
-      //console.log(`Gamepad connected, index: ${i}, id: ${id}, ${buttonsCnt} buttons, ${axesCnt} axes`)
+      //console.log(
+      // `Gamepad connected, index: ${i}, id: ${id}, ${buttonsCnt} buttons, ${axesCnt} axes`
+      //)
       //console.log('gamepad', ev)
       //console.log('gamepads', navigator.getGamepads())
       
@@ -129,7 +133,9 @@ export default function GamepadInputProvider({ children }: Children) {
       const gp = ev.gamepad
       
       //const { index: i, id, buttons: { length: buttonsCnt }, axes: { length: axesCnt } } = gp
-      //console.log(`Gamepad disconnected, index: ${i}, id: ${id}, ${buttonsCnt} buttons, ${axesCnt} axes`)
+      //console.log(
+      // `Gamepad disconnected, index: ${i}, id: ${id}, ${buttonsCnt} buttons, ${axesCnt} axes`
+      //)
       //console.log('gamepad', ev)
       //console.log('gamepads', navigator.getGamepads())
       
@@ -167,6 +173,7 @@ export default function GamepadInputProvider({ children }: Children) {
   
   
   const gamepadInputContextValue: GamepadInputContextValue = {
+    getGamepadsState: getState,
     onGamepadInput: cb => {
       getListeners().add(cb)
       tryStartOnRaf()
@@ -179,8 +186,8 @@ export default function GamepadInputProvider({ children }: Children) {
   
   
   return (
-    <GamepadInputContext value={gamepadInputContextValue}>
+    <GamepadRawInputContext value={gamepadInputContextValue}>
       {children}
-    </GamepadInputContext>
+    </GamepadRawInputContext>
   )
 }

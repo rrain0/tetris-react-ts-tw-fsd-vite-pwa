@@ -36,8 +36,10 @@ export interface GamepadInputEv {
   ts: number
   gpId: string
   gp: GamepadInfo
+  button?: boolean | undefined
   buttonI?: number | undefined
   buttonValue?: number | undefined
+  axis?: boolean | undefined
   axisI?: number | undefined
   axisValue?: number | undefined
   disconnected?: boolean | undefined

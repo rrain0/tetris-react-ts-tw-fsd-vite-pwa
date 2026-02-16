@@ -18,7 +18,7 @@ import { type Cb, isdef, type Pu } from '@utils/ts/ts.ts'
 
 
 // TODO Repeat
-export class Repeat {
+export class Repeated {
   delay: number
   interval: number
   cb: Cb | undefined

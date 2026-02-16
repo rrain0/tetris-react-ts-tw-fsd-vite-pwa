@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+
+
+/*** 🔶Pointer🔶 ***/
+@utility pointer-auto { pointer-events: auto; }
+@utility no-pointer { pointer-events: none; }
+@utility no-touch-action { touch-action: none; }

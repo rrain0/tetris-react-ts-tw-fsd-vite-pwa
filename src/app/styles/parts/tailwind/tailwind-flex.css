@@ -1,0 +1,156 @@
+@import 'tailwindcss';
+
+
+
+/*** 🔶Flex🔶 ***/
+@utility flex { display: flex; }
+
+/** flex shortcuts **/
+@utility row-start { &:where(.flex) {
+  flex-direction: row; align-items: start;
+} }
+@utility row-center { &:where(.flex) {
+  flex-direction: row; align-items: center;
+} }
+@utility row-end { &:where(.flex) {
+  flex-direction: row; align-items: end;
+} }
+@utility row-stretch { &:where(.flex) {
+  flex-direction: row; align-items: stretch;
+} }
+@utility col-start { &:where(.flex) {
+  flex-direction: column; align-items: start;
+} }
+@utility col-center { &:where(.flex) {
+  flex-direction: column; align-items: center;
+} }
+@utility col-end { &:where(.flex) {
+  flex-direction: column; align-items: end;
+} }
+@utility col-stretch { &:where(.flex) {
+  flex-direction: column; align-items: stretch;
+} }
+
+/** flex layout **/
+@utility row { &:where(.flex) {
+  flex-direction: row;
+} }
+@utility row-rev { &:where(.flex) {
+  flex-direction: row-reverse;
+} }
+@utility col { &:where(.flex) {
+  flex-direction: column;
+} }
+@utility col-rev { &:where(.flex) {
+  flex-direction: column-reverse;
+} }
+@utility wrap { &:where(.flex) {
+  flex-wrap: wrap;
+} }
+@utility wrap-rev { &:where(.flex) {
+  flex-wrap: wrap-reverse;
+} }
+
+/** flex items placing **/
+@utility start { &:where(.flex) {
+  align-items: start; justify-content: start;
+} }
+@utility center { &:where(.flex) {
+  align-items: center; justify-content: center;
+} }
+@utility end { &:where(.flex) {
+  align-items: end; justify-content: end;
+} }
+@utility stretch { &:where(.flex) {
+  align-items: stretch; justify-content: stretch;
+} }
+
+@utility start-start { &:where(.flex) {
+  align-items: start; justify-content: start;
+} }
+@utility start-center { &:where(.flex) {
+  align-items: start; justify-content: center;
+} }
+@utility start-end { &:where(.flex) {
+  align-items: start; justify-content: end;
+} }
+@utility start-stretch { &:where(.flex) {
+  align-items: start; justify-content: stretch;
+} }
+
+@utility center-start { &:where(.flex) {
+  align-items: center; justify-content: start;
+} }
+@utility center-center { &:where(.flex) {
+  align-items: center; justify-content: center;
+} }
+@utility center-end { &:where(.flex) {
+  align-items: center; justify-content: end;
+} }
+@utility center-stretch { &:where(.flex) {
+  align-items: center; justify-content: stretch;
+} }
+
+@utility end-start { &:where(.flex) {
+  align-items: end; justify-content: start;
+} }
+@utility end-center { &:where(.flex) {
+  align-items: end; justify-content: center;
+} }
+@utility end-end { &:where(.flex) {
+  align-items: end; justify-content: end;
+} }
+@utility end-stretch { &:where(.flex) {
+  align-items: end; justify-content: stretch;
+} }
+
+@utility stretch-start { &:where(.flex) {
+  align-items: stretch; justify-content: start;
+} }
+@utility stretch-center { &:where(.flex) {
+  align-items: stretch; justify-content: center;
+} }
+@utility stretch-end { &:where(.flex) {
+  align-items: stretch; justify-content: end;
+} }
+@utility stretch-stretch { &:where(.flex) {
+  align-items: stretch; justify-content: stretch;
+} }
+
+@utility align { &:where(.flex) {
+  align-items: center;
+} }
+@utility align-start { &:where(.flex) {
+  align-items: start;
+} }
+@utility align-center { &:where(.flex) {
+  align-items: center;
+} }
+@utility align-end { &:where(.flex) {
+  align-items: end;
+} }
+@utility align-stretch { &:where(.flex) {
+  align-items: stretch;
+} }
+
+@utility justify { &:where(.flex) {
+  justify-content: center;
+} }
+@utility justify-start { &:where(.flex) {
+  justify-content: start;
+} }
+@utility justify-center { &:where(.flex) {
+  justify-content: center;
+} }
+@utility justify-end { &:where(.flex) {
+  justify-content: end;
+} }
+@utility justify-stretch { &:where(.flex) {
+  justify-content: stretch;
+} }
+@utility space-between { &:where(.flex) {
+  justify-content: space-between;
+} }
+@utility space-around { &:where(.flex) {
+  justify-content: space-around;
+} }

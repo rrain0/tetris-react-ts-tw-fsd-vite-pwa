@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+
+
+
+/*** 🔶Text🔶 ***/
+/** text-align **/
+@utility tx-align { text-align: center; }
+@utility tx-align-center { text-align: center; }
+@utility tx-align-left { text-align: left; }
+@utility tx-align-right { text-align: right; }
+@utility tx-align-justify { text-align: justify; }
+
+/** text size **/
+@utility tx-sz-* { font-size: --value([number])px; font-size: --value([*]); }
+@utility tx-wt-* { font-weight: --value([*]); }
+@utility tx-h-* { line-height: --value([*]); }
+@utility tx-sp-* { letter-spacing: --value([*]); }
