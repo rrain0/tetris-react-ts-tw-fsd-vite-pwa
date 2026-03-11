@@ -8,7 +8,7 @@
     "target": "ESNext",
     // Define which built-in environment APIs global types are pulled in.
     "lib": ["ESNext", "DOM"],
-    // Define which external libraries global types are pulled in.
+    // Define which external libraries' global types are pulled in.
     "types": [], // default value
     // Sets the module system for the program, influences 'import' / 'export' translation into JS
     "module": "ESNext",
