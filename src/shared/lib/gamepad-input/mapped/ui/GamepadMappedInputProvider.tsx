@@ -4,8 +4,12 @@ import {
 import {
   type GamepadInputEv,
 } from '@lib/gamepad-input/raw/model/gamepadRawInput.model.ts'
+import { NegInf, PosInf } from '@utils/math/math.ts'
+import { rangeHas, rangeMap } from '@utils/math/range.ts'
+import { rf5 } from '@utils/math/rounding.ts'
 import type { Children } from '@utils/react/props/propTypes.ts'
 import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'
+import { isdef, isundef } from '@utils/ts/ts.ts'
 import { use, useLayoutEffect } from 'react'
 
 
@@ -36,7 +40,56 @@ export default function GamepadMappedInputProvider({ children }: Children) {
         
         gpS[signal] = ev.buttonValue
         
-        const mps = mappings.filter(it => it.from.some(it => it.id === signal))
+        //const mps = mappings.filter(it => it.from.some(it => it.id === signal))
+        
+        const firstGp = gamepadRawInputContext.getGamepadsState()[0]
+        if (firstGp) {
+          const { buttons, axes } = firstGp
+          const signals: Record<SignalId, number> = Object.fromEntries([
+            ...buttons.map((v, i) => [`B${i}`, v]),
+            ...axes.map((v, i) => [`A${i}`, v]),
+          ])
+          const mappedValues: Record<SignalId, number | undefined> = Object.fromEntries(
+            mappings.flatMap(it => {
+              let on = !!it.from.length
+              it.from.forEach(it => {
+                const signal = signals[it.id]
+                if (it.range) {
+                
+                }
+                else if (it.onRange) {
+                  const { from, to } = it.onRange
+                  if (isdef(from) && signal < from) on = false
+                  if (isdef(to) && signal > to) on = false
+                }
+                else if (isdef(it.on)) {
+                  if (signal !== it.on) on = false
+                }
+                else {
+                  if (signal !== 1) on = false
+                }
+              })
+              return it.to.map(it => {
+                if (it.range) {
+                
+                }
+                else if (it.onRange) {
+                  const { from, to } = it.onRange
+                  //if (isdef(from) && signal < from) on = false
+                  //if (isdef(to) && signal > to) on = false
+                }
+                else if (isdef(it.on)) {
+                  //if (it.on !== signal) on = false
+                }
+                else {
+                
+                }
+                return [it.id, undefined] // ?? xinput
+              })
+            })
+          )
+          const mappedDefaults: Record<SignalId, number | undefined> = { }
+        }
       }
       else if (ev.axis) {
         console.log(`A${ev.axisI}[${ev.axisValue}] of ${ev.gp.id}`)
@@ -63,6 +116,215 @@ export default function GamepadMappedInputProvider({ children }: Children) {
   )
 }
 
+
+
+namespace Test1 {
+  
+  interface SignalFrom {
+    id: string
+    
+    push?: number | undefined
+    pushFrom?: number | undefined
+    pushTo?: number | undefined
+    
+    analogFrom?: number | undefined
+    analogTo?: number | undefined
+    analogBaseFrom?: number | undefined
+    analogBaseTo?: number | undefined
+  }
+  interface MappingFrom {
+    pushMode?: 'and' | 'or' | undefined
+    analogMode?: 'min' | 'max' | 'avg' | undefined
+    signals: SignalFrom[]
+  }
+  type MappingsFrom = Record<string, MappingFrom>
+  
+  interface SignalTo {
+    id: string
+    
+    push?: number | undefined
+    
+    analogFrom?: number | undefined
+    analogTo?: number | undefined
+  }
+  interface MappingTo {
+    xinput?: boolean | undefined
+    defaultPush?: boolean | undefined
+    defaultAnalog?: number | undefined
+    signals: SignalTo[]
+  }
+  type MappingsTo = Record<string, MappingTo>
+  
+  
+  interface MappedFrom {
+    push: boolean | undefined
+    analog: number | undefined
+  }
+  type StateFrom = Record<string, MappedFrom>
+  
+  interface MappedTo {
+    xinput: boolean | undefined
+    value: number
+    push: boolean
+    analog: number
+  }
+  type StateTo = Record<string, MappedTo>
+  
+  
+  const testMappingsFrom: MappingsFrom = {
+    // CASE 1 - Button to Button
+    // Virtual Button A from DInput Button A
+    'VB.A from DB.A': {
+      pushMode: 'and',
+      signals: [{ id: 'B2', push: 1 }],
+    },
+    // CASE 2 - Button+Button to Button+Button
+    // Virtual Button LSButton+RSButton from DInput Button LT + DInput Button B
+    'VB.LSButton+RSButton from DB.LT+DB.B': {
+      pushMode: 'and',
+      signals: [{ id: 'B6', push: 1 }, { id: 'B1', push: 1 }],
+    },
+    // CASE 3 - Analog+Analog to Button+Button
+    // Virtual Button LSButton+RSButton from XInput Button LT + XInput Button RT
+    'VB.LSButton+RSButton from XB.LT+XB.RT': {
+      pushMode: 'and',
+      signals: [{ id: 'B6', pushFrom: 0.5 }, { id: 'B7', pushFrom: 0.5 }],
+    },
+  }
+  
+  const testMappingsTo: MappingsTo = {
+    // CASE 1 - Button to Button
+    // A from A to A
+    'A': {
+      xinput: true,
+      signals: [{ id: 'A from A', push: 1 }],
+    },
+    // CASE 2 - Button+Button to Button+Button
+    // LSButton+RSButton from LT+B to LSButton
+    'LSButton': {
+      xinput: true,
+      signals: [{ id: 'LSButton+RSButton from LT+B', push: 1 }],
+    },
+    // CASE 2 - Button+Button to Button+Button
+    // LSButton+RSButton from LT+B to RSButton
+    'RSButton': {
+      xinput: true,
+      signals: [{ id: 'LSButton+RSButton from LT+B', push: 1 }],
+    },
+  }
+  
+  function map() {
+    
+    const inState: Record<string, number> = {
+      'B1': 0,
+      'B2': 0,
+      'B3': 1,
+      'B6': 1,
+      'B7': 1,
+    }
+    
+    const stateFrom: StateFrom = Object.fromEntries(
+      Object.entries(testMappingsFrom).map(([id, m]) => {
+        const state: MappedFrom = {
+          push: undefined,
+          analog: undefined,
+        }
+        let cnt = 0
+        
+        const addPush = (mode: 'and' | 'or' = 'and', isPush: boolean) => {
+          if (isundef(state.push)) state.push = isPush
+          else if (mode === 'and') state.push &&= isPush
+          else if (mode === 'or') state.push ||= isPush
+        }
+        
+        const addAnalog = (mode: 'min' | 'max' | 'avg' = 'max', analog: number) => {
+          if (isundef(state.analog)) state.analog = analog
+          else if (mode === 'min') {
+            state.analog = Math.min(state.analog, analog)
+            cnt++
+          }
+          else if (mode === 'max') {
+            state.analog = Math.max(state.analog, analog)
+            cnt++
+          }
+          else if (mode === 'avg') {
+            state.analog = rf5((state.analog * cnt + analog) / (cnt + 1))
+            cnt++
+          }
+        }
+        
+        m.signals.forEach(s => {
+          const {
+            id,
+            pushFrom, pushTo, push,
+            analogFrom, analogTo, analogBaseFrom, analogBaseTo,
+          } = s
+          const inS = inState[id]
+          
+          if (isdef(inS)) {
+            const inV = rf5(inS)
+            
+            const hasPushRange = isdef(pushFrom) || isdef(pushTo)
+            const hasPush = isdef(push)
+            if (hasPushRange) {
+              const pFrom = pushFrom ?? NegInf
+              const pTo = pushTo ?? PosInf
+              const isPush = rangeHas(inV, [pFrom, pTo])
+              addPush(m.pushMode, isPush)
+            }
+            else if (hasPush) {
+              const isPush = inV === push
+              addPush(m.pushMode, isPush)
+            }
+            
+            const hasAnalog = isdef(analogFrom) || isdef(analogTo)
+            if (hasAnalog) {
+              const aFrom = analogFrom ?? 0
+              const aTo = analogTo ?? 1
+              if (rangeHas(inV, [aFrom, aTo])) {
+                const aBaseFrom = analogBaseFrom ?? aFrom
+                const aBaseTo = analogBaseTo ?? aTo
+                const vIn0To1 = rangeMap(inV, [aBaseFrom, aBaseTo], [0, 1])
+                addAnalog(m.analogMode, vIn0To1)
+              }
+            }
+          }
+        })
+        return [id, state]
+      })
+    )
+    
+    console.log('stateFrom', stateFrom)
+    
+    const stateTo: StateTo = Object.fromEntries(
+      Object.entries(testMappingsTo).map(([id, v]) => {
+        const { xinput, defaultPush = false, defaultAnalog = 0, signals } = v
+        let value: number | undefined
+        let push: boolean | undefined
+        let analog: number | undefined
+        for (const signal of signals) {
+          const { id, push: p, analogFrom, analogTo } = signal
+          const s = stateFrom[id]
+          if (s) {
+            push ||= s.push
+            if (isdef(p) && s.push) value = p
+            
+            
+          }
+        }
+        push ??= defaultPush
+        analog ??= defaultAnalog
+        value ??= defaultAnalog
+        return [id, { xinput, value, push, analog }]
+      })
+    )
+  }
+  
+  console.time('map')
+  map()
+  console.timeEnd('map')
+  
+}
 
 
 

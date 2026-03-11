@@ -1,5 +1,4 @@
 @import './tailwind/tailwind-display.css';
-@import './tailwind/tailwind-state.css';
 @import './tailwind/tailwind-pointer.css';
 @import './tailwind/tailwind-position.css';
 @import './tailwind/tailwind-size.css';
@@ -8,3 +7,5 @@
 @import './tailwind/tailwind-text.css';
 @import './tailwind/tailwind-flex.css';
 @import './tailwind/tailwind-grid.css';
+
+@import './tailwind/tailwind-state.css';

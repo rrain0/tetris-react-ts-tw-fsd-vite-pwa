@@ -1,5 +1,6 @@
 
 
+
 export type ArrFilter<T> = (v: T, i: number, arr: T[]) => any
 
 export function arrRemoveBy<T>(arr: T[], filter: NoInfer<ArrFilter<T>>): T[] {

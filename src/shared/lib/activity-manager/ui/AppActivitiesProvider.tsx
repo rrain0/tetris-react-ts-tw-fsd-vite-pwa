@@ -7,16 +7,16 @@ import { useState } from 'react'
 
 
 export type AppActivitiesProviderProps = Children & {
-  name?: string | undefined
+  currentActivity?: string | undefined
 }
 
 export default function AppActivitiesProvider({
-  name, children,
+  currentActivity, children,
 }: AppActivitiesProviderProps) {
   
-  const main: AppActivity | undefined = isdef(name) ? {
+  const main: AppActivity | undefined = isdef(currentActivity) ? {
     type: 'main',
-    name: name,
+    name: currentActivity,
     modals: [],
     popovers: [],
   } : undefined
