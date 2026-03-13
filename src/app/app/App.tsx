@@ -1,8 +1,7 @@
 import '@app/styles/app.css'
 import AppActivitiesProvider from '@lib/activity-manager/ui/AppActivitiesProvider.tsx'
 import AppActivity from '@lib/activity-manager/ui/AppActivity.tsx'
-import GamepadMappedInputProvider from '@lib/gamepad-input/mapped/ui/GamepadMappedInputProvider.tsx'
-import GamepadRawInputProvider from '@lib/gamepad-input/raw/ui/GamepadRawInputProvider.tsx'
+import GamepadInputProvider from '@lib/gamepad-input/gamepad-input/ui/GamepadInputProvider.tsx'
 import { useState } from 'react'
 import * as React from 'react'
 import InGameScreen from 'screens/InGame/InGameScreen.tsx'
@@ -15,17 +14,15 @@ export default function App() {
   
   return (
     <>
-      <GamepadRawInputProvider>
-        <GamepadMappedInputProvider>
-          <AppActivitiesProvider currentActivity={activity}>
-            
-            <AppActivity name='InGame'>
-              <InGameScreen/>
-            </AppActivity>
+      <GamepadInputProvider>
+        <AppActivitiesProvider currentActivity={activity}>
           
-          </AppActivitiesProvider>
-        </GamepadMappedInputProvider>
-      </GamepadRawInputProvider>
+          <AppActivity name='InGame'>
+            <InGameScreen/>
+          </AppActivity>
+        
+        </AppActivitiesProvider>
+      </GamepadInputProvider>
     </>
   )
 }

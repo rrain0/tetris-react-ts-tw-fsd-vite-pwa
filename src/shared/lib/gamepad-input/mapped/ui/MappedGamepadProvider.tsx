@@ -1,118 +1,79 @@
 import {
-  GamepadRawInputContext,
-} from '@lib/gamepad-input/raw/context/GamepadRawInputContext.ts'
-import {
-  type GamepadInputEv,
-} from '@lib/gamepad-input/raw/model/gamepadRawInput.model.ts'
+  MappedGamepadContext, type MappedGamepadContextValue,
+} from '@lib/gamepad-input/mapped/context/MappedGamepadContext.ts'
+import type {
+  MappedGamepad,
+  MappedGamepadEv, MappedGamepadGotStateEv,
+} from '@lib/gamepad-input/mapped/model/mappedGamepad.model.ts'
+import { NativeGamepadContext } from '@lib/gamepad-input/native/context/NativeGamepadContext.ts'
+import type {
+  NativeGamepadEv,
+  NativeGamepadId,
+} from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
 import { NegInf, PosInf } from '@utils/math/math.ts'
 import { rangeHas, rangeMap } from '@utils/math/range.ts'
 import { rf5 } from '@utils/math/rounding.ts'
 import type { Children } from '@utils/react/props/propTypes.ts'
 import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'
-import { isdef, isundef } from '@utils/ts/ts.ts'
+import { type Cb1, isdef, isundef } from '@utils/ts/ts.ts'
 import { use, useLayoutEffect } from 'react'
 
 
 
-export default function GamepadMappedInputProvider({ children }: Children) {
+export default function MappedGamepadProvider({ children }: Children) {
+  const nativeGamepadContext = use(NativeGamepadContext)
   
-  const mappings: SignalMappings = DInputSignalToXInputMappings
+  const [getListeners] = useRefGetSet<Set<Cb1<MappedGamepadEv>>>(new Set())
   
-  type GamepadId = string
-  type SignalId = string
-  type State = Record<GamepadId, Record<SignalId, number | undefined>>
-  const [getState] = useRefGetSet<State>({ })
+  const [getGamepads, setGamepads] = useRefGetSet<Map<NativeGamepadId, MappedGamepad>>(new Map())
   
-  const gamepadRawInputContext = use(GamepadRawInputContext)
   useLayoutEffect(() => {
-    const onGamepadInput = (ev: GamepadInputEv) => {
-      const s = getState()
-      if (ev.disconnected) {
-        console.log(`disconnected of ${ev.gp.id}`)
+    const onGamepad = (ev: NativeGamepadEv) => {
+      
+      if (ev.type === 'nativeGamepadPolled') {
+        const nGps = nativeGamepadContext.getGamepads()
         
-        delete s[ev.gpId]
-      }
-      else if (ev.button) {
-        console.log(`B${ev.buttonI}[${ev.buttonValue}] of ${ev.gp.id}`)
-        
-        const gpS = (s[ev.gpId] ??= { })
-        const signal = `B${ev.buttonI}`
-        
-        gpS[signal] = ev.buttonValue
-        
-        //const mps = mappings.filter(it => it.from.some(it => it.id === signal))
-        
-        const firstGp = gamepadRawInputContext.getGamepadsState()[0]
-        if (firstGp) {
-          const { buttons, axes } = firstGp
-          const signals: Record<SignalId, number> = Object.fromEntries([
-            ...buttons.map((v, i) => [`B${i}`, v]),
-            ...axes.map((v, i) => [`A${i}`, v]),
-          ])
-          const mappedValues: Record<SignalId, number | undefined> = Object.fromEntries(
-            mappings.flatMap(it => {
-              let on = !!it.from.length
-              it.from.forEach(it => {
-                const signal = signals[it.id]
-                if (it.range) {
-                
-                }
-                else if (it.onRange) {
-                  const { from, to } = it.onRange
-                  if (isdef(from) && signal < from) on = false
-                  if (isdef(to) && signal > to) on = false
-                }
-                else if (isdef(it.on)) {
-                  if (signal !== it.on) on = false
-                }
-                else {
-                  if (signal !== 1) on = false
-                }
-              })
-              return it.to.map(it => {
-                if (it.range) {
-                
-                }
-                else if (it.onRange) {
-                  const { from, to } = it.onRange
-                  //if (isdef(from) && signal < from) on = false
-                  //if (isdef(to) && signal > to) on = false
-                }
-                else if (isdef(it.on)) {
-                  //if (it.on !== signal) on = false
-                }
-                else {
-                
-                }
-                return [it.id, undefined] // ?? xinput
-              })
-            })
-          )
-          const mappedDefaults: Record<SignalId, number | undefined> = { }
+        const mGps = new Map<NativeGamepadId, MappedGamepad>()
+        for (const [gpId, nGp] of nGps.entries()) {
+          if (nGp?.state) {
+            mGps.set(
+              gpId,
+              // TODO map state
+              { ...nGp, state: { ...nGp.state } }
+            )
+          }
         }
-      }
-      else if (ev.axis) {
-        console.log(`A${ev.axisI}[${ev.axisValue}] of ${ev.gp.id}`)
+        setGamepads(mGps)
         
-        const gpS = (s[ev.gpId] ??= { })
-        const signal = `A${ev.axisI}`
-        
-        gpS[signal] = ev.axisValue
+        const newEv: MappedGamepadGotStateEv = {
+          type: 'mappedGamepadGotState',
+          ts: ev.ts,
+        }
+        for (const l of getListeners()) l(newEv)
       }
     }
     
-    
-    
-    gamepadRawInputContext.onGamepadInput(onGamepadInput)
-    return () => gamepadRawInputContext.offGamepadInput(onGamepadInput)
-  }, [gamepadRawInputContext])
+    nativeGamepadContext.on(onGamepad)
+    return () => nativeGamepadContext.off(onGamepad)
+  }, [nativeGamepadContext])
   
+  
+  
+  const mappedGamepadContextValue: MappedGamepadContextValue = {
+    getGamepads: getGamepads,
+    on: cb => {
+      getListeners().add(cb)
+    },
+    off: cb => {
+      getListeners().delete(cb)
+    },
+  }
   
   
   return (
-    <>
+    <MappedGamepadContext value={mappedGamepadContextValue}>
       {children}
-    </>
+    </MappedGamepadContext>
   )
 }
 
@@ -320,9 +281,9 @@ namespace Test1 {
     )
   }
   
-  console.time('map')
-  map()
-  console.timeEnd('map')
+  // console.time('map')
+  // map()
+  // console.timeEnd('map')
   
 }
 

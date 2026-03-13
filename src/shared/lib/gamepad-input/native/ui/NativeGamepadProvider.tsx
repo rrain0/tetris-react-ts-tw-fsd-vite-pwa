@@ -1,13 +1,13 @@
 import {
-  GamepadRawInputContext,
-  type GamepadInputContextValue,
-} from '@lib/gamepad-input/2/raw/context/GamepadRawInputContext.ts'
+  NativeGamepadContext,
+  type NativeGamepadContextValue,
+} from '@lib/gamepad-input/native/context/NativeGamepadContext.ts'
 import {
-  type GamepadConnectedEv, type GamepadDisconnectedEv,
-  type GamepadEv, type GamepadId,
-  type GamepadState, type GamepadTickEv,
-  gamepadToId, gamepadToState,
-} from '@lib/gamepad-input/2/raw/model/gamepadRawInput.model.ts'
+  type NativeGamepadConnectedEv, type NativeGamepadDisconnectedEv,
+  type NativeGamepadEv, type NativeGamepadId,
+  type NativeGamepad, type NativeGamepadPolledEv,
+  gamepadToNativeGamepadId, gamepadToNativeGamepad,
+} from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
 import type { Children } from '@utils/react/props/propTypes.ts'
 import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'
 import { type Cb, type Cb1 } from '@utils/ts/ts.ts'
@@ -15,10 +15,10 @@ import { useLayoutEffect } from 'react'
 
 
 
-export default function GamepadRawInputProvider({ children }: Children) {
-  const [getListeners] = useRefGetSet<Set<Cb1<GamepadEv>>>(new Set())
+export default function NativeGamepadProvider({ children }: Children) {
+  const [getListeners] = useRefGetSet<Set<Cb1<NativeGamepadEv>>>(new Set())
   
-  const [getState] = useRefGetSet<Map<GamepadId, GamepadState>>(new Map())
+  const [getGamepads] = useRefGetSet<Map<NativeGamepadId, NativeGamepad | undefined>>(new Map())
   const [getStopOnRaf, setStopOnRaf] = useRefGetSet<Cb | undefined>(undefined)
   
   const createOnRaf = () => {
@@ -27,18 +27,20 @@ export default function GamepadRawInputProvider({ children }: Children) {
     
     const onRaf = () => {
       if (stop) return
+      
       console.log('raf')
+      
       const ts = document.timeline.currentTime as number
       const gpsRaw = navigator.getGamepads()
       
       for (const gpRaw of gpsRaw) if (gpRaw) {
-        const state = getState()
-        const gp = gamepadToState(gpRaw)
-        state.set(gp.gpId, gp)
+        const gps = getGamepads()
+        const gp = gamepadToNativeGamepad(gpRaw)
+        gps.set(gp.id, gp)
       }
       
-      const ev: GamepadTickEv = {
-        type: 'gamepadTick',
+      const ev: NativeGamepadPolledEv = {
+        type: 'nativeGamepadPolled',
         ts,
       }
       for (const l of getListeners()) l(ev)
@@ -68,9 +70,7 @@ export default function GamepadRawInputProvider({ children }: Children) {
     const anyGamepad = navigator.getGamepads().some(it => !!it)
     const anyListeners = !!getListeners().size
     const windowFocused = document.hasFocus()
-    if (!anyGamepad || !anyListeners || !windowFocused) {
-      stopOnRaf()
-    }
+    if (!anyGamepad || !anyListeners || !windowFocused) stopOnRaf()
   }
   
   useLayoutEffect(() => {
@@ -84,26 +84,26 @@ export default function GamepadRawInputProvider({ children }: Children) {
       //console.log('gamepad', ev)
       //console.log('gamepads', navigator.getGamepads())
       
-      // TODO
-      // Внутри данного эвента у геймпада везде стоят нули.
-      // В первом raf после эвента уже реальные значения.
-      // !!! Так что видимо прям здесь не стоит генерировать эвент подключённого гемпада,
-      // а делать его в раф.
+      // ⚠️ Внутри этого 'gamepaddisconnected' эвента у геймпада везде в осях и кнопках стоят нули,
+      // ⚠️ так что по сути состояние undefined.
+      // ⚠️ В первом raf после этого эвента уже реальные значения.
       
-      // TODO
-      // Вопросик - сначала отправлять эвент вниз или сначала запустить raf?
-      // Или сначала запустить raf асинхронно?
+      const gpId = gamepadToNativeGamepadId(gp)
+      const state = getGamepads()
       
-      // TODO
-      // Надо ли пустой геймпад добавлять в стэйт?
-      
-      const gpId = gamepadToId(gp)
-      const newEv: GamepadConnectedEv = {
-        type: 'gamepadConnected',
-        ts: ev.timeStamp,
-        gpId,
+      if (!state.has(gpId)) {
+        console.log(`connected ${gpId}`)
+        
+        // Add gamepad with state undefined yet
+        getGamepads().set(gpId, undefined)
+        
+        const newEv: NativeGamepadConnectedEv = {
+          type: 'nativeGamepadConnected',
+          ts: ev.timeStamp,
+          gpId,
+        }
+        for (const l of getListeners()) l(newEv)
       }
-      for (const l of getListeners()) l(newEv)
       
       tryStartOnRaf()
     }
@@ -118,12 +118,17 @@ export default function GamepadRawInputProvider({ children }: Children) {
       //console.log('gamepad', ev)
       //console.log('gamepads', navigator.getGamepads())
       
-      const state = getState()
-      const gpId = gamepadToId(gp)
+      const gpId = gamepadToNativeGamepadId(gp)
+      const state = getGamepads()
+      
       if (state.has(gpId)) {
+        console.log(`disconnected ${gpId}`)
+        
+        // Remove disconnected gamepad state
         state.delete(gpId)
-        const newEv: GamepadDisconnectedEv = {
-          type: 'gamepadDisconnected',
+        
+        const newEv: NativeGamepadDisconnectedEv = {
+          type: 'nativeGamepadDisconnected',
           ts: ev.timeStamp,
           gpId,
         }
@@ -151,13 +156,13 @@ export default function GamepadRawInputProvider({ children }: Children) {
   
   
   
-  const gamepadInputContextValue: GamepadInputContextValue = {
-    getGamepadsState: getState,
-    onGamepad: cb => {
+  const nativeGamepadContextValue: NativeGamepadContextValue = {
+    getGamepads: getGamepads,
+    on: cb => {
       getListeners().add(cb)
       tryStartOnRaf()
     },
-    offGamepad: cb => {
+    off: cb => {
       getListeners().delete(cb)
       tryStopOnRaf()
     },
@@ -165,8 +170,8 @@ export default function GamepadRawInputProvider({ children }: Children) {
   
   
   return (
-    <GamepadRawInputContext value={gamepadInputContextValue}>
+    <NativeGamepadContext value={nativeGamepadContextValue}>
       {children}
-    </GamepadRawInputContext>
+    </NativeGamepadContext>
   )
 }
