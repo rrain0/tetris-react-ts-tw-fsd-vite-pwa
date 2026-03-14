@@ -1,4 +1,6 @@
 import { AppActivityContext } from '@lib/activity-manager/context/AppActivityContext.ts'
+import { GamepadChangeContext } from '@lib/gamepad-input/change/context/GamepadChangeContext.ts'
+import type { GamepadChangeEv } from '@lib/gamepad-input/change/model/GamepadChange.model.ts'
 import { useGamepadDownClick } from '@lib/gamepad-input/hooks/useGamepadDownClick.ts'
 import { Game } from '@lib/tetris-engine/entities/game/model/game.ts'
 import { useKeyClick } from '@utils/events/useKeyClick.ts'
@@ -6,7 +8,7 @@ import { useKeyDownClick } from '@utils/events/useKeyDownClick.ts'
 import { useKeyHold } from '@utils/events/useKeyHold.ts'
 import { combineProps } from '@utils/react/props/combineProps.ts'
 import { isKeyboardAction } from 'entities/input-layout/lib/isKeyboardAction.ts'
-import { use, useState } from 'react'
+import { use, useLayoutEffect, useState } from 'react'
 import Block from '@widgets/tetris-field/entities/block/ui/Block.tsx'
 import {
   newISrs, newJSrs, newLSrs, newOSrs, newSSrs, newTSrs, newZSrs,
@@ -35,9 +37,6 @@ game.field.addPiece(newTSrs(undefined, [8, 16]).toRotatedLeft().next().value!)
 
 export default function TetrisField() {
   
-  
-  
-  useGamepadDownClick()
   
   
   
@@ -82,6 +81,32 @@ export default function TetrisField() {
       setField(game.renderField())
     }
   })
+  
+  
+  
+  
+  useGamepadDownClick()
+  const gamepadChangeContextValue = use(GamepadChangeContext)
+  useLayoutEffect(() => {
+    const onGamepad = (ev: GamepadChangeEv) => {
+      if (ev.type === 'gamepadChange') {
+        const gps = gamepadChangeContextValue.getGamepads()
+        for (const [gpId, gp] of gps.entries()) {
+          if (gp.state['B2'] === 1) {
+            game.rotateCurrentPieceLeft()
+            setField(game.renderField())
+          }
+          else if (gp.state['B1'] === 1) {
+            game.rotateCurrentPieceRight()
+            setField(game.renderField())
+          }
+        }
+      }
+    }
+    gamepadChangeContextValue.on(onGamepad)
+    return () => gamepadChangeContextValue.off(onGamepad)
+  }, [gamepadChangeContextValue])
+  
   
   
   

@@ -19,16 +19,20 @@ export interface MappedGamepad {
 
 
 export interface NativeToNormalizedSignalMapping {
-  pushOnFrom?: number | undefined
-  pushOnTo?: number | undefined
+  push?: number | undefined
+  pushOff?: number | undefined
+  pushFrom?: number | undefined
+  pushTo?: number | undefined
   pushOffFrom?: number | undefined
   pushOffTo?: number | undefined
-  
-  analogFrom?: number | undefined
-  analogTo?: number | undefined
-  //analogBase???
-  //analogOff??
+  pushUndef?: boolean | undefined
+  // analogFrom?: number | undefined
+  // analogTo?: number | undefined
+  // analogBaseFrom?: number | undefined
+  // analogBaseTo?: number | undefined
 }
+
+export type NormalizedSignal = number | boolean | undefined
 
 
 

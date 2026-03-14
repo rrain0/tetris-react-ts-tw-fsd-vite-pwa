@@ -82,13 +82,13 @@ export default function GamepadChangeProvider({ children }: Children) {
         
         if (hasChanges) {
           console.log('changes', changes)
+          
+          const newEv: GamepadChangeEv = {
+            type: 'gamepadChange',
+            ts: ev.ts,
+          }
+          for (const l of getListeners()) l(newEv)
         }
-        
-        /* const newEv: GamepadChangeEv = {
-         type: 'mappedGamepadGotState',
-         ts: ev.ts,
-         }
-         for (const l of getListeners()) l(newEv) */
       }
     }
     

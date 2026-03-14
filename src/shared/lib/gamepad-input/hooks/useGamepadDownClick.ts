@@ -1,35 +1,25 @@
-import {
-  NativeGamepadContext
-} from '@lib/gamepad-input/native/context/NativeGamepadContext.ts'
-import type { NativeGamepadEv } from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
+import { GamepadChangeContext } from '@lib/gamepad-input/change/context/GamepadChangeContext.ts'
+import type { GamepadChangeEv } from '@lib/gamepad-input/change/model/GamepadChange.model.ts'
 import { use, useLayoutEffect } from 'react'
 
 
 
 export function useGamepadDownClick() {
   
-  const nativeGamepadContext = use(NativeGamepadContext)
+  const gamepadChangeContextValue = use(GamepadChangeContext)
   
   useLayoutEffect(() => {
-    const onGamepad = (ev: NativeGamepadEv) => {
-      if (ev.type === 'nativeGamepadDisconnected') {
-        console.log(`disconnected of ${ev.gpId}`)
+    const onGamepad = (ev: GamepadChangeEv) => {
+      if (ev.type === 'gamepadChange') {
+        const gps = gamepadChangeContextValue.getGamepads()
+        //...
       }
-      else if (ev.type === 'nativeGamepadPolled') {
-        const state = nativeGamepadContext.getGamepads()
-      }
-      /* else if (ev.button) {
-        console.log(`B${ev.buttonI}[${ev.buttonValue}] of ${ev.gp.id}`)
-      }
-      else if (ev.axis) {
-        console.log(`A${ev.axisI}[${ev.axisValue}] of ${ev.gp.id}`)
-      } */
     }
     
     
     
-    nativeGamepadContext.on(onGamepad)
-    return () => nativeGamepadContext.off(onGamepad)
-  }, [nativeGamepadContext])
+    gamepadChangeContextValue.on(onGamepad)
+    return () => gamepadChangeContextValue.off(onGamepad)
+  }, [gamepadChangeContextValue])
   
 }
