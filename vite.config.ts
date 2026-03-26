@@ -1,8 +1,8 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import babel from '@rolldown/plugin-babel'
+import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
 import legacy from '@vitejs/plugin-legacy'
 import checker from 'vite-plugin-checker'
@@ -50,20 +50,22 @@ export default defineConfig(({ command, mode }) => {
     base: '/',
     
     resolve: {
+      tsconfigPaths: true,
       // Aliases here are necessary to build paths for workers & css.
       // Aliases must be duplicated in tsconfig.app.json for ts compiler.
       alias: {
-        'src': fileURLToPath(new URL('./src', import.meta.url)),
+        //'src': fileURLToPath(new URL('./src', import.meta.url)),
         
-        '@app': fileURLToPath(new URL('./src/app', import.meta.url)),
-        '@entities': fileURLToPath(new URL('./src/entities', import.meta.url)),
-        '@features': fileURLToPath(new URL('./src/features', import.meta.url)),
-        '@screens': fileURLToPath(new URL('./src/screens', import.meta.url)),
-        '@widgets': fileURLToPath(new URL('./src/widgets', import.meta.url)),
+        //'@app': fileURLToPath(new URL('./src/app', import.meta.url)),
+        //'@entities': fileURLToPath(new URL('./src/entities', import.meta.url)),
+        //'@features': fileURLToPath(new URL('./src/features', import.meta.url)),
+        //'@screens': fileURLToPath(new URL('./src/screens', import.meta.url)),
+        //'@widgets': fileURLToPath(new URL('./src/widgets', import.meta.url)),
         
+        // Required to use alias in CSS
         '@assets': fileURLToPath(new URL('./src/shared/assets', import.meta.url)),
-        '@lib': fileURLToPath(new URL('./src/shared/lib', import.meta.url)),
-        '@utils': fileURLToPath(new URL('./src/shared/utils', import.meta.url)),
+        //'@lib': fileURLToPath(new URL('./src/shared/lib', import.meta.url)),
+        //'@utils': fileURLToPath(new URL('./src/shared/utils', import.meta.url)),
       },
     },
     
@@ -77,25 +79,13 @@ export default defineConfig(({ command, mode }) => {
       allowedHosts: true,
     },
     
-    esbuild: {
-      supported: {
-        // Declare that browsers can handle top-level-await features
-        'top-level-await': true,
-      },
-    },
-    
     plugins: [
-      
-      tsconfigPaths(),
-      
       tailwindcss(),
       
-      react({
-        babel: {
-          plugins: [
-            'babel-plugin-react-compiler',
-          ],
-        },
+      react(), // Handles Fast Refresh via Oxc
+      babel({
+        // Use the helper to automatically configure the React Compiler
+        presets: [reactCompilerPreset()],
       }),
       
       svgr({
