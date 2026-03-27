@@ -84,7 +84,6 @@ export default function TetrisField() {
   })
   
   
-  
   useGamepadKeyHold({ interval: 150 }, ev => {
     if (ev.signalId === 'XX_DPadL_Push') {
       game.moveCurrentPieceLeft()

@@ -5,7 +5,6 @@ import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import svgr from 'vite-plugin-svgr'
 import legacy from '@vitejs/plugin-legacy'
-import checker from 'vite-plugin-checker'
 
 
 
@@ -133,12 +132,6 @@ export default defineConfig(({ command, mode }) => {
           'not dead',
         ],
       }),
-      
-      checker({
-        // Use TypeScript check on the fly in development
-        typescript: true,
-      }),
-      
     ],
     
   }
