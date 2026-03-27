@@ -6,7 +6,7 @@ import {
   type NativeGamepadConnectedEv, type NativeGamepadDisconnectedEv,
   type NativeGamepadEv, type NativeGamepadId,
   type NativeGamepad, type NativeGamepadPolledEv,
-  gamepadToNativeGamepadId, gamepadToNativeGamepad, type NativeGamepads,
+  gamepadToNativeGamepadId, gamepadToNativeGamepad,
 } from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
 import type { Children } from '@utils/react/props/propTypes.ts'
 import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'

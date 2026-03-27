@@ -2,48 +2,47 @@ import type { InputLayoutKeys } from 'entities/input-layout/model/inputLayout.ts
 
 
 
-// TODO InputConfig - input method (keyboard/mouse/dinput/xinput) vs device (specific gamepad)
-
-/*
- TODO InputConfig - input layouts
-   Игроки.
-   1) Можно сделать player 1, 2, 3, 4 (player (number or id) -> type -> action).
-   2) Layout by player then by device.
-   3) When players enter the game, they button.
-   It selects first layout with this button (or i may show a list of matched layouts to select).
-   4) Но обычно в современных играх при начале игры игроки поочерёдно нажимают кнопки
-   и так выбирается устройство для каждого игрока.
-   но есть момент, что на клавиатуре может играть и 2 игрока.
-   Тогда можно создать InputLayout и по кнопке атаке при добавлении игроков выбирать InputLayout
-   5) Как-то при включении игры надо выбирать layout, если ничего не может выбраться - включать дефолтный.
-   6) Можно создавать маппинг, потом перевыбирать его для другого устройства, а потом из маппинга делать инпут конфиг.
-   7) Input devices. Input config.
- */
-
-// ТОДО (оверинжиниринг) InputConfig - комбинации клавиш (например 2 кнопки вместе)
-
 export const inputLayoutKeyboardDefault: InputLayoutKeys = {
   ingame: {
     moveLeft: [
       { inputMethod: 'keyboard', key: 'KeyA' },
+      { inputMethod: 'gamepad', key: 'XX_DPadL_Push' },
+      { inputMethod: 'gamepad', key: 'XX_LXLeft_Push' },
     ],
     moveRight: [
       { inputMethod: 'keyboard', key: 'KeyD' },
+      { inputMethod: 'gamepad', key: 'XX_DPadR_Push' },
+      { inputMethod: 'gamepad', key: 'XX_LXRight_Push' },
     ],
     moveDown: [
       { inputMethod: 'keyboard', key: 'KeyS' },
+      { inputMethod: 'gamepad', key: 'XX_DPadD_Push' },
+      { inputMethod: 'gamepad', key: 'XX_LYDown_Push' },
     ],
-    drop: [
-      { inputMethod: 'keyboard', key: 'Space' },
+    moveUp: [
+      { inputMethod: 'keyboard', key: 'KeyW' },
+      { inputMethod: 'gamepad', key: 'XX_DPadU_Push' },
+      { inputMethod: 'gamepad', key: 'XX_LYUp_Push' },
     ],
     rotateLeft: [
       { inputMethod: 'keyboard', key: 'ArrowLeft' },
+      { inputMethod: 'keyboard', key: 'KeyQ' },
+      { inputMethod: 'gamepad', key: 'XX_A_Push' },
     ],
     rotateRight: [
       { inputMethod: 'keyboard', key: 'ArrowRight' },
+      { inputMethod: 'keyboard', key: 'KeyE' },
+      { inputMethod: 'gamepad', key: 'XX_B_Push' },
+    ],
+    drop: [
+      { inputMethod: 'keyboard', key: 'Space' },
+      { inputMethod: 'gamepad', key: 'XX_RT_Push' },
+      { inputMethod: 'gamepad', key: 'XX_X_Push' },
+      { inputMethod: 'gamepad', key: 'XX_Y_Push' },
     ],
     pause: [
       { inputMethod: 'keyboard', key: 'Escape' },
+      { inputMethod: 'gamepad', key: 'XX_Start_Push' },
     ],
   },
   menu: {
@@ -51,17 +50,49 @@ export const inputLayoutKeyboardDefault: InputLayoutKeys = {
       { inputMethod: 'keyboard', key: 'Enter' },
       { inputMethod: 'keyboard', key: 'NumpadEnter' },
       { inputMethod: 'keyboard', key: 'Space' },
+      { inputMethod: 'gamepad', key: 'XX_A_Push' },
+      { inputMethod: 'gamepad', key: 'XX_Start_Push' },
     ],
     back: [
       { inputMethod: 'keyboard', key: 'Escape' },
+      { inputMethod: 'gamepad', key: 'XX_B_Push' },
     ],
     up: [
       { inputMethod: 'keyboard', key: 'KeyW' },
       { inputMethod: 'keyboard', key: 'ArrowUp' },
+      { inputMethod: 'gamepad', key: 'XX_DPadU_Push' },
+      { inputMethod: 'gamepad', key: 'XX_LYUp_Push' },
     ],
     down: [
       { inputMethod: 'keyboard', key: 'KeyS' },
       { inputMethod: 'keyboard', key: 'ArrowDown' },
+      { inputMethod: 'gamepad', key: 'XX_DPadD_Push' },
+      { inputMethod: 'gamepad', key: 'XX_LYDown_Push' },
     ],
   },
 }
+
+
+
+
+/*
+ TO_DO [Overengineering] InputConfig - input layouts
+ Игроки.
+ 1) Можно сделать player 1, 2, 3, 4 (player (number or id) -> type -> action).
+ 2) Layout by player then by device.
+ 3) When players enter the game, they button.
+ It selects first layout with this button (or i may show a list of matched layouts to select).
+ 4) Но обычно в современных играх при начале игры игроки поочерёдно нажимают кнопки
+ и так выбирается устройство для каждого игрока.
+ но есть момент, что на клавиатуре может играть и 2 игрока.
+ Тогда можно создать InputLayout и по кнопке атаке при добавлении игроков выбирать InputLayout
+ 5) Как-то при включении игры надо выбирать layout,
+ если ничего не может выбраться - включать дефолтный.
+ 6) Можно создавать маппинг, потом перевыбирать его для другого устройства,
+ а потом из маппинга делать инпут конфиг.
+ 7) Input devices. Input config.
+ 8) Один девайс может использоваться несколькими игроками.
+ Установить флаги, что что девайс только для одного игрока (геймпад)
+ */
+
+// TO_DO [Overengineering] InputConfig - комбинации клавиш (например 2 кнопки вместе)

@@ -13,7 +13,6 @@ import { use, useLayoutEffect } from 'react'
 
 
 
-// TODO Сделать чтобы пока хоть на одном геймпаде нажата кнопка - она считалась нажатой
 export function useGamepadKeyHold(
   {
     interval = 100, // not updates during hold event

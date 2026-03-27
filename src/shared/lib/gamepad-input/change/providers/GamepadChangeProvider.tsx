@@ -30,7 +30,7 @@ export default function GamepadChangeProvider({ children }: Children) {
   // Saved gamepads
   const [getCurrGamepads, setCurrGamepads] = useRefGetSet<MappedGamepads>(new Map())
   // Changes
-  const [getGamepads, setGamepads] = useRefGetSet<GamepadChanges>(new Map())
+  const [getGamepadChanges, setGamepadChanges] = useRefGetSet<GamepadChanges>(new Map())
   
   useLayoutEffect(() => {
     const onGamepad = (ev: MappedGamepadEv) => {
@@ -84,14 +84,14 @@ export default function GamepadChangeProvider({ children }: Children) {
         }
         
         if (hasChanges) {
-          changes.entries().forEach(([gpId, { state }]) => {
-            if (Object.keys(state).some(it => it.endsWith('_Push'))) {
-              console.log(`changes of ${gpId}:`)
-              console.log(state)
-            }
-          })
+          // changes.entries().forEach(([gpId, { state }]) => {
+          //   if (Object.keys(state).some(it => it.endsWith('_Push'))) {
+          //     console.log(`changes of ${gpId}:`)
+          //     console.log(state)
+          //   }
+          // })
           
-          setGamepads(changes)
+          setGamepadChanges(changes)
           
           const newEv: GamepadChangeEv = {
             type: 'gamepadChange',
@@ -109,7 +109,7 @@ export default function GamepadChangeProvider({ children }: Children) {
   
   
   const gamepadChangeContextValue: GamepadChangeContextValue = {
-    getGamepads: getGamepads,
+    getGamepads: getGamepadChanges,
     on: cb => {
       getListeners().add(cb)
     },

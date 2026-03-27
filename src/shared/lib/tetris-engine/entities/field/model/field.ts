@@ -35,12 +35,11 @@ export class Field {
     return true
   }
   
-  // @unsafe
   addPiece(piece: Piece) {
     const { type, id } = piece
     for (const pieceBlock of piece) {
       const { x, y, element } = pieceBlock
-      if (element) {
+      if (element && y >= 0 && y < this.blocks.length && x >= 0 && x < this.blocks[y].length) {
         this.blocks[y][x] = { type, pieceId: id }
       }
     }

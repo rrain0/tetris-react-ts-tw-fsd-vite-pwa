@@ -1,11 +1,6 @@
 
 
 
-export interface InputLayout {
-  name: string
-  config: InputLayoutKeys
-}
-
 export interface InputLayoutKeys {
   ingame: {
     // ◀️
@@ -14,6 +9,8 @@ export interface InputLayoutKeys {
     moveRight: ActionConfig
     // 🔽
     moveDown: ActionConfig
+    // 🔼
+    moveUp: ActionConfig
     // ⭳
     drop: ActionConfig
     // ↶
@@ -40,6 +37,15 @@ export type ActionConfig = InputUnit[]
 export type InputUnit = KeyboardKey
 
 export interface KeyboardKey {
-  inputMethod: 'keyboard'
+  inputMethod: 'keyboard' | 'gamepad'
   key: string
 }
+
+
+
+
+// TO_DO [Overengineering]
+// export interface InputLayout {
+//   name: string
+//   config: InputLayoutKeys
+// }

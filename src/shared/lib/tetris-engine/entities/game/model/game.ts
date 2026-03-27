@@ -45,6 +45,10 @@ export class Game {
     const moved = this.current.toMoved([0, 1])
     this.tryPlaceNewCurrentPiece(moved)
   }
+  moveCurrentPieceUp() {
+    const moved = this.current.toMoved([0, -1])
+    this.tryPlaceNewCurrentPiece(moved)
+  }
   rotateCurrentPieceLeft() {
     for (const rotated of this.current.toRotatedLeft()) {
       if (this.tryPlaceNewCurrentPiece(rotated)) return
@@ -54,6 +58,26 @@ export class Game {
     for (const rotated of this.current.toRotatedRight()) {
       if (this.tryPlaceNewCurrentPiece(rotated)) return
     }
+  }
+  dropCurrentPiece() {
+    const { blocks } = this.field
+    const { xy: [x, y], position: p } = this.current
+    let freeY = blocks.length
+    // Find first bottom piece block
+    for (let xp = 0; xp < p[0].length; xp++) {
+      for (let yp = p.length - 1; yp >= 0; yp--) {
+        const element = p[yp][xp]
+        if (element) {
+          // Find first field block under piece block
+          for (let by = y + yp + 1; by < blocks.length; by++) {
+            if (blocks[by][x + xp]) { freeY = Math.min(by - 1 - yp, freeY); break }
+          }
+          break
+        }
+      }
+    }
+    const moved = this.current.toMoved([0, freeY - y])
+    this.tryPlaceNewCurrentPiece(moved)
   }
   
   
