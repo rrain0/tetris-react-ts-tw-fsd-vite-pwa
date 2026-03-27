@@ -14,7 +14,7 @@ import type {
   NativeGamepadId,
 } from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
 import { NegInf, PosInf } from '@utils/math/math.ts'
-import { rngHas, rngMap } from '@utils/math/range.ts'
+import { rangeHas, rangeMap } from '@utils/math/range.ts'
 import { rf5 } from '@utils/math/rounding.ts'
 import type { Children } from '@utils/react/props/propTypes.ts'
 import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'
@@ -53,11 +53,13 @@ export default function GamepadChangeProvider({ children }: Children) {
             if (nextGp) {
               changes.set(gpId, nextGp)
               hasChanges = true
+              gps.set(gpId, nextGp)
             }
           }
           else if (!nextGp) {
             changes.set(gpId, { ...gp, state: { } })
             hasChanges = true
+            gps.delete(gpId)
           }
           else {
             changes.set(gpId, {
@@ -77,13 +79,16 @@ export default function GamepadChangeProvider({ children }: Children) {
                 return changes
               })(),
             })
+            gps.set(gpId, nextGp)
           }
         }
         
         if (hasChanges) {
           changes.entries().forEach(([gpId, { id, meta, state }]) => {
-            console.log(`${gpId} changes:`)
-            console.log(state)
+            if (Object.keys(state).some(it => it.endsWith('_Push'))) {
+              console.log(`${gpId} changes:`)
+              console.log(state)
+            }
           })
           
           const newEv: GamepadChangeEv = {
@@ -272,7 +277,7 @@ namespace Test1 {
             if (hasPushRange) {
               const pFrom = pushFrom ?? NegInf
               const pTo = pushTo ?? PosInf
-              const isPush = rngHas(inV, [pFrom, pTo])
+              const isPush = rangeHas(inV, [pFrom, pTo])
               addPush(m.pushMode, isPush)
             }
             else if (hasPush) {
@@ -284,10 +289,10 @@ namespace Test1 {
             if (hasAnalog) {
               const aFrom = analogFrom ?? 0
               const aTo = analogTo ?? 1
-              if (rngHas(inV, [aFrom, aTo])) {
+              if (rangeHas(inV, [aFrom, aTo])) {
                 const aBaseFrom = analogBaseFrom ?? aFrom
                 const aBaseTo = analogBaseTo ?? aTo
-                const vIn0To1 = rngMap(inV, [aBaseFrom, aBaseTo], [0, 1])
+                const vIn0To1 = rangeMap(inV, [aBaseFrom, aBaseTo], [0, 1])
                 addAnalog(m.analogMode, vIn0To1)
               }
             }

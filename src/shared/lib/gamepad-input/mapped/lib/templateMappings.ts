@@ -27,11 +27,12 @@ const templateXXInputMapping = {
   XX_X_Push: { },
   XX_Y_Push: { },
   
-  XX_Select_Push: { },
+  XX_View_Push: { },
   XX_Start_Push: { },
   
   XX_LB_Push: { },
   XX_RB_Push: { },
+  
   XX_LT_Push: { },
   XX_RT_Push: { },
   
@@ -55,14 +56,16 @@ const templateXXInputMapping = {
   
   XX_RXLeft_Push: { },
   XX_RXRight_Push: { },
-  XX_RXUp_Push: { },
-  XX_RXDown_Push: { },
+  XX_RYUp_Push: { },
+  XX_RYDown_Push: { },
   
   XX_RXLeft_Analog: { },
   XX_RXRight_Analog: { },
-  XX_RXUp_Analog: { },
-  XX_RXDown_Analog: { },
+  XX_RYUp_Analog: { },
+  XX_RYDown_Analog: { },
   
-  XX_LSButton_Push: { },
-  XX_RSButton_Push: { },
+  XX_LSB_Push: { },
+  XX_RSB_Push: { },
+  
+  XX_Home_Push: { },
 }

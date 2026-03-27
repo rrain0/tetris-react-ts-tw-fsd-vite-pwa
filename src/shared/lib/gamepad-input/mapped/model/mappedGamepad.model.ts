@@ -2,7 +2,7 @@ import type {
   NativeGamepadId,
   NativeGamepadMeta, NativeGamepadState,
 } from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
-import { rngHas, rngMap } from '@utils/math/range.ts'
+import { type num2, rangeHas, rangeMapClamp } from '@utils/math/range.ts'
 import { rf5 } from '@utils/math/rounding.ts'
 import { isbool, isdef, isnumber } from '@utils/ts/ts.ts'
 
@@ -34,10 +34,9 @@ export interface SignalMapping {
   pushOffFrom?: number | undefined
   pushOffTo?: number | undefined
   
-  analogFrom?: number | undefined
-  analogTo?: number | undefined
-  analogBaseFrom?: number | undefined
-  analogBaseTo?: number | undefined
+  analog?: num2 | undefined
+  analogIn?: num2 | undefined
+  analogElse?: number | undefined
 }
 
 export interface SignalOperatorMapping {
@@ -57,9 +56,7 @@ export function nativeGamepadStateToMappedState(
   prevMapped?: MappedGamepadState,
 ): MappedGamepadState {
   return Object.fromEntries(Object.entries(mapping).map(([mSigId, m]) => {
-    let mSig = getMappedSignal(nativeState, m, prevMapped?.[mSigId])
-    if (isnumber(mSig)) mSig = rf5(mSig)
-    return [mSigId, mSig]
+    return [mSigId, getMappedSignal(nativeState, m, prevMapped?.[mSigId])]
   }))
 }
 
@@ -75,7 +72,7 @@ export function getMappedSignal(
       signalId,
       push, pushOff,
       pushFrom, pushTo, pushOffFrom, pushOffTo,
-      analogFrom, analogTo, analogBaseFrom, analogBaseTo,
+      analog, analogIn, analogElse,
     } = sExpr
     const isPush = isdef(push)
     const isPushOff = isdef(pushOff)
@@ -83,38 +80,36 @@ export function getMappedSignal(
     const isPushTo = isdef(pushTo)
     const isPushOffFrom = isdef(pushOffFrom)
     const isPushOffTo = isdef(pushOffTo)
-    const isAnalogFrom = isdef(analogFrom)
-    const isAnalogTo = isdef(analogTo)
-    const isAnalogBaseFrom = isdef(analogBaseFrom)
-    const isAnalogBaseTo = isdef(analogBaseTo)
+    const isAnalog = isdef(analog)
+    const isAnalogIn = isdef(analogIn)
+    const isAnalogElse = isdef(analogElse)
     
-    const ns = nativeState[signalId]
+    let ns = nativeState[signalId]
     
     if (isdef(ns)) {
-      if (isAnalogFrom || isAnalogTo || isAnalogBaseFrom || isAnalogBaseTo) {
-        let a: number | undefined = undefined
-        
-        if (isdef(ns)) {
-          if (isdef(analogFrom) && isdef(analogTo)) {
-            if (rngHas(ns, [analogFrom, analogTo])) {
-              a = rngMap(ns, [analogBaseFrom ?? analogFrom, analogBaseTo ?? analogTo], [0, 1])
+      ns = rf5(ns)
+      if (isAnalog || isAnalogIn || isAnalogElse) {
+        const a: MappedAnalogSignal = (() => {
+          if (isAnalog) {
+            if (rangeHas(ns, analogIn ?? analog)) {
+              return rangeMapClamp(ns, analog, [0, 1])
             }
           }
-          
-        }
-        
+          if (isAnalogElse) return analogElse
+          return 0
+        })()
         return a
       }
       
       if (isPush || isPushOff || isPushFrom || isPushTo || isPushOffFrom || isPushOffTo) {
-        const p: boolean | undefined = (() => {
+        const p: MappedPushSignal = (() => {
           const anyPushProp = isPush || isPushFrom || isPushTo
           const anyPushOffProp = isPushOff || isPushOffFrom || isPushOffTo
           const anyPush = (() => {
             if (isPush) { if (ns === push) return true }
             if (isPushFrom || isPushTo) {
               if (isPushFrom && isPushTo) {
-                if (rngHas(ns, [pushFrom, pushTo])) return true
+                if (rangeHas(ns, [pushFrom, pushTo])) return true
               }
               else if (isPushFrom) { if (ns >= pushFrom) return true }
               else if (isPushTo) { if (ns <= pushTo) return true }
@@ -124,7 +119,7 @@ export function getMappedSignal(
             if (isPushOff) { if (ns === pushOff) return true }
             if (isPushOffFrom || isPushOffTo) {
               if (isPushOffFrom && isPushOffTo) {
-                if (rngHas(ns, [pushOffFrom, pushOffTo])) return true
+                if (rangeHas(ns, [pushOffFrom, pushOffTo])) return true
               }
               else if (isPushOffFrom) { if (ns >= pushOffFrom) return true }
               else if (isPushOffTo) { if (ns <= pushOffTo) return true }
@@ -135,7 +130,7 @@ export function getMappedSignal(
           if (anyPushProp && !anyPushOffProp) return false
           if (!anyPushProp && anyPushOffProp) return true
           if (anyPushProp && anyPushOffProp && isbool(prevSignal)) return prevSignal
-          return undefined
+          return false
         })()
         return p
       }

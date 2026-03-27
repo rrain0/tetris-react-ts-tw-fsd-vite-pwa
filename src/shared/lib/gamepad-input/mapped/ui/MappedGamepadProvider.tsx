@@ -2,8 +2,12 @@ import {
   MappedGamepadContext, type MappedGamepadContextValue,
 } from '@lib/gamepad-input/mapped/context/MappedGamepadContext.ts'
 import {
-  dInputToXXInputMapping
-} from '@lib/gamepad-input/mapped/lib/dInputToXXInputMapping.ts'
+  dInputOldToXXInputMapping
+} from '@lib/gamepad-input/mapped/lib/dInputOldToXXInputMapping.ts'
+import {
+  dInputPS3ToXXInputMapping
+} from '@lib/gamepad-input/mapped/lib/dInputPS3ToXXInputMapping.ts'
+import { xInputToXXInputMapping } from '@lib/gamepad-input/mapped/lib/xInputToXXInputMapping.ts'
 import {
   type MappedGamepad,
   type MappedGamepadEv, type MappedGamepadGotStateEv, nativeGamepadStateToMappedState,
@@ -14,7 +18,7 @@ import type {
   NativeGamepadId,
 } from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
 import { NegInf, PosInf } from '@utils/math/math.ts'
-import { rngHas, rngMap } from '@utils/math/range.ts'
+import { rangeHas, rangeMap } from '@utils/math/range.ts'
 import { rf5 } from '@utils/math/rounding.ts'
 import type { Children } from '@utils/react/props/propTypes.ts'
 import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'
@@ -39,13 +43,19 @@ export default function MappedGamepadProvider({ children }: Children) {
         const mGps = new Map<NativeGamepadId, MappedGamepad>()
         for (const [gpId, nGp] of nGps.entries()) {
           if (nGp?.state) {
-            const { state } = nGp
-            const mapping = dInputToXXInputMapping
-            const prev = mGps.get(gpId)?.state
-            mGps.set(
-              gpId,
-              { ...nGp, state: nativeGamepadStateToMappedState(state, mapping, prev) },
-            )
+            const { state, meta: { axesCnt, buttonsCnt, mapping } } = nGp
+            const gpMapping = (() => {
+              if (mapping === 'standard') return xInputToXXInputMapping
+              if (axesCnt === 4) return xInputToXXInputMapping
+              if (axesCnt === 2) return dInputOldToXXInputMapping
+              if (axesCnt === 10) return dInputPS3ToXXInputMapping
+              return dInputPS3ToXXInputMapping
+            })()
+            const prev = getGamepads().get(gpId)?.state
+            const mGp = { ...nGp, state: nativeGamepadStateToMappedState(state, gpMapping, prev) }
+            mGps.set(gpId, mGp)
+            //console.log(`${gpId} mapped gamepad state:`)
+            //console.log(mGp.state)
           }
         }
         setGamepads(mGps)
@@ -235,7 +245,7 @@ namespace Test1 {
             if (hasPushRange) {
               const pFrom = pushFrom ?? NegInf
               const pTo = pushTo ?? PosInf
-              const isPush = rngHas(inV, [pFrom, pTo])
+              const isPush = rangeHas(inV, [pFrom, pTo])
               addPush(m.pushMode, isPush)
             }
             else if (hasPush) {
@@ -247,10 +257,10 @@ namespace Test1 {
             if (hasAnalog) {
               const aFrom = analogFrom ?? 0
               const aTo = analogTo ?? 1
-              if (rngHas(inV, [aFrom, aTo])) {
+              if (rangeHas(inV, [aFrom, aTo])) {
                 const aBaseFrom = analogBaseFrom ?? aFrom
                 const aBaseTo = analogBaseTo ?? aTo
-                const vIn0To1 = rngMap(inV, [aBaseFrom, aBaseTo], [0, 1])
+                const vIn0To1 = rangeMap(inV, [aBaseFrom, aBaseTo], [0, 1])
                 addAnalog(m.analogMode, vIn0To1)
               }
             }
