@@ -86,7 +86,7 @@ export default function GamepadChangeProvider({ children }: Children) {
         if (hasChanges) {
           changes.entries().forEach(([gpId, { id, meta, state }]) => {
             if (Object.keys(state).some(it => it.endsWith('_Push'))) {
-              console.log(`${gpId} changes:`)
+              console.log(`changes of ${gpId}:`)
               console.log(state)
             }
           })

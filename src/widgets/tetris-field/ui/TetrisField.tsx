@@ -1,11 +1,12 @@
 import { AppActivityContext } from '@lib/activity-manager/context/AppActivityContext.ts'
 import { GamepadChangeContext } from '@lib/gamepad-input/change/context/GamepadChangeContext.ts'
 import type { GamepadChangeEv } from '@lib/gamepad-input/change/model/GamepadChange.model.ts'
-import { useGamepadDownClick } from '@lib/gamepad-input/hooks/useGamepadDownClick.ts'
+import { useGamepadKeyHold } from '@lib/gamepad-input/events/gamepad-key-hold/useGamepadKeyHold.ts'
+import { useGamepadDownClick } from '@lib/gamepad-input/events/useGamepadDownClick.ts'
 import { Game } from '@lib/tetris-engine/entities/game/model/game.ts'
-import { useKeyClick } from '@utils/events/useKeyClick.ts'
-import { useKeyDownClick } from '@utils/events/useKeyDownClick.ts'
-import { useKeyHold } from '@utils/events/useKeyHold.ts'
+import { useKeyClick } from '@lib/native-button-events/useKeyClick.ts'
+import { useKeyDownClick } from '@lib/native-button-events/useKeyDownClick.ts'
+import { useKeyHold } from '@lib/native-button-events/useKeyHold.ts'
 import { combineProps } from '@utils/react/props/combineProps.ts'
 import { isKeyboardAction } from 'entities/input-layout/lib/isKeyboardAction.ts'
 import { use, useLayoutEffect, useState } from 'react'
@@ -37,9 +38,6 @@ game.field.addPiece(newTSrs(undefined, [8, 16]).toRotatedLeft().next().value!)
 
 export default function TetrisField() {
   
-  
-  
-  
   const { interactive } = use(AppActivityContext)
   
   const canUseInput = ({ key, mx, my }: {
@@ -51,7 +49,10 @@ export default function TetrisField() {
     return true
   }
   
+  
+  
   const [field, setField] = useState(() => game.renderField())
+  
   
   
   const focusOnMount = { ref: (elem: HTMLElement | null) => elem?.focus() }
@@ -82,6 +83,38 @@ export default function TetrisField() {
     }
   })
   
+  
+  
+  useGamepadKeyHold({ interval: 150 }, ev => {
+    if (ev.signalId === 'XX_DPadL_Push') {
+      game.moveCurrentPieceLeft()
+      setField(game.renderField())
+    }
+    if (ev.signalId === 'XX_DPadR_Push') {
+      game.moveCurrentPieceRight()
+      setField(game.renderField())
+    }
+    if (ev.signalId === 'XX_DPadD_Push') {
+      game.moveCurrentPieceDown()
+      setField(game.renderField())
+    }
+    
+    if (ev.signalId === 'XX_LXLeft_Push') {
+      console.log('XX_LXLeft_Push')
+      game.moveCurrentPieceLeft()
+      setField(game.renderField())
+    }
+    if (ev.signalId === 'XX_LXRight_Push') {
+      console.log('XX_LXRight_Push')
+      game.moveCurrentPieceRight()
+      setField(game.renderField())
+    }
+    if (ev.signalId === 'XX_LYDown_Push') {
+      console.log('XX_LYDown_Push')
+      game.moveCurrentPieceDown()
+      setField(game.renderField())
+    }
+  })
   
   
   

@@ -16,16 +16,16 @@ export function useKeyHold<T = HTMLDivElement>(
   
   // State layer
   
-  const [getState] = useRefGetSet(new Map<JsonCodeKey, IntervalId>())
-  const checkKey = (ev: KbEv) => {
-    return getState().has(evToJsonCodeKey(ev))
+  const [getState] = useRefGetSet(new Map<KeyId, IntervalId>())
+  const checkKey = (keyId: KeyId) => {
+    return getState().has(keyId)
   }
-  const startKey = (ev: KbEv, intervalId) => {
-    getState().set(evToJsonCodeKey(ev), intervalId)
+  const startKey = (keyId: KeyId, intervalId) => {
+    getState().set(keyId, intervalId)
   }
-  const finishKey = (ev: KbEv) => {
-    clearInterval(getState().get(evToJsonCodeKey(ev)))
-    getState().delete(evToJsonCodeKey(ev))
+  const finishKey = (keyId: KeyId) => {
+    clearInterval(getState().get(keyId))
+    getState().delete(keyId)
   }
   const cancelAllKeys = () => {
     for (const intervalId of getState().values()) clearInterval(intervalId)
@@ -35,15 +35,19 @@ export function useKeyHold<T = HTMLDivElement>(
   
   // Event layer
   
+  // Save the pressed button.
   const startEv = (ev: React.KeyboardEvent<T>) => {
     onKeyHoldCb(ev)
     const intervalId = setInterval(() => {
       onKeyHoldCb(ev)
     }, interval)
-    startKey(ev, intervalId)
+    const keyId = getKeyId(ev)
+    startKey(keyId, intervalId)
   }
+  // Check if there is keyDown for current button & remove saved button.
   const finishEv = (ev: React.KeyboardEvent<T>) => {
-    if (checkKey(ev)) finishKey(ev)
+    const keyId = getKeyId(ev)
+    if (checkKey(keyId)) finishKey(keyId)
   }
   const cancelAllEvs = () => {
     cancelAllKeys()
@@ -52,17 +56,14 @@ export function useKeyHold<T = HTMLDivElement>(
   
   // Browser event layer
   
-  // Сохраняем нажатую кнопку
-  // Эвенты от зажатия не считаются
   const onKeyDown: React.KeyboardEventHandler<T> = ev => {
+    // Events from button hold does not count.
     if (!ev.repeat) startEv(ev)
   }
-  // Проверяем есть ли сохранённый keyDown для текущй кнопки,
-  // вызываем keyClick эвент, удаляем сохранённую кнопку
   const onKeyUp: React.KeyboardEventHandler<T> = ev => {
     finishEv(ev)
   }
-  // При потере фокуса из дерева элемента, удаляем все сохранённые кнопки
+  // When the focus is lost from the element tree, we delete all saved buttons.
   const onBlur = () => {
     cancelAllEvs()
   }
@@ -73,14 +74,13 @@ export function useKeyHold<T = HTMLDivElement>(
 
 
 
-type JsonCodeKey = string
+type CodeKey = { code: string, key: string }
+type KeyId = string
 type IntervalId = any
-type KbEv = KeyboardEvent | React.KeyboardEvent<any>
 
 
 
-function evToJsonCodeKey(ev: KbEv) {
-  const { code, key } = ev
-  const jsonCodeKey = JSON.stringify({ code, key })
-  return jsonCodeKey
+function getKeyId(codeKey: CodeKey): KeyId {
+  const { code, key } = codeKey
+  return JSON.stringify({ code, key })
 }

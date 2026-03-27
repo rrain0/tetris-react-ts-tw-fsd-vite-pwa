@@ -28,7 +28,7 @@ export default function NativeGamepadProvider({ children }: Children) {
     const onRaf = () => {
       if (stop) return
       
-      console.log('raf')
+      //console.log('raf')
       
       const ts = document.timeline.currentTime as number
       const gpsRaw = navigator.getGamepads()

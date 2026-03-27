@@ -4,7 +4,7 @@ import type {
 } from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
 import { type num2, rangeHas, rangeMapClamp } from '@utils/math/range.ts'
 import { rf5 } from '@utils/math/rounding.ts'
-import { isbool, isdef, isnumber } from '@utils/ts/ts.ts'
+import { isbool, isdef, isnumber, isundef } from '@utils/ts/ts.ts'
 
 
 
@@ -12,7 +12,7 @@ export type MappedGamepadSignalId = string
 
 export type MappedPushSignal = boolean
 export type MappedAnalogSignal = number
-export type MappedGamepadSignal = MappedPushSignal | MappedAnalogSignal | undefined
+export type MappedGamepadSignal = MappedPushSignal | MappedAnalogSignal
 export type MappedGamepadState = Record<MappedGamepadSignalId, MappedGamepadSignal>
 
 export interface MappedGamepad {
@@ -55,8 +55,11 @@ export function nativeGamepadStateToMappedState(
   mapping: GamepadMapping,
   prevMapped?: MappedGamepadState,
 ): MappedGamepadState {
-  return Object.fromEntries(Object.entries(mapping).map(([mSigId, m]) => {
-    return [mSigId, getMappedSignal(nativeState, m, prevMapped?.[mSigId])]
+  return Object.fromEntries(Object.entries(mapping).flatMap(([mSigId, m]) => {
+    const mSig = getMappedSignal(nativeState, m, prevMapped?.[mSigId])
+    // Skip undefined signal
+    if (isundef(mSig)) return []
+    return [[mSigId, mSig]]
   }))
 }
 
@@ -64,8 +67,7 @@ export function getMappedSignal(
   nativeState: NativeGamepadState,
   signalExprMapping: SignalExpressionMapping,
   prevSignal?: MappedGamepadSignal,
-): MappedGamepadSignal {
-  let mSig: MappedGamepadSignal = undefined
+): MappedGamepadSignal | undefined {
   const sExpr = signalExprMapping
   if ('signalId' in sExpr) {
     const {
@@ -89,85 +91,70 @@ export function getMappedSignal(
     if (isdef(ns)) {
       ns = rf5(ns)
       if (isAnalog || isAnalogIn || isAnalogElse) {
-        const a: MappedAnalogSignal = (() => {
-          if (isAnalog) {
-            if (rangeHas(ns, analogIn ?? analog)) {
-              return rangeMapClamp(ns, analog, [0, 1])
-            }
+        if (isAnalog) {
+          if (rangeHas(ns, analogIn ?? analog)) {
+            return rangeMapClamp(ns, analog, [0, 1])
           }
-          if (isAnalogElse) return analogElse
-          return 0
-        })()
-        return a
+        }
+        if (isAnalogElse) return analogElse
+        return 0
       }
       
       if (isPush || isPushOff || isPushFrom || isPushTo || isPushOffFrom || isPushOffTo) {
-        const p: MappedPushSignal = (() => {
-          const anyPushProp = isPush || isPushFrom || isPushTo
-          const anyPushOffProp = isPushOff || isPushOffFrom || isPushOffTo
-          const anyPush = (() => {
-            if (isPush) { if (ns === push) return true }
-            if (isPushFrom || isPushTo) {
-              if (isPushFrom && isPushTo) {
-                if (rangeHas(ns, [pushFrom, pushTo])) return true
-              }
-              else if (isPushFrom) { if (ns >= pushFrom) return true }
-              else if (isPushTo) { if (ns <= pushTo) return true }
+        const anyPushProp = isPush || isPushFrom || isPushTo
+        const anyPushOffProp = isPushOff || isPushOffFrom || isPushOffTo
+        const anyPush = (() => {
+          if (isPush) { if (ns === push) return true }
+          if (isPushFrom || isPushTo) {
+            if (isPushFrom && isPushTo) {
+              if (rangeHas(ns, [pushFrom, pushTo])) return true
             }
-          })()
-          const anyPushOff = (() => {
-            if (isPushOff) { if (ns === pushOff) return true }
-            if (isPushOffFrom || isPushOffTo) {
-              if (isPushOffFrom && isPushOffTo) {
-                if (rangeHas(ns, [pushOffFrom, pushOffTo])) return true
-              }
-              else if (isPushOffFrom) { if (ns >= pushOffFrom) return true }
-              else if (isPushOffTo) { if (ns <= pushOffTo) return true }
-            }
-          })()
-          if (anyPush) return true
-          if (anyPushOff) return false
-          if (anyPushProp && !anyPushOffProp) return false
-          if (!anyPushProp && anyPushOffProp) return true
-          if (anyPushProp && anyPushOffProp && isbool(prevSignal)) return prevSignal
-          return false
+            else if (isPushFrom) { if (ns >= pushFrom) return true }
+            else if (isPushTo) { if (ns <= pushTo) return true }
+          }
         })()
-        return p
+        const anyPushOff = (() => {
+          if (isPushOff) { if (ns === pushOff) return true }
+          if (isPushOffFrom || isPushOffTo) {
+            if (isPushOffFrom && isPushOffTo) {
+              if (rangeHas(ns, [pushOffFrom, pushOffTo])) return true
+            }
+            else if (isPushOffFrom) { if (ns >= pushOffFrom) return true }
+            else if (isPushOffTo) { if (ns <= pushOffTo) return true }
+          }
+        })()
+        if (anyPush) return true
+        if (anyPushOff) return false
+        if (anyPushProp && !anyPushOffProp) return false
+        if (!anyPushProp && anyPushOffProp) return true
+        if (anyPushProp && anyPushOffProp && isbool(prevSignal)) return prevSignal
+        return false
       }
     }
-    
-    return undefined
   }
   else if ('signals' in sExpr) {
     const signals = sExpr.signals.map(it => getMappedSignal(nativeState, it, prevSignal))
     const op = sExpr.operator
     if (op === 'and') {
-      mSig = signals.filter(it => isbool(it)).reduce((a, c) => a && c, undefined)
+      return signals.filter(it => isbool(it)).reduce((a, c) => a && c, false)
     }
     else if (op === 'or') {
-      //@ts-expect-error
-      mSig = signals.filter(it => isbool(it)).reduce((a, c) => a || c, undefined)
+      return signals.filter(it => isbool(it)).reduce((a, c) => a || c, false)
     }
     else if (op === 'not') {
-      if (isbool(signals[0])) mSig = !signals[0]
+      return !signals[0]
     }
     else if (op === 'max') {
-      //@ts-expect-error
-      mSig = signals.filter(it => isnumber(it)).reduce((a, c) => Math.max(a, c), undefined)
+      return signals.filter(it => isnumber(it)).reduce((a, c) => Math.max(a, c), 0)
     }
     else if (op === 'min') {
-      //@ts-expect-error
-      mSig = signals.filter(it => isnumber(it)).reduce((a, c) => Math.min(a, c), undefined)
+      return signals.filter(it => isnumber(it)).reduce((a, c) => Math.min(a, c), 0)
     }
     else if (op === 'avg') {
       let cnt = 1
-      mSig = signals.filter(it => isnumber(it))
-        //@ts-expect-error
-        .reduce((a, c) => cnt / (cnt + 1) * a + c / ++cnt, undefined)
+      return signals.filter(it => isnumber(it)).reduce((a, c) => cnt / (cnt + 1) * a + c / ++cnt, 0)
     }
   }
-  
-  return mSig
 }
 
 

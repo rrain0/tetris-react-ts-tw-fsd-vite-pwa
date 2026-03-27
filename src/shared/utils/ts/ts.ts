@@ -206,6 +206,11 @@ export function assertNever(value: never): never {
     `This code must not be reached because value must be never, but it is: ${value}`
   )
 }
+export function assertNeverTrue(value: false): never {
+  throw new Error(
+    `This code must not be reached because value must be false, but it is: ${value}`
+  )
+}
 
 
 
