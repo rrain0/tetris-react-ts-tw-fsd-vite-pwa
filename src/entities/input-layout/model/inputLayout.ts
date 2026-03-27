@@ -1,7 +1,7 @@
 
 
 
-export interface InputLayoutKeys {
+export interface InputLayoutConfig {
   ingame: {
     // ◀️
     moveLeft: ActionConfig

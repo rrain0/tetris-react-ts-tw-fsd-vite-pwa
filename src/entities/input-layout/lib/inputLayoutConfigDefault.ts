@@ -1,8 +1,8 @@
-import type { InputLayoutKeys } from 'entities/input-layout/model/inputLayout.ts'
+import type { InputLayoutConfig } from 'entities/input-layout/model/inputLayout.ts'
 
 
 
-export const inputLayoutKeyboardDefault: InputLayoutKeys = {
+export const inputLayoutConfigDefault: InputLayoutConfig = {
   ingame: {
     moveLeft: [
       { inputMethod: 'keyboard', key: 'KeyA' },

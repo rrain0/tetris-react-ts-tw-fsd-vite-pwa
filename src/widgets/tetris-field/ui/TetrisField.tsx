@@ -3,12 +3,15 @@ import { useGamepadKeyHold } from '@lib/gamepad-input-events/gamepad-key-hold/us
 import {
   useGamepadDownClick
 } from '@lib/gamepad-input-events/gamepad-down-click/useGamepadDownClick.ts'
+import type { Field } from '@lib/tetris-engine/entities/field/model/field.ts'
 import { Game } from '@lib/tetris-engine/entities/game/model/game.ts'
 import { useKeyDownClick } from '@lib/native-button-events/useKeyDownClick.ts'
 import { useKeyHold } from '@lib/native-button-events/useKeyHold.ts'
 import { combineProps } from '@utils/react/props/combineProps.ts'
-import { isGamepadKeyAction } from 'entities/input-layout/lib/isGamepadKeyAction.ts'
-import { isKeyboardAction } from 'entities/input-layout/lib/isKeyboardAction.ts'
+import type { Setter } from '@utils/ts/ts.ts'
+import { InputLayoutContext } from 'entities/input-layout/context/InputLayoutContext.ts'
+import { isGamepadKeyAction } from 'entities/input-layout/model/isGamepadKeyAction.ts'
+import { isKeyboardAction } from 'entities/input-layout/model/isKeyboardAction.ts'
 import { use, useState } from 'react'
 import Block from '@widgets/tetris-field/entities/block/ui/Block.tsx'
 import {
@@ -57,78 +60,8 @@ export default function TetrisField() {
   
   const focusOnMount = { ref: (elem: HTMLElement | null) => elem?.focus() }
   
-  const onKeyboardKeyHold = useKeyHold({ interval: 150 }, ev => {
-    if (isKeyboardAction('ingame', 'moveLeft', ev)) {
-      game.moveCurrentPieceLeft()
-      setField(game.renderField())
-    }
-    if (isKeyboardAction('ingame', 'moveRight', ev)) {
-      game.moveCurrentPieceRight()
-      setField(game.renderField())
-    }
-    if (isKeyboardAction('ingame', 'moveDown', ev)) {
-      game.moveCurrentPieceDown()
-      setField(game.renderField())
-    }
-    if (isKeyboardAction('ingame', 'moveUp', ev)) {
-      game.moveCurrentPieceUp()
-      setField(game.renderField())
-    }
-  })
   
-  const onKeyboardKeyDownClick = useKeyDownClick(ev => {
-    if (isKeyboardAction('ingame', 'rotateLeft', ev)) {
-      game.rotateCurrentPieceLeft()
-      setField(game.renderField())
-    }
-    if (isKeyboardAction('ingame', 'rotateRight', ev)) {
-      game.rotateCurrentPieceRight()
-      setField(game.renderField())
-    }
-    if (isKeyboardAction('ingame', 'drop', ev)) {
-      game.dropCurrentPiece()
-      setField(game.renderField())
-    }
-  })
-  
-  
-  useGamepadKeyHold({ interval: 150 }, ev => {
-    if (isGamepadKeyAction('ingame', 'moveLeft', ev)) {
-      game.moveCurrentPieceLeft()
-      setField(game.renderField())
-    }
-    if (isGamepadKeyAction('ingame', 'moveRight', ev)) {
-      game.moveCurrentPieceRight()
-      setField(game.renderField())
-    }
-    if (isGamepadKeyAction('ingame', 'moveDown', ev)) {
-      game.moveCurrentPieceDown()
-      setField(game.renderField())
-    }
-    if (isGamepadKeyAction('ingame', 'moveUp', ev)) {
-      game.moveCurrentPieceUp()
-      setField(game.renderField())
-    }
-  })
-  
-  useGamepadDownClick(ev => {
-    if (isGamepadKeyAction('ingame', 'rotateLeft', ev)) {
-      game.rotateCurrentPieceLeft()
-      setField(game.renderField())
-    }
-    if (isGamepadKeyAction('ingame', 'rotateRight', ev)) {
-      game.rotateCurrentPieceRight()
-      setField(game.renderField())
-    }
-    if (isGamepadKeyAction('ingame', 'drop', ev)) {
-      game.dropCurrentPiece()
-      setField(game.renderField())
-    }
-  })
-  
-  
-  
-  
+  const { onKeyboardKeyHold, onKeyboardKeyDownClick } = useAppActions(setField)
   
   return (
     <div
@@ -166,3 +99,80 @@ export default function TetrisField() {
 
 
 const fieldStyle = 'border-[3px] border-solid border-[#808080] rounded-[4px]'
+
+
+
+function useAppActions(setField: Setter<Field>) {
+  const { inputLayout } = use(InputLayoutContext)
+  
+  const onKeyboardKeyHold = useKeyHold({ interval: 150 }, ev => {
+    if (isKeyboardAction('ingame', 'moveLeft', ev, inputLayout)) {
+      game.moveCurrentPieceLeft()
+      setField(game.renderField())
+    }
+    if (isKeyboardAction('ingame', 'moveRight', ev, inputLayout)) {
+      game.moveCurrentPieceRight()
+      setField(game.renderField())
+    }
+    if (isKeyboardAction('ingame', 'moveDown', ev, inputLayout)) {
+      game.moveCurrentPieceDown()
+      setField(game.renderField())
+    }
+    if (isKeyboardAction('ingame', 'moveUp', ev, inputLayout)) {
+      game.moveCurrentPieceUp()
+      setField(game.renderField())
+    }
+  })
+  
+  const onKeyboardKeyDownClick = useKeyDownClick(ev => {
+    if (isKeyboardAction('ingame', 'rotateLeft', ev, inputLayout)) {
+      game.rotateCurrentPieceLeft()
+      setField(game.renderField())
+    }
+    if (isKeyboardAction('ingame', 'rotateRight', ev, inputLayout)) {
+      game.rotateCurrentPieceRight()
+      setField(game.renderField())
+    }
+    if (isKeyboardAction('ingame', 'drop', ev, inputLayout)) {
+      game.dropCurrentPiece()
+      setField(game.renderField())
+    }
+  })
+  
+  
+  useGamepadKeyHold({ interval: 150 }, ev => {
+    if (isGamepadKeyAction('ingame', 'moveLeft', ev, inputLayout)) {
+      game.moveCurrentPieceLeft()
+      setField(game.renderField())
+    }
+    if (isGamepadKeyAction('ingame', 'moveRight', ev, inputLayout)) {
+      game.moveCurrentPieceRight()
+      setField(game.renderField())
+    }
+    if (isGamepadKeyAction('ingame', 'moveDown', ev, inputLayout)) {
+      game.moveCurrentPieceDown()
+      setField(game.renderField())
+    }
+    if (isGamepadKeyAction('ingame', 'moveUp', ev, inputLayout)) {
+      game.moveCurrentPieceUp()
+      setField(game.renderField())
+    }
+  })
+  
+  useGamepadDownClick(ev => {
+    if (isGamepadKeyAction('ingame', 'rotateLeft', ev, inputLayout)) {
+      game.rotateCurrentPieceLeft()
+      setField(game.renderField())
+    }
+    if (isGamepadKeyAction('ingame', 'rotateRight', ev, inputLayout)) {
+      game.rotateCurrentPieceRight()
+      setField(game.renderField())
+    }
+    if (isGamepadKeyAction('ingame', 'drop', ev, inputLayout)) {
+      game.dropCurrentPiece()
+      setField(game.renderField())
+    }
+  })
+  
+  return { onKeyboardKeyHold, onKeyboardKeyDownClick }
+}
