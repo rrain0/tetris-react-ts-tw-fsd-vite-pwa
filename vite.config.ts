@@ -81,44 +81,15 @@ export default defineConfig(({ command, mode }) => {
     plugins: [
       tailwindcss(),
       
-      react(), // Handles Fast Refresh via Oxc
+      react(),
       babel({
-        // Use the helper to automatically configure the React Compiler
         presets: [reactCompilerPreset()],
+        plugins: [addBabelPluginJsxCnToClassName()],
       }),
       
-      svgr({
-        svgrOptions: {
-          // These plugins must be manually installed as dev deps
-          plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
-          svgo: true,
-          ref: true,
-          memo: true,
-          titleProp: true, // title prop => title tag
-          descProp: true, // desc prop => desc tag
-          svgoConfig: {
-            plugins: [
-              //'removeTitle',
-              //'removeDesc',
-              // SVG elements' id attr auto prefixer to avoid duplicate ids across all document
-              {
-                name: 'prefixIds',
-                params: {
-                  prefixIds: true,
-                  prefixClassNames: false,
-                  delim: '',
-                  prefix: (() => {
-                    let id = 0
-                    return () => `--${(id++).toString(16).padStart(8, '0')}--`
-                  })(),
-                },
-              },
-            ],
-          },
-        },
-      }),
+      addSvgrPlugin(),
       
-      // Add polyfills to build (in dev mode there is no polyfills)
+      // Add polyfills to build (dev mode has no polyfills)
       legacy({
         polyfills: false,
         renderLegacyChunks: false,
@@ -137,3 +108,96 @@ export default defineConfig(({ command, mode }) => {
   }
 })
 
+
+
+function addBabelPluginJsxCnToClassName() {
+  return {
+    visitor: {
+      name: 'babel-plugin-jsx-cn-to-classname',
+      JSXOpeningElement(path: any) {
+        let cnAttr: any
+        let classNameAttr: any
+        
+        // Find the attributes
+        path.get('attributes').forEach((attr: any) => {
+          if (attr.isJSXAttribute()) {
+            const { name } = attr.node.name
+            if (name === 'cn') cnAttr = attr
+            if (name === 'className') classNameAttr = attr
+          }
+        })
+        
+        if (!cnAttr) return
+        
+        // Helper to extract the core value from a JSX attribute (string or {expression})
+        function getValue(attr: any) {
+          const { value: v } = attr.node
+          return v.type === 'JSXExpressionContainer' ? v.expression : v
+        }
+        
+        const cnVal = getValue(cnAttr)
+        
+        // If className exists, combine cn & className to className
+        if (classNameAttr) {
+          const classNameVal = getValue(classNameAttr)
+          
+          // Build the Template Literal: `${className} ${cn}`
+          const appendedValue = {
+            type: 'JSXExpressionContainer',
+            expression: {
+              type: 'TemplateLiteral',
+              expressions: [classNameVal, cnVal],
+              quasis: [
+                { type: 'TemplateElement', value: { raw: '', cooked: '' }, tail: false },
+                { type: 'TemplateElement', value: { raw: ' ', cooked: ' ' }, tail: false },
+                { type: 'TemplateElement', value: { raw: '', cooked: '' }, tail: true },
+              ],
+            },
+          }
+          
+          classNameAttr.set('value', appendedValue)
+          cnAttr.remove()
+        }
+        // If no className exists, just rename cn to className
+        else {
+          cnAttr.node.name.name = 'className'
+        }
+      },
+    },
+  }
+}
+
+
+
+function addSvgrPlugin() {
+  return svgr({
+    svgrOptions: {
+      // These plugins must be manually installed as dev deps
+      plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
+      svgo: true,
+      ref: true,
+      memo: true,
+      titleProp: true, // title prop => title tag
+      descProp: true, // desc prop => desc tag
+      svgoConfig: {
+        plugins: [
+          //'removeTitle',
+          //'removeDesc',
+          // SVG elements' id attr auto prefixer to avoid duplicate ids across all document
+          {
+            name: 'prefixIds',
+            params: {
+              prefixIds: true,
+              prefixClassNames: false,
+              delim: '',
+              prefix: (() => {
+                let id = 0
+                return () => `--${(id++).toString(16).padStart(8, '0')}--`
+              })(),
+            },
+          },
+        ],
+      },
+    },
+  })
+}

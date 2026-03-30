@@ -1,5 +1,6 @@
 @import './tailwind/tailwind-display.css';
 @import './tailwind/tailwind-pointer.css';
+@import './tailwind/tailwind-container.css';
 @import './tailwind/tailwind-position.css';
 @import './tailwind/tailwind-size.css';
 @import './tailwind/tailwind-placed.css';

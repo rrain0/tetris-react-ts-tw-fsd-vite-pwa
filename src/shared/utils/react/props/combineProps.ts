@@ -37,7 +37,7 @@ export function combineProps(...propsList: any[]): object {
             combinedProps[p] = { ...combinedProps[p], ...v }
           }
           // combine css classes to single string
-          else if (p === 'className') {
+          else if (p === 'cn') {
             combinedProps[p] = v0 + ' ' + v
           }
           // combine callbacks to single callback

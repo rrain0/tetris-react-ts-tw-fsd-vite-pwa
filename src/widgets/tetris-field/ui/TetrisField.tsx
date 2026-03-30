@@ -64,41 +64,44 @@ export default function TetrisField() {
   const { onKeyboardKeyHold, onKeyboardKeyDownClick } = useAppActions(setField)
   
   return (
-    <div
-      // in-focus:bg-[yellow]
-      className={`
-        grid w-full h-ct
-        rows-[repeat(20,1fr)] cols-[repeat(10,1fr)]
-        
-        ${fieldStyle}
-      `}
-      {...combineProps(
-        { tabIndex: -1 }, focusOnMount,
-        onKeyboardKeyHold, onKeyboardKeyDownClick,
-      )}
-    >
-      {[...field].map(({ x, y, block }) => {
-        if (!block) return
-        const type = mapPieceTypeToBlockUiType(block.type)
-        if (!type) return
-        const ri = y + 1
-        const ci = x + 1
-        return (
-          <Block type={type}
-            key={`${ri} ${ci}`}
-            style={{ gridArea: `${ri} / ${ci}` }}
-            onFocus={ev => { console.log('block focus') }}
-            onBlur={ev => { console.log('block blur') }}
-          />
-        )
-      })}
+    <div cn='container-inline-size'>
+      <div
+        // in-focus:bg-[yellow]
+        cn={`
+          grid w-full h-ct
+          rows-[repeat(20,1fr)] cols-[repeat(10,1fr)]
+          
+          
+          ${fieldStyle}
+        `}
+        {...combineProps(
+          { tabIndex: -1 }, focusOnMount,
+          onKeyboardKeyHold, onKeyboardKeyDownClick,
+        )}
+      >
+        {[...field].map(({ x, y, block }) => {
+          if (!block) return
+          const type = mapPieceTypeToBlockUiType(block.type)
+          if (!type) return
+          const ri = y + 1
+          const ci = x + 1
+          return (
+            <Block type={type}
+              key={`${ri} ${ci}`}
+              style={{ gridArea: `${ri} / ${ci}` }}
+              onFocus={ev => { console.log('block focus') }}
+              onBlur={ev => { console.log('block blur') }}
+            />
+          )
+        })}
+      </div>
     </div>
   )
 }
 
 
 
-const fieldStyle = 'border-[3px] border-solid border-[#808080] rounded-[4px]'
+const fieldStyle = 'border-[1cqw] border-solid border-[#808080] rounded-[1.25cqw]'
 
 
 

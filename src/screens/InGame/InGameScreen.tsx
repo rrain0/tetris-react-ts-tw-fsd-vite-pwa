@@ -9,19 +9,28 @@ export default function InGameScreen() {
   
   return (
     <>
-      <div className='flex col'>
-        
-        <div className='flex row center-end p-[4] g-[4] color-[#808080]'>
-          Next:
-          <div className='flex col center sz-[24]'>
-            <FullscreenIc className='sz-full svg-curr-color'/>
-          </div>
-          <div className='flex col center sz-[24] p-[1]'>
-            <PauseIc className='sz-full svg-curr-color'/>
-          </div>
-        </div>
+      <div cn='grid cols-[10fr_6fr]'>
         
         <TetrisGlass/>
+        
+        <div cn='flex col container-inline-size'>
+          <div cn='flex col p-[8cqw]'>
+            
+            <div cn='flex row center-end p-[4] g-[4] color-[#808080]'>
+              <div cn='flex col center sz-[24]'>
+                <FullscreenIc cn='sz-full svg-curr-color'/>
+              </div>
+              <div cn='flex col center sz-[24] p-[1]'>
+                <PauseIc cn='sz-full svg-curr-color'/>
+              </div>
+            </div>
+            
+            <div cn=''>
+              NEXT
+            </div>
+          
+          </div>
+        </div>
       
       </div>
     </>

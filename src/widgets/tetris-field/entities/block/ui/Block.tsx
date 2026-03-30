@@ -1,4 +1,3 @@
-import { combineProps } from '@utils/react/props/combineProps.ts'
 import type { ComponentProps } from 'react'
 import * as React from 'react'
 import type { BlockType } from '@widgets/tetris-field/entities/block/model/block.ts'
@@ -13,11 +12,9 @@ export default function Block({
   const src = mapBlockUiTypeToSrc(type)
   
   return (
-    <img
-      {...combineProps(
-        { src, className: 'w-full h-auto square object-center object-cover' },
-        rest
-      )}
+    <img cn='w-full h-auto square object-center object-cover'
+      src={src}
+      {...rest}
     />
   )
 }

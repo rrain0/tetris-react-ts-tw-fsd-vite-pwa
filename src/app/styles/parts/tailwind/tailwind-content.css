@@ -3,13 +3,8 @@
 
 
 /*** 🔶Content🔶 ***/
+
 /** background & color **/
 @utility bg-* { background: --value([*]); }
 @utility bg-color-* { background-color: --value([*]); }
 @utility color-* { color: --value([*]); }
-
-/** overflow **/
-@utility no-overflow { overflow: hidden; }
-@utility overflow-auto { overflow: auto; }
-@utility overflow-hidden { overflow: hidden; }
-@utility overflow-visible { overflow: visible; }
