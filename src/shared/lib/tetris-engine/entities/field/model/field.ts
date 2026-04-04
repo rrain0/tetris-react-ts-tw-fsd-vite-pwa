@@ -4,13 +4,13 @@ import { array } from '@utils/array/arrCreate.ts'
 
 
 
-export type PieceBlock = { type: Id, pieceId: Id }
-export type FieldBlock = PieceBlock | null
+export type FieldPieceBlock = { type: Id, pieceId: Id }
+export type FieldBlock = FieldPieceBlock | null
 
 export class Field {
   blocks: FieldBlock[][]
   
-  constructor(rows = 20, cols = 10) {
+  constructor(cols = 20, rows = 10) {
     this.blocks =  array(rows).map(() => array<FieldBlock>(cols, null))
   }
   

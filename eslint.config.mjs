@@ -208,7 +208,7 @@ export default defineConfig([
       '@stylistic/no-tabs': 'error',
       '@stylistic/no-trailing-spaces': 'off',
       '@stylistic/no-whitespace-before-property': 'error',
-      '@stylistic/nonblock-statement-body-position': 'off',
+      '@stylistic/nonblock-statement-body-blocks': 'off',
       '@stylistic/object-curly-newline': 'off',
       '@stylistic/object-curly-spacing': ['error', 'always'],
       //'@stylistic/object-property-newline': ['error', { allowAllPropertiesOnSameLine: true }],

@@ -69,13 +69,14 @@ export default function InGameScreen() {
   const bdWPerc = 0.1 / totalW * 100
   const fieldWPerc = 10 * 1.0 / totalW * 100
   const sideWPerc = 6 * 1.0 / totalW * 100
+  
   const sidePPerc = 0.5 * 1.0 / totalW * 100
-  const sideGPerc = 0.25 * 1.0 / totalW * 100
-  const nextWPerc = 5 * 1.0 / totalW * 100
+  const sideGPerc = 0.35 * 1.0 / totalW * 100
+  const nextWPerc = 4 * 1.0 / totalW * 100
   const titleSzPerc = 0.7 * 1.0 / totalW * 100
   const digitsSzPerc = 0.9 * 1.0 / totalW * 100
   
-  const titleSzSt = { fontSize: `${titleSzPerc}cqw` }
+  const titleSt = { fontSize: `${titleSzPerc}cqw` }
   const digitsSt = { fontSize: `${digitsSzPerc}cqw` }
   
   return (
@@ -86,7 +87,7 @@ export default function InGameScreen() {
         )}
       >
         
-        <div cn='flex col w-full bd-c-[#808080] rad-[1.25cqw]'
+        <div cn='flex col w-ct bd-c-[#808080] rad-[1.25cqw]'
           st={{ borderWidth: `${bdWPerc}cqw` }}
         >
           <TetrisField st={{ width: `${fieldWPerc}cqw` }}
@@ -99,7 +100,35 @@ export default function InGameScreen() {
         <div cn='flex col' st={{ width: `${sideWPerc}cqw` }}>
           <div cn='flex col h-full' st={{ padding: `${sidePPerc}cqw`, gap: `${sideGPerc}cqw` }}>
             
-            <div st={titleSzSt}>
+            <div st={titleSt}>
+              HI-SCORE
+            </div>
+            <div cn='flex col-end'>
+              <div cn={digitsTw} st={digitsSt}>194638</div>
+            </div>
+            
+            <div st={titleSt}>
+              SCORE
+            </div>
+            <div cn='flex col-end'>
+              <div cn={digitsTw} st={digitsSt}>1666</div>
+            </div>
+            
+            <div st={titleSt}>
+              LEVEL
+            </div>
+            <div cn='flex col-end'>
+              <div cn={digitsTw} st={digitsSt}>12</div>
+            </div>
+            
+            <div st={titleSt}>
+              LINES
+            </div>
+            <div cn='flex col-end'>
+              <div cn={digitsTw} st={digitsSt}>57</div>
+            </div>
+            
+            <div st={titleSt}>
               NEXT
             </div>
             <div cn='flex col-end'>
@@ -108,36 +137,8 @@ export default function InGameScreen() {
               />
             </div>
             
-            <div st={titleSzSt}>
-              HI-SCORE
-            </div>
-            <div cn='flex col-end'>
-              <div cn={digitsTw} st={digitsSt}>194638</div>
-            </div>
-            
-            <div st={titleSzSt}>
-              SCORE
-            </div>
-            <div cn='flex col-end'>
-              <div cn={digitsTw} st={digitsSt}>1666</div>
-            </div>
-            
-            <div st={titleSzSt}>
-              LEVEL
-            </div>
-            <div cn='flex col-end'>
-              <div cn={digitsTw} st={digitsSt}>12</div>
-            </div>
-            
-            <div st={titleSzSt}>
-              LINES
-            </div>
-            <div cn='flex col-end'>
-              <div cn={digitsTw} st={digitsSt}>57</div>
-            </div>
-            
             <div cn='flex col end grow'>
-              <div cn='flex row center-end p-[4] g-[4] color-[#808080]'>
+              <div cn='flex row center-end p-[4] g-[4] color-[white]'>
                 <div cn='flex col center sz-[24]'>
                   <FullscreenIc cn='sz-full svg-curr-color'/>
                 </div>

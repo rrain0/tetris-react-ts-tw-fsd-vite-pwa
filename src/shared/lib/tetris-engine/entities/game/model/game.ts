@@ -62,16 +62,16 @@ export class Game {
   // Only drop, does not apply any lock or delay
   dropCurrentPiece() {
     const { blocks } = this.field
-    const { xy: [x, y], position: p } = this.current
+    const { xy: [x, y], blocks: b } = this.current
     let freeY = blocks.length
     // Find first bottom piece block
-    for (let xp = 0; xp < p[0].length; xp++) {
-      for (let yp = p.length - 1; yp >= 0; yp--) {
-        const element = p[yp][xp]
+    for (let xb = 0; xb < b[0].length; xb++) {
+      for (let yb = b.length - 1; yb >= 0; yb--) {
+        const element = b[yb][xb]
         if (element) {
           // Find first field block under piece block
-          for (let by = y + yp + 1; by < blocks.length; by++) {
-            if (blocks[by][x + xp]) { freeY = Math.min(by - 1 - yp, freeY); break }
+          for (let by = y + yb + 1; by < blocks.length; by++) {
+            if (blocks[by][x + xb]) { freeY = Math.min(by - 1 - yb, freeY); break }
           }
           break
         }
@@ -99,9 +99,10 @@ export class Game {
   }
   // TODO Field
   renderNextField() {
-    const f = new Field(5, 5)
-    const [x, y] = this.next.xy
-    const piece = this.next.toMoved([-x + 5 - this.next.position[0].length, -y])
+    const n = this.next
+    const f = new Field(4, 2)
+    const [x, y] = n.xy
+    const piece = n.toMoved([-x - n.firstNonEmptyCol, -y - n.firstNonEmptyRow])
     console.log('piece', piece)
     f.addPiece(piece)
     return f

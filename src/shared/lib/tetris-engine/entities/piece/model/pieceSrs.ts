@@ -1,4 +1,4 @@
-import { Piece, type Position } from '@lib/tetris-engine/entities/piece/model/piece.ts'
+import { Piece, type Blocks } from '@lib/tetris-engine/entities/piece/model/piece.ts'
 import type { num2 } from '@lib/tetris-engine/shared/utils/array.ts'
 import type { Id } from '@utils/app/id.ts'
 import { rectMatrixToRotated } from '@lib/tetris-engine/shared/utils/matrix.ts'
@@ -17,7 +17,7 @@ export type OffsetsSrs = {
 
 export type PieceSrsConfig = {
   xy: num2
-  position: Position
+  blocks: Blocks
   offsets: OffsetsSrs
 }
 
@@ -30,17 +30,17 @@ export class PieceSrs extends Piece {
     id: Id,
     type: Id,
     xy: num2,
-    position: Position,
+    blocks: Blocks,
     rotI = 0,
     offsets: OffsetsSrs,
   ) {
-    super(id, type, xy, position, rotI)
+    super(id, type, xy, blocks, rotI)
     this.offsets = offsets
   }
   
   override toMoved(dxy: num2): PieceSrs {
     const xy: num2 = [this.xy[0] + dxy[0], this.xy[1] + dxy[1]]
-    return new PieceSrs(this.id, this.type, xy, this.position, this.rotI, this.offsets)
+    return new PieceSrs(this.id, this.type, xy, this.blocks, this.rotI, this.offsets)
   }
   
   override toRotatedRight() {
@@ -52,7 +52,7 @@ export class PieceSrs extends Piece {
   
   // Uses mathematical rotation then applies wall kicks
   ;*toRotated(direction: 1 | -1) {
-    const position = rectMatrixToRotated(this.position, direction)
+    const blocks = rectMatrixToRotated(this.blocks, direction)
     const rotI = mod(this.rotI + direction, 4)
     
     const fromRot = (['0', 'R', '2', 'L'] as const)[this.rotI]
@@ -66,7 +66,7 @@ export class PieceSrs extends Piece {
         this.xy[0] + kickTranslation[0],
         this.xy[1] + kickTranslation[1],
       ]
-      yield new PieceSrs(this.id, this.type, xy, position, rotI, this.offsets)
+      yield new PieceSrs(this.id, this.type, xy, blocks, rotI, this.offsets)
     }
   }
 }
