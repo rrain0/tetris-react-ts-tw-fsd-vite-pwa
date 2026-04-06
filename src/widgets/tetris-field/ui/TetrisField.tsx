@@ -21,9 +21,9 @@ export default function TetrisField({ field, ...rest }: TetrisFieldProps) {
       }}
       {...rest}
     >
-      {[...field].map(({ x, y, block }) => {
-        if (!block) return
-        const type = mapPieceTypeToBlockUiType(block.type)
+      {[...field].map(({ x, y, blockValue: b }) => {
+        if (!b) return
+        const type = mapPieceTypeToBlockUiType(b.type)
         if (!type) return
         const ri = y + 1
         const ci = x + 1

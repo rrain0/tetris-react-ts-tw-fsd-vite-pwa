@@ -93,7 +93,7 @@ export default function addBabelPluginJsxCnToClassNameAndStToStyle() {
           const finalStyleAttrValue = template.expression.ast`
             {
               ...${st},
-              ...${spread}.find(it => 'style' in it)?.style ?? ${style}
+              ...${spread}.find(it => 'style' in it)?.style ?? ${style},
             }
           `
           

@@ -1,5 +1,5 @@
-import { Piece, type Blocks } from '@lib/tetris-engine/entities/piece/model/piece.ts'
-import type { num2 } from '@lib/tetris-engine/shared/utils/array.ts'
+import { Piece, type PieceBlocks } from '@lib/tetris-engine/entities/piece/model/piece.ts'
+import type { num2, Xydxdy } from '@lib/tetris-engine/shared/utils/types.ts'
 import type { Id } from '@utils/app/id.ts'
 import { rectMatrixToRotated } from '@lib/tetris-engine/shared/utils/matrix.ts'
 import { mod } from '@utils/math/mod.ts'
@@ -17,7 +17,7 @@ export type OffsetsSrs = {
 
 export type PieceSrsConfig = {
   xy: num2
-  blocks: Blocks
+  blocks: PieceBlocks
   offsets: OffsetsSrs
 }
 
@@ -30,7 +30,7 @@ export class PieceSrs extends Piece {
     id: Id,
     type: Id,
     xy: num2,
-    blocks: Blocks,
+    blocks: PieceBlocks,
     rotI = 0,
     offsets: OffsetsSrs,
   ) {
@@ -38,9 +38,10 @@ export class PieceSrs extends Piece {
     this.offsets = offsets
   }
   
-  override toMoved(dxy: num2): PieceSrs {
-    const xy: num2 = [this.xy[0] + dxy[0], this.xy[1] + dxy[1]]
-    return new PieceSrs(this.id, this.type, xy, this.blocks, this.rotI, this.offsets)
+  override toMoved({ x, y, dx, dy }: Xydxdy): PieceSrs {
+    const [x0, y0] = this.xy
+    const x1y1: num2 = [(x ?? x0) + (dx ?? 0), (y ?? y0) + (dy ?? 0)]
+    return new PieceSrs(this.id, this.type, x1y1, this.blocks, this.rotI, this.offsets)
   }
   
   override toRotatedRight() {

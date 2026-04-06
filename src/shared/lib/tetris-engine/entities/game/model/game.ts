@@ -34,19 +34,19 @@ export class Game {
   
   
   moveCurrentPieceLeft() {
-    const moved = this.current.toMoved([-1, 0])
+    const moved = this.current.toMoved({ dx: -1 })
     this.tryPlaceNewCurrentPiece(moved)
   }
   moveCurrentPieceRight() {
-    const moved = this.current.toMoved([1, 0])
+    const moved = this.current.toMoved({ dx: 1 })
     this.tryPlaceNewCurrentPiece(moved)
   }
   moveCurrentPieceDown() {
-    const moved = this.current.toMoved([0, 1])
+    const moved = this.current.toMoved({ dy: 1 })
     this.tryPlaceNewCurrentPiece(moved)
   }
   moveCurrentPieceUp() {
-    const moved = this.current.toMoved([0, -1])
+    const moved = this.current.toMoved({ dy: -1 })
     this.tryPlaceNewCurrentPiece(moved)
   }
   rotateCurrentPieceLeft() {
@@ -77,7 +77,7 @@ export class Game {
         }
       }
     }
-    const moved = this.current.toMoved([0, freeY - y])
+    const moved = this.current.toMoved({ y: freeY })
     this.tryPlaceNewCurrentPiece(moved)
   }
   
@@ -102,7 +102,7 @@ export class Game {
     const n = this.next
     const f = new Field(4, 2)
     const [x, y] = n.xy
-    const piece = n.toMoved([-x - n.firstNonEmptyCol, -y - n.firstNonEmptyRow])
+    const piece = n.toMoved({ x: -n.firstNonEmptyCol, y: -n.firstNonEmptyRow })
     console.log('piece', piece)
     f.addPiece(piece)
     return f
