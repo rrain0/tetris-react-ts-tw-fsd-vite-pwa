@@ -23,12 +23,12 @@ export default function TetrisField({ field, ...rest }: TetrisFieldProps) {
         if (!b) return
         const type = mapPieceTypeToBlockUiType(b.type)
         if (!type) return
-        const ri = y + 1
-        const ci = x + 1
+        const row = y + 1
+        const col = x + 1
         return (
           <Block type={type}
-            key={`${ri} ${ci}`}
-            style={{ gridArea: `${ri} / ${ci}` }}
+            key={`${row} ${col}`}
+            style={{ gridArea: `${row} / ${col}` }}
           />
         )
       })}

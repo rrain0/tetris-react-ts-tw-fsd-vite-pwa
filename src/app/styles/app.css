@@ -28,6 +28,8 @@
         A new stacking context.
         A new block formatting context. */
     contain: content;
+    /* https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/content-visibility */
+    content-visibility: auto;
   }
   
 }
