@@ -10,7 +10,7 @@ import {
   newISrs, newJSrs, newLSrs, newOSrs, newSSrs, newTSrs, newZSrs,
 } from '@lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
 import { combineProps } from '@utils/react/props/combineProps.ts'
-import type { Setter, SetterOrUpdater } from '@utils/ts/ts.ts'
+import type { SetterOrUpdater } from '@utils/ts/ts.ts'
 import { InputLayoutContext } from 'entities/input-layout/context/InputLayoutContext.ts'
 import { isGamepadKeyAction } from 'entities/input-layout/model/isGamepadKeyAction.ts'
 import { isKeyboardAction } from 'entities/input-layout/model/isKeyboardAction.ts'
