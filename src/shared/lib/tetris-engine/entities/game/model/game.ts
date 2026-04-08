@@ -101,9 +101,8 @@ export class Game {
     return f
   }
   renderNextField() {
-    const n = this.next
-    const f = Field.empty(4, 2)
-    const nextPiece = n.toMoved({ x: -n.firstNonEmptyCol, y: -n.firstNonEmptyRow })
+    const nextPiece = this.next.toTrimmed().toMoved({ x: 0, y: 0 })
+    const f = Field.empty(nextPiece.cols, nextPiece.rows)
     f.addPiece(nextPiece)
     return f
   }

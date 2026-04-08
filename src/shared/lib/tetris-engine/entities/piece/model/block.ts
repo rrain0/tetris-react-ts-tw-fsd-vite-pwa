@@ -21,21 +21,19 @@ export function *blocksIterator(blocks: Blocks) {
   }
 }
 
-export function blocksGetFirstNonEmptyRow(blocks: Blocks) {
+export function blocksGetBounds(blocks: Blocks) {
   const rows = blocksRows(blocks), cols = blocksCols(blocks)
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      if (blocks[y][x]) return y
+  let xFirst = cols - 1, yFirst = rows - 1, xLast = 0, yLast = 0, anyBlock = false
+  for (const block of blocksIterator(blocks)) {
+    const { x, y, blockValue } = block
+    if (blockValue) {
+      xFirst = Math.min(xFirst, x)
+      yFirst = Math.min(yFirst, y)
+      xLast = Math.max(xLast, x)
+      yLast = Math.max(yLast, y)
+      anyBlock = true
     }
   }
-  return rows
-}
-export function blocksGetFirstNonEmptyCol(blocks: Blocks) {
-  const rows = blocksRows(blocks), cols = blocksCols(blocks)
-  for (let x = 0; x < cols; x++) {
-    for (let y = 0; y < rows; y++) {
-      if (blocks[y][x]) return x
-    }
-  }
-  return cols
+  if (anyBlock) return { xFirst, yFirst, xLast, yLast }
+  return null
 }

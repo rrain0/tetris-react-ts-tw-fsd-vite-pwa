@@ -24,7 +24,7 @@ export default function IngameScreenLand({ game }: IngameScreenLandProps) {
   
   const sideW = 6 * blockSz
   const sideG = 0.35
-  const nextW = 4 * blockSz
+  const nextW = nextField.cols * blockSz
   const titleH = 0.8
   const digitH = 0.9
   

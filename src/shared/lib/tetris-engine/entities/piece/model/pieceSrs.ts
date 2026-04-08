@@ -1,5 +1,6 @@
 import { Piece, type PieceBlocks } from '@lib/tetris-engine/entities/piece/model/piece.ts'
-import type { num2, Xydxdy } from '@lib/tetris-engine/shared/utils/types.ts'
+import { mathRotate, moveXy } from '@lib/tetris-engine/shared/utils/piece.ts'
+import type { num2, XydxdyOpt } from '@lib/tetris-engine/shared/utils/types.ts'
 import type { Id } from '@utils/app/id.ts'
 import { rectMatrixToRotated } from '@lib/tetris-engine/shared/utils/matrix.ts'
 import { mod } from '@utils/math/mod.ts'
@@ -40,35 +41,32 @@ export class PieceSrs extends Piece {
     this.offsets = offsets
   }
   
-  override toMoved({ x, y, dx, dy }: Xydxdy): PieceSrs {
-    const { x: x0, y: y0 } = this
-    const x1 = (x ?? x0) + (dx ?? 0)
-    const y1 = (y ?? y0) + (dy ?? 0)
+  override toMoved(move: XydxdyOpt): PieceSrs {
+    const { x, y } = this
+    const { x: x1, y: y1 } = moveXy(x, y, move)
     return new PieceSrs(this.id, this.type, x1, y1, this.blocks, this.rotI, this.offsets)
   }
   
-  override toRotatedRight() {
-    return this.toRotated(1)
-  }
-  override toRotatedLeft() {
-    return this.toRotated(-1)
-  }
+  override toRotatedRight() { return pieceSrsToRotated(this, 1) }
+  override toRotatedLeft() { return pieceSrsToRotated(this, -1) }
+}
+
+
+
+// Uses mathematical rotation then applies wall kicks
+export function *pieceSrsToRotated(piece: PieceSrs, direction: 1 | -1) {
+  const p = piece
+  const { blocks, rotI } = mathRotate(p.blocks, p.rotI, direction)
   
-  // Uses mathematical rotation then applies wall kicks
-  ;*toRotated(direction: 1 | -1) {
-    const blocks = rectMatrixToRotated(this.blocks, direction)
-    const rotI = mod(this.rotI + direction, 4)
-    
-    const fromRot = (['0', 'R', '2', 'L'] as const)[this.rotI]
-    const toRot = (['0', 'R', '2', 'L'] as const)[rotI]
-    for (let i = 0; i < this.offsets[fromRot].length; i++)  {
-      const kickTranslation: num2 = [
-        this.offsets[fromRot][i][0] - this.offsets[toRot][i][0],
-        this.offsets[fromRot][i][1] - this.offsets[toRot][i][1],
-      ]
-      const x = this.x + kickTranslation[0]
-      const y = this.y + kickTranslation[1]
-      yield new PieceSrs(this.id, this.type, x, y, blocks, rotI, this.offsets)
-    }
+  const fromRot = (['0', 'R', '2', 'L'] as const)[p.rotI]
+  const toRot = (['0', 'R', '2', 'L'] as const)[rotI]
+  for (let i = 0; i < p.offsets[fromRot].length; i++)  {
+    const kickTranslation: num2 = [
+      p.offsets[fromRot][i][0] - p.offsets[toRot][i][0],
+      p.offsets[fromRot][i][1] - p.offsets[toRot][i][1],
+    ]
+    const x = p.x + kickTranslation[0]
+    const y = p.y + kickTranslation[1]
+    yield new PieceSrs(p.id, p.type, x, y, blocks, rotI, p.offsets)
   }
 }

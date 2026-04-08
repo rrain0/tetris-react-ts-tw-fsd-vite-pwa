@@ -1,11 +1,13 @@
 import {
   type Blocks,
-  blocksCols, blocksGetFirstNonEmptyCol,
-  blocksGetFirstNonEmptyRow,
+  blocksCols, blocksGetBounds,
   blocksIterator, blocksRows,
 } from '@lib/tetris-engine/entities/piece/model/block.ts'
-import type { Xydxdy } from '@lib/tetris-engine/shared/utils/types.ts'
+import { rectMatrixToRotated } from '@lib/tetris-engine/shared/utils/matrix.ts'
+import { mathRotate, moveXy } from '@lib/tetris-engine/shared/utils/piece.ts'
+import type { XydxdyOpt } from '@lib/tetris-engine/shared/utils/types.ts'
 import type { Id } from '@utils/app/id.ts'
+import { mod } from '@utils/math/mod.ts'
 
 
 
@@ -14,7 +16,7 @@ export type PieceBlocks = Blocks<PieceBlockValue>
 
 
 
-export abstract class Piece {
+export class Piece {
   id: Id
   type: Id
   x: number
@@ -24,7 +26,7 @@ export abstract class Piece {
   // 0 - 0°, 1 - 90°, 2 - 180°, 3 - 270°/-90°
   rotI = 0
   
-  protected constructor(
+  constructor(
     id: Id,
     type: Id,
     x: number,
@@ -51,15 +53,31 @@ export abstract class Piece {
     }
   }
   
-  abstract toMoved(xydxdy: Xydxdy): Piece
-  abstract toRotatedRight(): Generator<Piece>
-  abstract toRotatedLeft(): Generator<Piece>
-  
   get rows() { return blocksRows(this.blocks) }
   get cols() { return blocksCols(this.blocks) }
+  get bounds() { return blocksGetBounds(this.blocks) }
   
-  get firstNonEmptyRow() { return blocksGetFirstNonEmptyRow(this.blocks) }
-  get firstNonEmptyCol() { return blocksGetFirstNonEmptyCol(this.blocks) }
+  toTrimmed() {
+    const bounds = this.bounds
+    if (!bounds) return new Piece(this.id, this.type, this.x, this.y, [], this.rotI)
+    const { xFirst, yFirst, xLast, yLast } = bounds
+    return new Piece(
+      this.id,
+      this.type,
+      this.x + xFirst,
+      this.y + yFirst,
+      this.blocks.slice(yFirst, yLast + 1).map(it => it.slice(xFirst, xLast + 1)),
+      this.rotI,
+    )
+  }
+  
+  toMoved(move: XydxdyOpt): Piece {
+    const { x, y } = this
+    const { x: x1, y: y1 } = moveXy(x, y, move)
+    return new Piece(this.id, this.type, x1, y1, this.blocks, this.rotI)
+  }
+  toRotatedRight(): IteratorObject<Piece> { return pieceToRotated(this, 1) }
+  toRotatedLeft(): IteratorObject<Piece> { return pieceToRotated(this, -1) }
   
   ;*getBottomBlocks() {
     const { x, y, blocks: b, rows, cols } = this
@@ -75,4 +93,13 @@ export abstract class Piece {
     }
     
   }
+}
+
+
+
+// Uses mathematical rotation
+export function *pieceToRotated(piece: Piece, direction: 1 | -1) {
+  const p = piece
+  const { blocks, rotI } = mathRotate(p.blocks, p.rotI, direction)
+  yield new Piece(p.id, p.type, p.x, p.y, blocks, rotI)
 }
