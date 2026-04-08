@@ -3,11 +3,9 @@ import {
   blocksCols, blocksGetBounds,
   blocksIterator, blocksRows,
 } from '@lib/tetris-engine/entities/piece/model/block.ts'
-import { rectMatrixToRotated } from '@lib/tetris-engine/shared/utils/matrix.ts'
 import { mathRotate, moveXy } from '@lib/tetris-engine/shared/utils/piece.ts'
 import type { XydxdyOpt } from '@lib/tetris-engine/shared/utils/types.ts'
 import type { Id } from '@utils/app/id.ts'
-import { mod } from '@utils/math/mod.ts'
 
 
 

@@ -113,6 +113,7 @@ export class Game {
       array(cols, null),
       ...matrixCopy(blocks),
     ])
+    // TODO x0, y0 for field or move current & next
     f.addPiece(this.current)
     f.addPiece(this.next)
     return f
