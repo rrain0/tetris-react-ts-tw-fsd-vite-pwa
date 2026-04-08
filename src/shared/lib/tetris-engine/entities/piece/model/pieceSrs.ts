@@ -16,7 +16,8 @@ export type OffsetsSrs = {
 }
 
 export type PieceSrsConfig = {
-  xy: num2
+  x: number
+  y: number
   blocks: PieceBlocks
   offsets: OffsetsSrs
 }
@@ -29,19 +30,21 @@ export class PieceSrs extends Piece {
   constructor(
     id: Id,
     type: Id,
-    xy: num2,
+    x: number,
+    y: number,
     blocks: PieceBlocks,
     rotI = 0,
     offsets: OffsetsSrs,
   ) {
-    super(id, type, xy, blocks, rotI)
+    super(id, type, x, y, blocks, rotI)
     this.offsets = offsets
   }
   
   override toMoved({ x, y, dx, dy }: Xydxdy): PieceSrs {
-    const [x0, y0] = this.xy
-    const x1y1: num2 = [(x ?? x0) + (dx ?? 0), (y ?? y0) + (dy ?? 0)]
-    return new PieceSrs(this.id, this.type, x1y1, this.blocks, this.rotI, this.offsets)
+    const { x: x0, y: y0 } = this
+    const x1 = (x ?? x0) + (dx ?? 0)
+    const y1 = (y ?? y0) + (dy ?? 0)
+    return new PieceSrs(this.id, this.type, x1, y1, this.blocks, this.rotI, this.offsets)
   }
   
   override toRotatedRight() {
@@ -63,11 +66,9 @@ export class PieceSrs extends Piece {
         this.offsets[fromRot][i][0] - this.offsets[toRot][i][0],
         this.offsets[fromRot][i][1] - this.offsets[toRot][i][1],
       ]
-      const xy: num2 = [
-        this.xy[0] + kickTranslation[0],
-        this.xy[1] + kickTranslation[1],
-      ]
-      yield new PieceSrs(this.id, this.type, xy, blocks, rotI, this.offsets)
+      const x = this.x + kickTranslation[0]
+      const y = this.y + kickTranslation[1]
+      yield new PieceSrs(this.id, this.type, x, y, blocks, rotI, this.offsets)
     }
   }
 }

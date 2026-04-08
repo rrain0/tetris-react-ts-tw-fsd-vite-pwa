@@ -74,22 +74,13 @@ export class Game {
   }
   // Only drop, does not apply any lock or delay
   hardDropCurrentPiece() {
-    const { blocks } = this.field
-    const { xy: [x, y], blocks: b } = this.current
-    let freeY = blocks.length
-    // Find first bottom piece block
-    for (let xb = 0; xb < b[0].length; xb++) {
-      for (let yb = b.length - 1; yb >= 0; yb--) {
-        const element = b[yb][xb]
-        if (element) {
-          // Find first field block under piece block
-          for (let by = y + yb + 1; by < blocks.length; by++) {
-            if (blocks[by][x + xb]) { freeY = Math.min(by - 1 - yb, freeY); break }
-          }
-          break
-        }
-      }
+    let freeY = this.field.rows
+    for (const bottomBlock of this.current.getBottomBlocks()) {
+      const { x, y, yp } = bottomBlock
+      const firstBlockUnder = this.field.firstBlockUnder(x, y)
+      if (firstBlockUnder) freeY = Math.min(freeY, firstBlockUnder.y - yp - 1)
     }
+    
     const moved = this.current.toMoved({ y: freeY })
     this.tryPlaceNewCurrentPiece(moved)
   }
@@ -118,13 +109,13 @@ export class Game {
   }
   renderCombinedField() {
     const { blocks, cols, rows } = this.field
-    const f = Field.empty(cols, rows + 2)
-    f.blocks = [
+    const f = Field.ofBlocks([
       array(cols, null),
       array(cols, null),
       ...matrixCopy(blocks),
-    ]
+    ])
     f.addPiece(this.current)
+    f.addPiece(this.next)
     return f
   }
   

@@ -45,15 +45,16 @@ export default function IngameScreen() {
   const [game, setGame] = useState(() => {
     const game = new Game()
     //game.current = newOSrs(undefined)
-    game.current.xy = [4, 5]
-    game.field.addPiece(newTSrs(undefined, [0, 14]).toRotatedRight().next().value!.toRotatedRight().next().value!)
-    game.field.addPiece(newISrs(undefined, [-3, 15]).toRotatedRight().next().value!)
-    game.field.addPiece(newZSrs(undefined, [1, 18]))
-    game.field.addPiece(newSSrs(undefined, [3, 15]).toRotatedLeft().next().value!)
-    game.field.addPiece(newJSrs(undefined, [4, 18]))
-    game.field.addPiece(newLSrs(undefined, [6, 14]).toRotatedRight().next().value!)
-    game.field.addPiece(newOSrs(undefined, [6, 18]))
-    game.field.addPiece(newTSrs(undefined, [8, 16]).toRotatedLeft().next().value!)
+    game.current.x = 4
+    game.current.y = 5
+    game.field.addPiece(newTSrs(undefined, 0, 14).toRotatedRight().next().value!.toRotatedRight().next().value!)
+    game.field.addPiece(newISrs(undefined, -3, 15).toRotatedRight().next().value!)
+    game.field.addPiece(newZSrs(undefined, 1, 18))
+    game.field.addPiece(newSSrs(undefined, 3, 15).toRotatedLeft().next().value!)
+    game.field.addPiece(newJSrs(undefined, 4, 18))
+    game.field.addPiece(newLSrs(undefined, 6, 14).toRotatedRight().next().value!)
+    game.field.addPiece(newOSrs(undefined, 6, 18))
+    game.field.addPiece(newTSrs(undefined, 8, 16).toRotatedLeft().next().value!)
     return game
   })
   

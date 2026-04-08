@@ -35,6 +35,15 @@ export class Field {
   ;[Symbol.iterator]() { return blocksIterator(this.blocks) }
   
   
+  firstBlockUnder(x: number, y: number) {
+    y++
+    for ( ; y < this.rows; y++) {
+      const blockValue = this.blocks[y][x]
+      if (blockValue) return { x, y, blockValue }
+    }
+    return null
+  }
+  
   canPlacePiece(piece: Piece): boolean {
     for (const pieceBlock of piece) {
       const { x, y, blockValue: pieceBlockValue } = pieceBlock
