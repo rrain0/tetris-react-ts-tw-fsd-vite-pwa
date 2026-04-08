@@ -28,7 +28,7 @@ export default function IngameScreenLand({ game }: IngameScreenLandProps) {
   const titleH = 0.8
   const digitH = 0.9
   
-  const icSz = 1.3
+  const icSz = 1
   const icsG = 0.3
   const icsW = icSz + icsG + icSz
   
@@ -117,7 +117,7 @@ export default function IngameScreenLand({ game }: IngameScreenLandProps) {
           <div cn='flex col center2' st={icSt}>
             <FullscreenIc cn='sz-full svg-curr-cl'/>
           </div>
-          <div cn='flex col center2 p-[1]' st={icSt}>
+          <div cn='flex col center2' st={icSt}>
             <PauseIc cn='sz-full svg-curr-cl'/>
           </div>
         </div>

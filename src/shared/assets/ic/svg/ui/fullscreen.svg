@@ -12,11 +12,5 @@
 		stroke-width="7" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
 	<polyline points="18 30 2.5 45.5"
 		stroke-width="5" stroke-linecap="round"/>
-
-  <path d="M3.5 16 V12 A7.5 7.5 0 0 1 12 3.5 H16"
-		stroke-width="5" stroke-linecap="round" fill="none"/>
-
-  <path d="M44.5 32 V36 A7.5 7.5 0 0 1 36 44.5 H32"
-		stroke-width="5" stroke-linecap="round" fill="none"/>
 	
 </svg>

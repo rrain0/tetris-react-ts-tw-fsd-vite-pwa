@@ -23,6 +23,7 @@ import bg from '@assets/im/bg4.jpg'
 
 
 // TODO loading screen to save images to RAM (dataUrl)
+// TODO ℹ️Use keyboard or mouse key or touch to go fullscreen
 
 
 
