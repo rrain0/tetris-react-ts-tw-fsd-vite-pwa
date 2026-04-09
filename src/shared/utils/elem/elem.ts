@@ -18,8 +18,3 @@ export function isSVGElement<S extends SVGElement, T>(view: T | S): view is S {
 export type HtmlEmptyAttr = '' | undefined
 export const toEmptyAttr = (value: any): HtmlEmptyAttr => value ? '' : undefined
 export type HtmlDataAttrs = { [Prop in `data-${string}`]?: string | undefined }
-
-
-
-export type Wh = { w: number, h: number }
-export type WhOpt = { w?: number | undefined, h?: number | undefined }

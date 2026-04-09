@@ -4,16 +4,16 @@ import type { OffsetsSrs } from '@lib/tetris-engine/entities/piece/model/pieceSr
 
 export const tetroOSrsOffsets: OffsetsSrs = {
   '0': [
-    [0, 0],
+    { x: 0, y: 0 },
   ],
   'R': [
-    [0, -1],
+    { x: 0, y: -1 },
   ],
   '2': [
-    [-1, -1],
+    { x: -1, y: -1 },
   ],
   'L': [
-    [-1, 0],
+    { x: -1, y: 0 },
   ],
 }
 

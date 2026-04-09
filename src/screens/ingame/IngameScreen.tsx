@@ -17,11 +17,11 @@ import type { SetterOrUpdater } from '@utils/ts/ts.ts'
 import { InputLayoutContext } from '@entities/input-layout/context/InputLayoutContext.ts'
 import { isGamepadKeyAction } from '@entities/input-layout/model/isGamepadKeyAction.ts'
 import { isKeyboardAction } from '@entities/input-layout/model/isKeyboardAction.ts'
-import { use, useLayoutEffect, useState } from 'react'
-import { ingameScreenLandSmParams } from '@screens/ingame/land-sm/ingame-screen-land-sm-params.ts'
+import { use, useState } from 'react'
+import { ingameScreenLandSmSizes } from '@screens/ingame/land-sm/ingameScreenLandSmSizes.ts'
 import IngameScreenLand from '@screens/ingame/land/IngameScreenLand.tsx'
 import IngameScreenLandSm from '@screens/ingame/land-sm/IngameScreenLandSm.tsx'
-import { ingameScreenLandParams } from 'screens/ingame/land/ingame-screen-land-params.ts'
+import { ingameScreenLandSizes } from '@screens/ingame/land/ingameScreenLandSizes.ts'
 import PageFullVp from 'shared/components/elems/PageFullVp.tsx'
 import bg from '@assets/im/bg4.jpg'
 
@@ -74,8 +74,8 @@ export default function IngameScreen() {
     if (!elem) setLayout(undefined)
     else {
       const { ratio } = elemProps(elem)
-      if (ratio >= ingameScreenLandParams().gameRatio) setLayout('land')
-      else if (ratio >= ingameScreenLandSmParams().gameRatio) setLayout('landSm')
+      if (ratio >= ingameScreenLandSizes().gameRatio) setLayout('land')
+      else if (ratio >= ingameScreenLandSmSizes().gameRatio) setLayout('landSm')
       else setLayout('portSm')
     }
   })

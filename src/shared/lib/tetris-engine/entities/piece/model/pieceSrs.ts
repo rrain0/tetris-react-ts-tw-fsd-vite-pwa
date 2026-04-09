@@ -1,17 +1,17 @@
 import { Piece, type PieceBlocks } from '@lib/tetris-engine/entities/piece/model/piece.ts'
 import { mathRotate, moveXy } from '@lib/tetris-engine/shared/utils/piece.ts'
-import type { num2, XydxdyOpt } from '@lib/tetris-engine/shared/utils/types.ts'
 import type { Id } from '@utils/app/id.ts'
+import type { Xy, XydxdyOpt } from '@utils/math/rect.ts'
 
 
 
 // Srs - Super Rotation System https://harddrop.com/wiki/SRS
 
 export type OffsetsSrs = {
-  '0': num2[]
-  'R': num2[]
-  '2': num2[]
-  'L': num2[]
+  '0': Xy[]
+  'R': Xy[]
+  '2': Xy[]
+  'L': Xy[]
 }
 
 export type PieceSrsConfig = {
@@ -59,12 +59,12 @@ export function *pieceSrsToRotated(piece: PieceSrs, direction: 1 | -1) {
   const fromRot = (['0', 'R', '2', 'L'] as const)[p.rotI]
   const toRot = (['0', 'R', '2', 'L'] as const)[rotI]
   for (let i = 0; i < p.offsets[fromRot].length; i++)  {
-    const kickTranslation: num2 = [
-      p.offsets[fromRot][i][0] - p.offsets[toRot][i][0],
-      p.offsets[fromRot][i][1] - p.offsets[toRot][i][1],
-    ]
-    const x = p.x + kickTranslation[0]
-    const y = p.y + kickTranslation[1]
+    const kickTranslation = {
+      x: p.offsets[fromRot][i].x - p.offsets[toRot][i].x,
+      y: p.offsets[fromRot][i].y - p.offsets[toRot][i].y,
+    }
+    const x = p.x + kickTranslation.x
+    const y = p.y + kickTranslation.y
     yield new PieceSrs(p.id, p.type, x, y, blocks, rotI, p.offsets)
   }
 }

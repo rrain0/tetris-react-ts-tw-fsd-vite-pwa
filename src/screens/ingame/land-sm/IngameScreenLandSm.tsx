@@ -1,6 +1,6 @@
 import type { Game } from '@lib/tetris-engine/entities/game/model/game.ts'
 import { elemSizeContain } from '@utils/css/elemSizeContain.ts'
-import { ingameScreenLandSmParams } from '@screens/ingame/land-sm/ingame-screen-land-sm-params.ts'
+import { ingameScreenLandSmSizes } from '@screens/ingame/land-sm/ingameScreenLandSmSizes.ts'
 import TetrisField from '@widgets/tetris-field/ui/TetrisField.tsx'
 import FullscreenIc from '@assets/ic/svg/ui/fullscreen.svg?react'
 import PauseIc from '@assets/ic/svg/ui/pause.svg?react'
@@ -22,7 +22,7 @@ export default function IngameScreenLandSm({ game }: IngameScreenLandSmProps) {
     icSz, icsG, icsW,
     gameG, gameW, gameH, gameRatio,
     w,
-  } = ingameScreenLandSmParams(nextField.cols)
+  } = ingameScreenLandSmSizes(nextField.cols)
   
   const containerSt = { height: elemSizeContain(gameRatio).height }
   const gameSt = {

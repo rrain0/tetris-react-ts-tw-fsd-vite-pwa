@@ -1,7 +1,7 @@
 import type { Blocks } from '@lib/tetris-engine/entities/piece/model/block.ts'
 import { rectMatrixToRotated } from '@lib/tetris-engine/shared/utils/matrix.ts'
-import type { Xy, XydxdyOpt } from '@lib/tetris-engine/shared/utils/types.ts'
 import { mod } from '@utils/math/mod.ts'
+import type { Xy, XydxdyOpt } from '@utils/math/rect.ts'
 
 
 

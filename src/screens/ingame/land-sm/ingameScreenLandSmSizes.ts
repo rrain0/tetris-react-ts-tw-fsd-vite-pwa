@@ -1,7 +1,7 @@
 
 
 
-export const ingameScreenLandParams = (nextFieldCols = 4) => {
+export const ingameScreenLandSmSizes = (nextFieldCols = 4) => {
   const blockSz = 1.0
   
   const fieldBdW = 0.16
@@ -19,7 +19,7 @@ export const ingameScreenLandParams = (nextFieldCols = 4) => {
   const icsW = icSz + icsG + icSz
   
   const gameG = 0.5
-  const gameW = icsW + gameG + sideW + gameG + fieldW + gameG + sideW + gameG + icsW
+  const gameW = fieldW + gameG + sideW + gameG + icsW
   const gameH = fieldH
   const gameRatio = gameW / gameH
   

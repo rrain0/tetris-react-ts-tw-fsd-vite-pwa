@@ -104,13 +104,13 @@ export class ElemProps {
   get xy() { return { x: this.x, y: this.y } }
   
   
-  
-  get clientTopLeftToCenter(): { x: number, y: number } {
+  get clientTopLeftToCenter() {
     return {
-      x: this.clientLeftToLeft + this.clientWidth / 2,
-      y: this.clientTopToTop + this.clientHeight / 2,
+      x: (this.clientLeftToLeft + this.clientLeftToRight) / 2,
+      y: (this.clientTopToTop + this.clientTopToBottom) / 2,
     }
   }
+  
   
   
   
