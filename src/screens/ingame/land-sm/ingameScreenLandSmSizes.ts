@@ -4,9 +4,9 @@
 export const ingameScreenLandSmSizes = (nextFieldCols = 4) => {
   const blockSz = 1.0
   
-  const fieldBdW = 0.16
-  const fieldW = fieldBdW + 10 * blockSz + fieldBdW
-  const fieldH = fieldBdW + 20 * blockSz + fieldBdW
+  const fieldBoxBdSz = 0.16
+  const fieldBoxW = fieldBoxBdSz + 10 * blockSz + fieldBoxBdSz
+  const fieldBoxH = fieldBoxBdSz + 20 * blockSz + fieldBoxBdSz
   
   const sideW = 6 * blockSz
   const sideG = 0.35
@@ -19,15 +19,15 @@ export const ingameScreenLandSmSizes = (nextFieldCols = 4) => {
   const icsW = icSz + icsG + icSz
   
   const gameG = 0.5
-  const gameW = fieldW + gameG + sideW + gameG + icsW
-  const gameH = fieldH
+  const gameW = fieldBoxW + gameG + sideW + gameG + icsW
+  const gameH = fieldBoxH
   const gameRatio = gameW / gameH
   
   const w = (w: number) => `${w / gameW * 100 * gameRatio}cqh`
   
   return {
     blockSz,
-    fieldBdW, fieldW, fieldH,
+    fieldBoxBdSz, fieldBoxW, fieldBoxH,
     sideW, sideG, nextW, titleH, digitH,
     icSz, icsG, icsW,
     gameG, gameW, gameH, gameRatio,

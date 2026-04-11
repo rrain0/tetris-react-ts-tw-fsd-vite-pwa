@@ -4,41 +4,45 @@
 
 /*** 🔶Flex🔶 ***/
 
+/* shortcuts */
+.frc { @apply flex row center; }
+
+/* flex */
 @utility flex { display: flex; }
 
 /** flex direction **/
-@utility row { &:where(.flex) {
+@utility row { &:where(.flex,.frc) {
   flex-direction: row;
 } }
-@utility row-rev { &:where(.flex) {
+@utility row-rev { &:where(.flex,.frc) {
   flex-direction: row-reverse;
 } }
-@utility col { &:where(.flex) {
+@utility col { &:where(.flex,.frc) {
   flex-direction: column;
 } }
-@utility col-rev { &:where(.flex) {
+@utility col-rev { &:where(.flex,.frc) {
   flex-direction: column-reverse;
 } }
 
 /** flex direction with min-inline-size: 0 **/
-@utility row0 { &:where(.flex) {
+@utility row0 { &:where(.flex,.frc) {
   flex-direction: row; min-width: 0;
 } }
-@utility row0-rev { &:where(.flex) {
+@utility row0-rev { &:where(.flex,.frc) {
   flex-direction: row-reverse; min-width: 0;
 } }
-@utility col0 { &:where(.flex) {
+@utility col0 { &:where(.flex,.frc) {
   flex-direction: column; min-height: 0;
 } }
-@utility col0-rev { &:where(.flex) {
+@utility col0-rev { &:where(.flex,.frc) {
   flex-direction: column-reverse; min-height: 0;
 } }
 
 /** flex wrap **/
-@utility wrap { &:where(.flex) {
+@utility wrap { &:where(.flex,.frc) {
   flex-wrap: wrap;
 } }
-@utility wrap-rev { &:where(.flex) {
+@utility wrap-rev { &:where(.flex,.frc) {
   flex-wrap: wrap-reverse;
 } }
 
@@ -46,88 +50,88 @@
 
 /** flex placing **/
 
-@utility start { &:where(.flex) {
+@utility start { &:where(.flex,.frc) {
   align-items: start;
 } }
-@utility center { &:where(.flex) {
+@utility center { &:where(.flex,.frc) {
   align-items: center;
 } }
-@utility end { &:where(.flex) {
+@utility end { &:where(.flex,.frc) {
   align-items: end;
 } }
-@utility stretch { &:where(.flex) {
+@utility stretch { &:where(.flex,.frc) {
   align-items: stretch;
 } }
 
-@utility between { &:where(.flex) {
+@utility between { &:where(.flex,.frc) {
   justify-content: space-between;
 } }
-@utility around { &:where(.flex) {
+@utility around { &:where(.flex,.frc) {
   justify-content: space-around;
 } }
 
-@utility start2 { &:where(.flex) {
+@utility start2 { &:where(.flex,.frc) {
   align-items: start; justify-content: start;
 } }
-@utility center2 { &:where(.flex) {
+@utility center2 { &:where(.flex,.frc) {
   align-items: center; justify-content: center;
 } }
-@utility end2 { &:where(.flex) {
+@utility end2 { &:where(.flex,.frc) {
   align-items: end; justify-content: end;
 } }
-@utility stretch2 { &:where(.flex) {
+@utility stretch2 { &:where(.flex,.frc) {
   align-items: stretch; justify-content: stretch;
 } }
 
-@utility start-start { &:where(.flex) {
+@utility start-start { &:where(.flex,.frc) {
   align-items: start; justify-content: start;
 } }
-@utility start-center { &:where(.flex) {
+@utility start-center { &:where(.flex,.frc) {
   align-items: start; justify-content: center;
 } }
-@utility start-end { &:where(.flex) {
+@utility start-end { &:where(.flex,.frc) {
   align-items: start; justify-content: end;
 } }
-@utility start-stretch { &:where(.flex) {
+@utility start-stretch { &:where(.flex,.frc) {
   align-items: start; justify-content: stretch;
 } }
 
-@utility center-start { &:where(.flex) {
+@utility center-start { &:where(.flex,.frc) {
   align-items: center; justify-content: start;
 } }
-@utility center-center { &:where(.flex) {
+@utility center-center { &:where(.flex,.frc) {
   align-items: center; justify-content: center;
 } }
-@utility center-end { &:where(.flex) {
+@utility center-end { &:where(.flex,.frc) {
   align-items: center; justify-content: end;
 } }
-@utility center-stretch { &:where(.flex) {
+@utility center-stretch { &:where(.flex,.frc) {
   align-items: center; justify-content: stretch;
 } }
 
-@utility end-start { &:where(.flex) {
+@utility end-start { &:where(.flex,.frc) {
   align-items: end; justify-content: start;
 } }
-@utility end-center { &:where(.flex) {
+@utility end-center { &:where(.flex,.frc) {
   align-items: end; justify-content: center;
 } }
-@utility end-end { &:where(.flex) {
+@utility end-end { &:where(.flex,.frc) {
   align-items: end; justify-content: end;
 } }
-@utility end-stretch { &:where(.flex) {
+@utility end-stretch { &:where(.flex,.frc) {
   align-items: end; justify-content: stretch;
 } }
 
-@utility stretch-start { &:where(.flex) {
+@utility stretch-start { &:where(.flex,.frc) {
   align-items: stretch; justify-content: start;
 } }
-@utility stretch-center { &:where(.flex) {
+@utility stretch-center { &:where(.flex,.frc) {
   align-items: stretch; justify-content: center;
 } }
-@utility stretch-end { &:where(.flex) {
+@utility stretch-end { &:where(.flex,.frc) {
   align-items: stretch; justify-content: end;
 } }
-@utility stretch-stretch { &:where(.flex) {
+@utility stretch-stretch { &:where(.flex,.frc) {
   align-items: stretch; justify-content: stretch;
 } }
 

@@ -1,11 +1,5 @@
+import type { TetrominoType } from '@lib/tetris-engine/entities/piece/model/tetromino.ts'
 
 
 
-export type BlockType =
-  | 'blue'
-  | 'green'
-  | 'lightBlue'
-  | 'orange'
-  | 'red'
-  | 'violet'
-  | 'yellow'
+export type BlockType = TetrominoType | 'Ghost'

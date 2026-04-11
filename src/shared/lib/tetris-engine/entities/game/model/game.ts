@@ -113,8 +113,14 @@ export class Game {
       array(cols, null),
       ...matrixCopy(blocks),
     ])
-    f.addPiece(this.current.toMoved({ dy: 2 }))
-    f.addPiece(this.next.toMoved({ dy: 2 }))
+    
+    let next = this.next.toMoved({ dy: 2 })
+    let curr = this.current
+    if (curr.toTrimmed().y < 0) next = next.toGhost()
+    curr = curr.toMoved({ dy: 2 })
+    
+    f.addPiece(next)
+    f.addPiece(curr)
     return f
   }
   

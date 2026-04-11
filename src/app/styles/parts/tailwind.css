@@ -1,15 +1,13 @@
 @import './tailwind/tailwind-display.css';
 @import './tailwind/tailwind-pointer.css';
 @import './tailwind/tailwind-container.css';
-@import './tailwind/tailwind-position.css';
-@import './tailwind/tailwind-size.css';
+@import './tailwind/tailwind-size-and-position.css';
 @import './tailwind/tailwind-placing.css';
 @import './tailwind/tailwind-flex.css';
 @import './tailwind/tailwind-grid.css';
 @import './tailwind/tailwind-content.css';
 @import './tailwind/tailwind-svg-content.css';
 @import './tailwind/tailwind-text.css';
-
 @import './tailwind/tailwind-state.css';
 
 
@@ -45,6 +43,8 @@ sp - space / spacing
 fixed - position: fixed;
 abs - position: absolute;
 rel - position: relative;
+a - top & right & bottom & left
+v, h - top & bottom, right & left
 t, r, b, l - top, right, bottom, left
 z - z-index
 

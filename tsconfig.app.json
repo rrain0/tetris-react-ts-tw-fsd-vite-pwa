@@ -77,6 +77,7 @@
       "@widgets/*": ["./src/widgets/*"],
       
       "@assets/*": ["./src/shared/assets/*"],
+      "@styles/*": ["./src/shared/styles/*"],
       "@lib/*": ["./src/shared/lib/*"],
       "@utils/*": ["./src/shared/utils/*"],
     }

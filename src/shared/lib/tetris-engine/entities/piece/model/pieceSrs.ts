@@ -1,7 +1,11 @@
-import { Piece, type PieceBlocks } from '@lib/tetris-engine/entities/piece/model/piece.ts'
+import {
+  Piece,
+  type PieceBlocks,
+  type PieceData,
+} from '@lib/tetris-engine/entities/piece/model/piece.ts'
 import { mathRotate, moveXy } from '@lib/tetris-engine/shared/utils/piece.ts'
-import type { Id } from '@utils/app/id.ts'
 import type { Xy, XydxdyOpt } from '@utils/math/rect.ts'
+import type { Opt, PartOpt } from '@utils/ts/ts.ts'
 
 
 
@@ -26,28 +30,40 @@ export type PieceSrsConfig = {
 export class PieceSrs extends Piece {
   offsets: OffsetsSrs
   
-  constructor(
-    id: Id,
-    type: Id,
-    x: number,
-    y: number,
-    blocks: PieceBlocks,
-    rotI = 0,
-    offsets: OffsetsSrs,
-  ) {
-    super(id, type, x, y, blocks, rotI)
+  constructor(data: PieceSrsDataCtor) {
+    const { offsets, ...pieceData } = data
+    super(pieceData)
     this.offsets = offsets
+  }
+  
+  override copy(update?: PieceSrsDataOpt) {
+    return new  PieceSrs({
+      id: update?.id ?? this.id,
+      type: update?.type ?? this.type,
+      x: update?.x ?? this.x,
+      y: update?.y ?? this.y,
+      blocks: update?.blocks ?? this.blocks,
+      rotI: update?.rotI ?? this.rotI,
+      offsets: update?.offsets ?? this.offsets,
+    })
   }
   
   override toMoved(move: XydxdyOpt): PieceSrs {
     const { x, y } = this
     const { x: x1, y: y1 } = moveXy(x, y, move)
-    return new PieceSrs(this.id, this.type, x1, y1, this.blocks, this.rotI, this.offsets)
+    return this.copy({ x: x1, y: y1 })
   }
-  
   override toRotatedRight() { return pieceSrsToRotated(this, 1) }
   override toRotatedLeft() { return pieceSrsToRotated(this, -1) }
+  
+  override toGhost() { return this.copy({ type: `${this.type},Ghost` }) }
 }
+
+export interface PieceSrsData extends PieceData {
+  offsets: OffsetsSrs
+}
+export type PieceSrsDataOpt = Opt<PieceSrsData>
+export type PieceSrsDataCtor = PartOpt<PieceSrsData, 'rotI'>
 
 
 
@@ -65,6 +81,6 @@ export function *pieceSrsToRotated(piece: PieceSrs, direction: 1 | -1) {
     }
     const x = p.x + kickTranslation.x
     const y = p.y + kickTranslation.y
-    yield new PieceSrs(p.id, p.type, x, y, blocks, rotI, p.offsets)
+    yield p.copy({ x, y, blocks, rotI })
   }
 }

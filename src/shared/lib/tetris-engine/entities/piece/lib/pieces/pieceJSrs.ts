@@ -6,7 +6,7 @@ import type { PieceSrsConfig } from '@lib/tetris-engine/entities/piece/model/pie
 
 
 export const pieceJSrs: PieceSrsConfig = {
-  x: 2, y: 17,
+  x: 4, y: -2,
   blocks: [
     [1, 0, 0],
     [1, 1, 1],

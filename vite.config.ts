@@ -65,6 +65,7 @@ export default defineConfig(({ command, mode }) => {
         
         // Alias used in CSS
         '@assets': fileURLToPath(new URL('./src/shared/assets', import.meta.url)),
+        '@styles': fileURLToPath(new URL('./src/shared/styles', import.meta.url)),
         //'@lib': fileURLToPath(new URL('./src/shared/lib', import.meta.url)),
         //'@utils': fileURLToPath(new URL('./src/shared/utils', import.meta.url)),
       },

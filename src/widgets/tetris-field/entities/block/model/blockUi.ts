@@ -1,5 +1,18 @@
-import type { BlockType } from '@widgets/tetris-field/entities/block/model/block.ts'
 
 
 
-export type BlockUiType = BlockType | ''
+export type BlockUiColor =
+  | 'blue'
+  | 'green'
+  | 'lightBlue'
+  | 'orange'
+  | 'red'
+  | 'violet'
+  | 'yellow'
+
+export type BlockUiType = BlockUiColor | undefined
+
+export type BlockUiData = {
+  type?: BlockUiType | undefined
+  translucent?: boolean | undefined
+}

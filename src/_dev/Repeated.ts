@@ -1,4 +1,4 @@
-import { type Cb, isdef, type Pu } from '@utils/ts/ts.ts'
+import { type Cb, isdef, type Opt } from '@utils/ts/ts.ts'
 
 
 
@@ -82,7 +82,7 @@ export class Repeated {
 
 
 
-type ReactiveIntervalParams = Pu<{
+type ReactiveIntervalParams = Opt<{
   delay: number
   interval: number
   cb: Cb

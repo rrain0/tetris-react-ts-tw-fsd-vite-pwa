@@ -6,17 +6,19 @@ import {
 import { mathRotate, moveXy } from '@lib/tetris-engine/shared/utils/piece.ts'
 import type { Id } from '@utils/app/id.ts'
 import type { XydxdyOpt } from '@utils/math/rect.ts'
+import type { Opt, PartOpt } from '@utils/ts/ts.ts'
 
 
 
 export type PieceBlockValue = 0 | 1
 export type PieceBlocks = Blocks<PieceBlockValue>
 
+export type PieceType = string
 
 
 export class Piece {
   id: Id
-  type: Id
+  type: PieceType
   x: number
   y: number
   blocks: PieceBlocks
@@ -24,20 +26,24 @@ export class Piece {
   // 0 - 0°, 1 - 90°, 2 - 180°, 3 - 270°/-90°
   rotI = 0
   
-  constructor(
-    id: Id,
-    type: Id,
-    x: number,
-    y: number,
-    blocks: PieceBlocks,
-    rotI = 0,
-  ) {
-    this.id = id
-    this.type = type
-    this.x = x
-    this.y = y
-    this.blocks = blocks
-    this.rotI = rotI
+  constructor(data: PieceDataCtor) {
+    this.id = data.id
+    this.type = data.type
+    this.x = data.x
+    this.y = data.y
+    this.blocks = data.blocks
+    this.rotI = data.rotI ?? 0
+  }
+  
+  copy(update?: PieceDataOpt) {
+    return new Piece({
+      id: update?.id ?? this.id,
+      type: update?.type ?? this.type,
+      x: update?.x ?? this.x,
+      y: update?.y ?? this.y,
+      blocks: update?.blocks ?? this.blocks,
+      rotI: update?.rotI ?? this.rotI,
+    })
   }
   
   ;*[Symbol.iterator]() {
@@ -57,25 +63,24 @@ export class Piece {
   
   toTrimmed() {
     const bounds = this.bounds
-    if (!bounds) return new Piece(this.id, this.type, this.x, this.y, [], this.rotI)
+    if (!bounds) return this.copy({ blocks: [] })
     const { xFirst, yFirst, xLast, yLast } = bounds
-    return new Piece(
-      this.id,
-      this.type,
-      this.x + xFirst,
-      this.y + yFirst,
-      this.blocks.slice(yFirst, yLast + 1).map(it => it.slice(xFirst, xLast + 1)),
-      this.rotI,
-    )
+    return this.copy({
+      x: this.x + xFirst, 
+      y: this.y + yFirst,
+      blocks: this.blocks.slice(yFirst, yLast + 1).map(it => it.slice(xFirst, xLast + 1)),
+    })
   }
   
   toMoved(move: XydxdyOpt): Piece {
     const { x, y } = this
     const { x: x1, y: y1 } = moveXy(x, y, move)
-    return new Piece(this.id, this.type, x1, y1, this.blocks, this.rotI)
+    return this.copy({ x: x1, y: y1 })
   }
   toRotatedRight(): IteratorObject<Piece> { return pieceToRotated(this, 1) }
   toRotatedLeft(): IteratorObject<Piece> { return pieceToRotated(this, -1) }
+  
+  toGhost() { return this.copy({ type: `${this.type},Ghost` }) }
   
   ;*getBottomBlocks() {
     const { x, y, blocks: b, rows, cols } = this
@@ -93,11 +98,22 @@ export class Piece {
   }
 }
 
+export interface PieceData {
+  id: Id
+  type: PieceType
+  x: number
+  y: number
+  blocks: PieceBlocks
+  rotI: number
+}
+export type PieceDataOpt = Opt<PieceData>
+export type PieceDataCtor = PartOpt<PieceData, 'rotI'>
+
 
 
 // Uses mathematical rotation
 export function *pieceToRotated(piece: Piece, direction: 1 | -1) {
   const p = piece
   const { blocks, rotI } = mathRotate(p.blocks, p.rotI, direction)
-  yield new Piece(p.id, p.type, p.x, p.y, blocks, rotI)
+  yield p.copy({ blocks, rotI })
 }

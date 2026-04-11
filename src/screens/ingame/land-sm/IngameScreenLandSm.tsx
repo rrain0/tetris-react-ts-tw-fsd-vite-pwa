@@ -17,7 +17,7 @@ export default function IngameScreenLandSm({ game }: IngameScreenLandSmProps) {
   
   const {
     blockSz,
-    fieldBdW, fieldW, fieldH,
+    fieldBoxBdSz, fieldBoxW, fieldBoxH,
     sideW, sideG, nextW, titleH, digitH,
     icSz, icsG, icsW,
     gameG, gameW, gameH, gameRatio,
@@ -27,11 +27,11 @@ export default function IngameScreenLandSm({ game }: IngameScreenLandSmProps) {
   const containerSt = { height: elemSizeContain(gameRatio).height }
   const gameSt = {
     grid: `
-      'spaceL field ... side spaceR ... ics'
-      / 1fr ${w(fieldW)} ${w(gameG)} ${w(sideW)} 1fr ${w(gameG)} ${w(icsW)}
+      'spaceL fieldBox ... side spaceR ... ics' 100%
+      / 1fr ${w(fieldBoxW)} ${w(gameG)} ${w(sideW)} 1fr ${w(gameG)} ${w(icsW)}
     `,
   }
-  const fieldSt = { borderWidth: w(fieldBdW), width: w(fieldW) }
+  const fieldBoxSt = { borderWidth: w(fieldBoxBdSz), width: w(fieldBoxW) }
   const sideSt = { width: w(sideW), gap: w(sideG) }
   const titleSt = { fontSize: w(titleH) }
   const digitsSt = { fontSize: w(digitH) }
@@ -41,10 +41,10 @@ export default function IngameScreenLandSm({ game }: IngameScreenLandSmProps) {
   
   return (
     <div cn='w-full container-size' st={containerSt}>
-      <div cn='grid row sz-full' st={gameSt}>
+      <div cn='grid sz-full' st={gameSt}>
         
-        <div cn='flex col in-area-[field] w-ct bd-cl-[var(--cl-tetris-field-bd)] rad-[1cqh]'
-          st={fieldSt}
+        <div cn='flex col in-area-[fieldBox] w-ct bd-cl-[var(--cl-tetris-field-bd)] rad-[1cqh]'
+          st={fieldBoxSt}
         >
           <TetrisField cn='w-full' field={field}/>
         </div>

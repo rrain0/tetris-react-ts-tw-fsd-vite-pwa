@@ -90,3 +90,48 @@
 @utility g-* { gap: --value([number])px; gap: --value(--size-*, [*]); }
 @utility g-row-* { row-gap: --value([number])px; row-gap: --value(--size-*, [*]); }
 @utility g-col-* { column-gap: --value([number])px; column-gap: --value(--size-*, [*]); }
+
+
+
+
+/*** 🔶Position🔶 ***/
+
+@utility fixed-trbl { position: fixed; top: 0; right: 0; bottom: 0; left: 0; }
+@utility fixed-tlwh { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+@utility fixed-top { position: fixed; top: 0; left: 0; right: 0; }
+@utility fixed-left { position: fixed; top: 0; left: 0; bottom: 0; }
+@utility fixed-bot { position: fixed; bottom: 0; left: 0; right: 0; }
+
+@utility abs-trbl { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+@utility abs-tlwh { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+@utility abs-tl { position: absolute; top: 0; left: 0; }
+
+@utility abs { position: absolute; }
+@utility rel { position: relative; }
+@utility fixed { position: fixed; }
+@utility pos-* { position: --value([*]); }
+
+@utility a-* {
+  top: --value([number])px; top: --value(--size-*, [*]);
+  right: --value([number])px; right: --value(--size-*, [*]);
+  bottom: --value([number])px; bottom: --value(--size-*, [*]);
+  left: --value([number])px; left: --value(--size-*, [*]);
+}
+@utility v-* {
+  top: --value([number])px; top: --value(--size-*, [*]);
+  bottom: --value([number])px; bottom: --value(--size-*, [*]);
+}
+@utility h-* {
+  right: --value([number])px; right: --value(--size-*, [*]);
+  left: --value([number])px; left: --value(--size-*, [*]);
+}
+
+@utility t { top: 0; }
+@utility t-* { top: --value([number])px; top: --value(--size-*, [*]); }
+@utility r { right: 0; }
+@utility r-* { right: --value([number])px; right: --value(--size-*, [*]); }
+@utility b { bottom: 0; }
+@utility b-* { bottom: --value([number])px; bottom: --value(--size-*, [*]); }
+@utility l { left: 0; }
+@utility l-* { left: --value([number])px; left: --value(--size-*, [*]); }
+@utility z-* { z-index: --value(--size-*, [*]); }

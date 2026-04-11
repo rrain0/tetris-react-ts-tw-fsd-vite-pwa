@@ -46,23 +46,19 @@
 
 /*** 🔶Placed🔶 ***/
 
-/** align-self - aligned **/
-@utility aligned { align-self: center; }
-@utility aligned-start { align-self: start; }
-@utility aligned-end { align-self: end; }
-@utility aligned-stretch { align-self: stretch; }
+/* align-self */
+@utility as-start { align-self: start; }
+@utility as-center { align-self: center; }
+@utility as-end { align-self: end; }
+@utility as-stretch { align-self: stretch; }
+@utility as-* { align-self: --value([*]); }
 
-/** jusify-self - justified **/
-@utility justified { justify-self: center; }
-@utility justified-start { justify-self: start; }
-@utility justified-end { justify-self: end; }
-@utility justified-stretch { justify-self: stretch; }
-
-/** place-self - placed **/
-@utility placed { align-self: center; justify-self: center; }
-@utility centered { align-self: center; justify-self: center; }
-@utility started { align-self: start; justify-self: start; }
-@utility ended { align-self: end; justify-self: end; }
+/* justify-self */
+@utility js-start { justify-self: start; }
+@utility js-center { justify-self: center; }
+@utility js-end { justify-self: end; }
+@utility js-stretch { justify-self: stretch; }
+@utility js-* { justify-self: --value([*]); }
 
 /** placed 2 **/
-@utility started-ended { align-self: start; justify-self: end; }
+@utility centered2 { place-self: center; }

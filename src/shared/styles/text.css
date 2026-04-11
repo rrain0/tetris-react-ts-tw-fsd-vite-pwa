@@ -1,0 +1,16 @@
+
+
+
+
+@layer styles {
+  
+  .txHudTitle {
+    @apply tx-f-['Noto_Sans'] tx-wt-[600] tx-h-[0.8] tx-sp-[normal]
+    cl-[var(--cl-hud-tx)];
+  }
+  .txHudDigits {
+    @apply tx-f-['DSEG7Mod7ClassicMini'] tx-wt-[bold] tx-h-[1] tx-sp-[normal]
+    cl-[var(--cl-hud-tx)];
+  }
+  
+}

@@ -1,8 +1,10 @@
+import type { PieceType } from '@lib/tetris-engine/entities/piece/model/piece.ts'
 import { mapBlockTypeToSrc } from '@widgets/tetris-field/entities/block/lib/block.ts'
-import type { BlockUiType } from '@widgets/tetris-field/entities/block/model/blockUi.ts'
-import type { TetrominoType } from '@lib/tetris-engine/entities/piece/model/tetromino.ts'
-import type { Id } from '@utils/app/id.ts'
-import type { BlockType } from '@widgets/tetris-field/entities/block/model/block.ts'
+import type {
+  BlockUiData,
+  BlockUiType,
+} from '@widgets/tetris-field/entities/block/model/blockUi.ts'
+import type { BlockType } from 'widgets/tetris-field/entities/block/model/block.ts'
 
 
 
@@ -11,15 +13,18 @@ export function mapBlockUiTypeToSrc(type: BlockUiType): string | undefined {
   return mapBlockTypeToSrc(type)
 }
 
-export function mapPieceTypeToBlockUiType(pieceType: Id): BlockUiType {
-  const mapper: Record<TetrominoType, BlockType> = {
-    I: 'red',
-    J: 'blue',
-    L: 'orange',
-    O: 'yellow',
-    S: 'violet',
-    T: 'lightBlue',
-    Z: 'green',
+export function mapPieceTypeToBlockUiData(pieceType: PieceType): BlockUiData {
+  const mapper: Record<BlockType, Partial<BlockUiData>> = {
+    I: { type: 'red' },
+    J: { type: 'blue' },
+    L: { type: 'orange' },
+    O: { type: 'yellow' },
+    S: { type: 'violet' },
+    T: { type: 'lightBlue' },
+    Z: { type: 'green' },
+    
+    Ghost: { translucent: true },
   }
-  return mapper[pieceType] ?? ''
+  
+  return pieceType.split(',').reduce((acc, it) => Object.assign(acc, mapper[it]), { })
 }

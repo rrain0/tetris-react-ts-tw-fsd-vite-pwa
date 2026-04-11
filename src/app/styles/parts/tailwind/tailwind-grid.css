@@ -4,32 +4,35 @@
 
 /*** 🔶Grid🔶 ***/
 
+/* shortcuts */
+@utility stack { @apply grid-['stack'] center2; & > * { @apply in-area-[stack]; } }
+
 /** grid **/
 @utility grid { display: grid; }
 @utility grid-* { display: grid; grid: --value([*]); }
 
 /** grid direction **/
-@utility row { &:where(.grid,[class*=grid-]) {
+@utility row { &:where(.grid,[class*=grid-],.stack) {
   grid-auto-flow: column;
 } }
-@utility col { &:where(.grid,[class*=grid-]) {
+@utility col { &:where(.grid,[class*=grid-],.stack) {
   grid-auto-flow: row;
 } }
 
 /** grid layout **/
-@utility rows-* { &:where(.grid,[class*=grid-]) {
+@utility rows-* { &:where(.grid,[class*=grid-],.stack) {
   grid-template-rows: --value([*]);
 } }
-@utility cols-* { &:where(.grid,[class*=grid-]) {
+@utility cols-* { &:where(.grid,[class*=grid-],.stack) {
   grid-template-columns: --value([*]);
 } }
-@utility areas-* { &:where(.grid,[class*=grid-]) {
+@utility areas-* { &:where(.grid,[class*=grid-],.stack) {
   grid-template-areas: --value([*]);
 } }
-@utility auto-rows-* { &:where(.grid,[class*=grid-]) {
+@utility auto-rows-* { &:where(.grid,[class*=grid-],.stack) {
   grid-auto-rows: --value([*]);
 } }
-@utility auto-cols-* { &:where(.grid,[class*=grid-]) {
+@utility auto-cols-* { &:where(.grid,[class*=grid-],.stack) {
   grid-auto-columns: --value([*]);
 } }
 
@@ -37,36 +40,36 @@
 
 /** grid placing **/
 
-@utility start { &:where(.grid,[class*=grid-]) {
+@utility start { &:where(.grid,[class*=grid-],.stack) {
   align-items: start;
 } }
-@utility center { &:where(.grid,[class*=grid-]) {
+@utility center { &:where(.grid,[class*=grid-],.stack) {
   align-items: center;
 } }
-@utility end { &:where(.grid,[class*=grid-]) {
+@utility end { &:where(.grid,[class*=grid-],.stack) {
   align-items: end;
 } }
-@utility stretch { &:where(.grid,[class*=grid-]) {
+@utility stretch { &:where(.grid,[class*=grid-],.stack) {
   align-items: stretch;
 } }
 
-@utility start2 { &:where(.grid,[class*=grid-]) {
+@utility start2 { &:where(.grid,[class*=grid-],.stack) {
   place-items: start;
 } }
-@utility center2 { &:where(.grid,[class*=grid-]) {
+@utility center2 { &:where(.grid,[class*=grid-],.stack) {
   place-items: center;
 } }
-@utility end2 { &:where(.grid,[class*=grid-]) {
+@utility end2 { &:where(.grid,[class*=grid-],.stack) {
   place-items: end;
 } }
-@utility stretch2 { &:where(.grid,[class*=grid-]) {
+@utility stretch2 { &:where(.grid,[class*=grid-],.stack) {
   place-items: stretch;
 } }
 
-@utility center-start { &:where(.grid,[class*=grid-]) {
+@utility center-start { &:where(.grid,[class*=grid-],.stack) {
   place-items: center start;
 } }
-@utility end-stretch { &:where(.grid,[class*=grid-]) {
+@utility end-stretch { &:where(.grid,[class*=grid-],.stack) {
   place-items: end stretch;
 } }
 

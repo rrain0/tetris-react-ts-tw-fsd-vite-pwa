@@ -9,14 +9,14 @@
 /* Unstyled elements defaults */
 @layer reset;
 
-/* Colors */
-@layer colors;
-
 /* App fonts */
 @layer fonts;
 
 /* App defaults */
 @layer app;
+
+/* App styles (colors, text styles, ...) */
+@layer styles;
 
 
 

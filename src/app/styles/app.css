@@ -1,8 +1,9 @@
 @import './parts/layers.css'; /* CSS Layers MUST be FIRST of all CSS */
 @import './parts/reset.css';
-@import './parts/colors.css';
 @import './parts/fonts.css';
 @import './parts/tailwind.css';
+@import '@styles/colors.css';
+@import '@styles/text.css';
 
 
 

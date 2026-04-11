@@ -35,11 +35,13 @@ export type DefinedVal<T> = Exclude<T, undefined>
 
 // ℹ️ Object modifiers
 
-// Add Partial + Undefined
-export type PartialUndef<O extends object> = {
+// Add Partial + Undefined to every object prop
+export type Opt<O extends object> = {
   [Prop in keyof O]+?: O[Prop] | undefined
 }
-export type Pu<O extends object> = PartialUndef<O>
+export type PartOpt<O extends object, PK extends keyof O> =
+  & { [Prop in Exclude<keyof O, PK>]: O[Prop] }
+  & { [Prop in PK]+?: O[Prop] | undefined }
 // Remove Partial + Undefined
 export type Defined<O extends object> = {
   [Prop in keyof O]-?: DefinedVal<O[Prop]>
@@ -49,7 +51,7 @@ export type Ro<O extends object> = {
   +readonly [Prop in keyof O]: O[Prop]
 }
 // Add Partial + Undefined + ReadOnly
-export type Puro<O extends object> = {
+export type OptRo<O extends object> = {
   +readonly [Prop in keyof O]+?: O[Prop] | undefined
 }
 export type WriteablePartial<O extends object> = {

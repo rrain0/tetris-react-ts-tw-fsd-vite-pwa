@@ -22,6 +22,8 @@ import { ingameScreenLandSmSizes } from '@screens/ingame/land-sm/ingameScreenLan
 import IngameScreenLand from '@screens/ingame/land/IngameScreenLand.tsx'
 import IngameScreenLandSm from '@screens/ingame/land-sm/IngameScreenLandSm.tsx'
 import { ingameScreenLandSizes } from '@screens/ingame/land/ingameScreenLandSizes.ts'
+import IngameScreenPort from 'screens/ingame/port/IngameScreenPort.tsx'
+import { ingameScreenPortSizes } from 'screens/ingame/port/ingameScreenPortSizes.ts'
 import PageFullVp from 'shared/components/elems/PageFullVp.tsx'
 import bg from '@assets/im/bg4.jpg'
 
@@ -53,14 +55,14 @@ export default function IngameScreen() {
     //game.current = newOSrs(undefined)
     game.current.x = 4
     game.current.y = 5
-    game.field.addPiece(newTSrs(undefined, 0, 14).toRotatedRight().next().value!.toRotatedRight().next().value!)
-    game.field.addPiece(newISrs(undefined, -3, 15).toRotatedRight().next().value!)
-    game.field.addPiece(newZSrs(undefined, 1, 18))
-    game.field.addPiece(newSSrs(undefined, 3, 15).toRotatedLeft().next().value!)
-    game.field.addPiece(newJSrs(undefined, 4, 18))
-    game.field.addPiece(newLSrs(undefined, 6, 14).toRotatedRight().next().value!)
-    game.field.addPiece(newOSrs(undefined, 6, 18))
-    game.field.addPiece(newTSrs(undefined, 8, 16).toRotatedLeft().next().value!)
+    game.field.addPiece(newTSrs({ x: 0, y: 14 }).toRotatedRight().next().value!.toRotatedRight().next().value!)
+    game.field.addPiece(newISrs({ x: -3, y: 15 }).toRotatedRight().next().value!)
+    game.field.addPiece(newZSrs({ x: 1, y: 18 }))
+    game.field.addPiece(newSSrs({ x: 3, y: 15 }).toRotatedLeft().next().value!)
+    game.field.addPiece(newJSrs({ x: 4, y: 18 }))
+    game.field.addPiece(newLSrs({ x: 6, y: 14 }).toRotatedRight().next().value!)
+    game.field.addPiece(newOSrs({ x: 6, y: 18 }))
+    game.field.addPiece(newTSrs({ x: 8, y: 16 }).toRotatedLeft().next().value!)
     return game
   })
   
@@ -76,7 +78,8 @@ export default function IngameScreen() {
       const { ratio } = elemProps(elem)
       if (ratio >= ingameScreenLandSizes().gameRatio) setLayout('land')
       else if (ratio >= ingameScreenLandSmSizes().gameRatio) setLayout('landSm')
-      else setLayout('portSm')
+      //else if (ratio >= ingameScreenPortSmSizes().gameRatio) setLayout('portSm')
+      else setLayout('port')
     }
   })
   
@@ -96,6 +99,7 @@ export default function IngameScreen() {
         <div cn='sz-full grid center2 container-size' ref={refFun}>
           {layout === 'land' && <IngameScreenLand game={game}/>}
           {layout === 'landSm' && <IngameScreenLandSm game={game}/>}
+          {layout === 'port' && <IngameScreenPort game={game}/>}
         </div>
       </PageFullVp>
     </>
