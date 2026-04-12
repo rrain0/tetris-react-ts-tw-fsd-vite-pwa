@@ -52,22 +52,12 @@ export default defineConfig(({ command, mode }) => {
     
     resolve: {
       tsconfigPaths: true,
-      // Aliases here are necessary to build paths for workers & css.
+      // Aliases here are necessary to build paths for Workers & CSS.
       // Aliases must be duplicated in tsconfig.app.json for ts compiler.
       alias: {
-        //'src': fileURLToPath(new URL('./src', import.meta.url)),
-        
-        //'@app': fileURLToPath(new URL('./src/app', import.meta.url)),
-        //'@entities': fileURLToPath(new URL('./src/entities', import.meta.url)),
-        //'@features': fileURLToPath(new URL('./src/features', import.meta.url)),
-        //'@screens': fileURLToPath(new URL('./src/screens', import.meta.url)),
-        //'@widgets': fileURLToPath(new URL('./src/widgets', import.meta.url)),
-        
-        // Alias used in CSS
-        '@assets': fileURLToPath(new URL('./src/shared/assets', import.meta.url)),
-        '@styles': fileURLToPath(new URL('./src/shared/styles', import.meta.url)),
-        //'@lib': fileURLToPath(new URL('./src/shared/lib', import.meta.url)),
-        //'@utils': fileURLToPath(new URL('./src/shared/utils', import.meta.url)),
+        'src': fileURLToPath(new URL('./src', import.meta.url)),
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@@': fileURLToPath(new URL('./src/shared', import.meta.url)),
       },
     },
     

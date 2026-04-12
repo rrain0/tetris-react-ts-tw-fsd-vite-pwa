@@ -1,4 +1,4 @@
-import { ifNaN } from '@utils/ts/ts.ts'
+import { ifNaN } from '@@/utils/ts/ts.ts'
 
 
 

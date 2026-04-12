@@ -2,10 +2,10 @@ import {
   blocksCols,
   blocksIterator,
   blocksRows,
-} from '@lib/tetris-engine/entities/piece/model/block.ts'
-import type { Piece } from '@lib/tetris-engine/entities/piece/model/piece.ts'
-import type { Id } from '@utils/app/id.ts'
-import { array } from '@utils/array/arrCreate.ts'
+} from '@@/lib/tetris-engine/entities/piece/model/block.ts'
+import type { Piece } from '@@/lib/tetris-engine/entities/piece/model/piece.ts'
+import type { Id } from '@@/utils/app/id.ts'
+import { array } from '@@/utils/array/arrCreate.ts'
 
 
 

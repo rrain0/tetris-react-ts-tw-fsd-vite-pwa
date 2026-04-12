@@ -1,4 +1,4 @@
-import type { Div } from '@utils/react/props/propTypes.ts'
+import type { Div } from '@@/utils/react/props/propTypes.ts'
 
 
 

@@ -1,5 +1,5 @@
-import { tetroISrsOffsets } from '@lib/tetris-engine/entities/piece/lib/offsets/tetroISrsOffsets.ts'
-import type { PieceSrsConfig } from '@lib/tetris-engine/entities/piece/model/pieceSrs.ts'
+import { tetroISrsOffsets } from '@@/lib/tetris-engine/entities/piece/lib/offsets/tetroISrsOffsets.ts'
+import type { PieceSrsConfig } from '@@/lib/tetris-engine/entities/piece/model/pieceSrs.ts'
 
 
 

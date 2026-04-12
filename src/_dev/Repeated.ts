@@ -1,4 +1,4 @@
-import { type Cb, isdef, type Opt } from '@utils/ts/ts.ts'
+import { type Cb, isdef, type Opt } from '@@/utils/ts/ts.ts'
 
 
 

@@ -1,9 +1,9 @@
-import type { Img } from '@utils/react/props/propTypes.ts'
+import type { Img } from '@@/utils/react/props/propTypes.ts'
 import * as React from 'react'
-import { mapBlockUiTypeToSrc } from '@widgets/tetris-field/entities/block/lib/blockUi.ts'
+import { mapBlockUiTypeToSrc } from '@/widgets/tetris-field/entities/block/lib/blockUi.ts'
 import type {
   BlockUiData,
-} from '@widgets/tetris-field/entities/block/model/blockUi.ts'
+} from '@/widgets/tetris-field/entities/block/model/blockUi.ts'
 
 
 

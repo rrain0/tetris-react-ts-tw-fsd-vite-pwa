@@ -1,23 +1,23 @@
 import {
   GamepadChangeContext,
   type GamepadChangeContextValue,
-} from '@lib/gamepad-input/change/context/GamepadChangeContext.ts'
+} from '@@/lib/gamepad-input/change/context/GamepadChangeContext.ts'
 import type {
   GamepadChangeEv, GamepadChanges,
-} from '@lib/gamepad-input/change/model/GamepadChange.model.ts'
+} from '@@/lib/gamepad-input/change/model/GamepadChange.model.ts'
 import {
   MappedGamepadContext,
-} from '@lib/gamepad-input/mapped/context/MappedGamepadContext.ts'
+} from '@@/lib/gamepad-input/mapped/context/MappedGamepadContext.ts'
 import type {
   MappedGamepad,
   MappedGamepadEv, MappedGamepads, MappedGamepadState,
-} from '@lib/gamepad-input/mapped/model/mappedGamepad.model.ts'
+} from '@@/lib/gamepad-input/mapped/model/mappedGamepad.model.ts'
 import type {
   NativeGamepadId,
-} from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
-import type { Children } from '@utils/react/props/propTypes.ts'
-import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'
-import { type EvHandler } from '@utils/ts/ts.ts'
+} from '@@/lib/gamepad-input/native/model/nativeGamepad.model.ts'
+import type { Children } from '@@/utils/react/props/propTypes.ts'
+import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
+import { type EvHandler } from '@@/utils/ts/ts.ts'
 import { use, useLayoutEffect } from 'react'
 
 

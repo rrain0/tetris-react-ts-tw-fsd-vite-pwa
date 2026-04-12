@@ -1,4 +1,4 @@
-import { isfunction, isobject, isundef } from '@utils/ts/ts.ts'
+import { isfunction, isobject, isundef } from '@@/utils/ts/ts.ts'
 
 
 

@@ -1,7 +1,7 @@
-import { AppActivitiesContext } from '@lib/activity-manager/context/AppActivitiesContext.ts'
-import type { AppActivities, AppActivity } from '@lib/activity-manager/model/app-activity.ts'
-import type { Children } from '@utils/react/props/propTypes.ts'
-import { isdef } from '@utils/ts/ts.ts'
+import { AppActivitiesContext } from '@@/lib/activity-manager/context/AppActivitiesContext.ts'
+import type { AppActivities, AppActivity } from '@@/lib/activity-manager/model/app-activity.ts'
+import type { Children } from '@@/utils/react/props/propTypes.ts'
+import { isdef } from '@@/utils/ts/ts.ts'
 import { useState } from 'react'
 
 

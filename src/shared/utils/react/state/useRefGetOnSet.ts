@@ -1,6 +1,6 @@
-import { useAsCb } from '@utils/react/state/useAsCb.ts'
-import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'
-import type { Cb1 } from '@utils/ts/ts.ts'
+import { useAsCb } from '@@/utils/react/state/useAsCb.ts'
+import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
+import type { Cb1 } from '@@/utils/ts/ts.ts'
 
 
 

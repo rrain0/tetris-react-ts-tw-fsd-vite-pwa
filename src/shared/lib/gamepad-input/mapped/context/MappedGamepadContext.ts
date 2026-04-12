@@ -1,7 +1,7 @@
 import type {
   MappedGamepadEv, MappedGamepads,
-} from '@lib/gamepad-input/mapped/model/mappedGamepad.model.ts'
-import type { Cb1, Getter } from '@utils/ts/ts.ts'
+} from '@@/lib/gamepad-input/mapped/model/mappedGamepad.model.ts'
+import type { Cb1, Getter } from '@@/utils/ts/ts.ts'
 import { createContext } from 'react'
 
 

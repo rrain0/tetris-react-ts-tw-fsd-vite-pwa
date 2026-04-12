@@ -1,11 +1,11 @@
-import blueBlock from '@assets/im/blocks/block-blue-39x39.png'
-import greenBlock from '@assets/im/blocks/block-green-39x39.png'
-import lightBlueBlock from '@assets/im/blocks/block-light-blue-39x39.png'
-import orangeBlock from '@assets/im/blocks/block-orange-39x39.png'
-import redBlock from '@assets/im/blocks/block-red-39x39.png'
-import violetBlock from '@assets/im/blocks/block-violet-39x39.png'
-import yellowBlock from '@assets/im/blocks/block-yellow-39x39.png'
-import type { BlockUiColor } from '@widgets/tetris-field/entities/block/model/blockUi.ts'
+import blueBlock from '@@/assets/im/blocks/block-blue-39x39.png'
+import greenBlock from '@@/assets/im/blocks/block-green-39x39.png'
+import lightBlueBlock from '@@/assets/im/blocks/block-light-blue-39x39.png'
+import orangeBlock from '@@/assets/im/blocks/block-orange-39x39.png'
+import redBlock from '@@/assets/im/blocks/block-red-39x39.png'
+import violetBlock from '@@/assets/im/blocks/block-violet-39x39.png'
+import yellowBlock from '@@/assets/im/blocks/block-yellow-39x39.png'
+import type { BlockUiColor } from '@/widgets/tetris-field/entities/block/model/blockUi.ts'
 
 
 

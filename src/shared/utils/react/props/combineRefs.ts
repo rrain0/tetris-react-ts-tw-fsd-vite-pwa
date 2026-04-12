@@ -1,4 +1,4 @@
-import { isfunction, isobject } from '@utils/ts/ts.ts'
+import { isfunction, isobject } from '@@/utils/ts/ts.ts'
 import type { Ref, RefCallback } from 'react'
 
 

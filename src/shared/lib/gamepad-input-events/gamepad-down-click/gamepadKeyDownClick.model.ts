@@ -1,4 +1,4 @@
-import type { EvHandler } from '@utils/ts/ts.ts'
+import type { EvHandler } from '@@/utils/ts/ts.ts'
 
 
 

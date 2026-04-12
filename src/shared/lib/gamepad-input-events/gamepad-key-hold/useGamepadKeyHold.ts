@@ -1,13 +1,13 @@
-import { GamepadChangeContext } from '@lib/gamepad-input/change/context/GamepadChangeContext.ts'
-import type { GamepadChangeEv } from '@lib/gamepad-input/change/model/GamepadChange.model.ts'
+import { GamepadChangeContext } from '@@/lib/gamepad-input/change/context/GamepadChangeContext.ts'
+import type { GamepadChangeEv } from '@@/lib/gamepad-input/change/model/GamepadChange.model.ts'
 import type {
   GamepadKeyHoldEv, GamepadKeyHoldEvHandler,
-} from '@lib/gamepad-input-events/gamepad-key-hold/gamepadKeyHold.model.ts'
-import type { MappedGamepadSignalId } from '@lib/gamepad-input/mapped/model/mappedGamepad.model.ts'
-import type { NativeGamepadId } from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
-import { useAsCb } from '@utils/react/state/useAsCb.ts'
-import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'
-import { isbool } from '@utils/ts/ts.ts'
+} from '@@/lib/gamepad-input-events/gamepad-key-hold/gamepadKeyHold.model.ts'
+import type { MappedGamepadSignalId } from '@@/lib/gamepad-input/mapped/model/mappedGamepad.model.ts'
+import type { NativeGamepadId } from '@@/lib/gamepad-input/native/model/nativeGamepad.model.ts'
+import { useAsCb } from '@@/utils/react/state/useAsCb.ts'
+import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
+import { isbool } from '@@/utils/ts/ts.ts'
 import { use, useLayoutEffect } from 'react'
 
 

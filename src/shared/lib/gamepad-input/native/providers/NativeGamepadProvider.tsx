@@ -1,16 +1,16 @@
 import {
   NativeGamepadContext,
   type NativeGamepadContextValue,
-} from '@lib/gamepad-input/native/context/NativeGamepadContext.ts'
+} from '@@/lib/gamepad-input/native/context/NativeGamepadContext.ts'
 import {
   type NativeGamepadConnectedEv, type NativeGamepadDisconnectedEv,
   type NativeGamepadEv, type NativeGamepadId,
   type NativeGamepad, type NativeGamepadPolledEv,
   gamepadToNativeGamepadId, gamepadToNativeGamepad,
-} from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
-import type { Children } from '@utils/react/props/propTypes.ts'
-import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'
-import { type Cb, type EvHandler } from '@utils/ts/ts.ts'
+} from '@@/lib/gamepad-input/native/model/nativeGamepad.model.ts'
+import type { Children } from '@@/utils/react/props/propTypes.ts'
+import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
+import { type Cb, type EvHandler } from '@@/utils/ts/ts.ts'
 import { useLayoutEffect } from 'react'
 
 

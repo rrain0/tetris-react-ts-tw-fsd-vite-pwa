@@ -2,10 +2,10 @@ import {
   Piece,
   type PieceBlocks,
   type PieceData,
-} from '@lib/tetris-engine/entities/piece/model/piece.ts'
-import { mathRotate, moveXy } from '@lib/tetris-engine/shared/utils/piece.ts'
-import type { Xy, XydxdyOpt } from '@utils/math/rect.ts'
-import type { Opt, PartOpt } from '@utils/ts/ts.ts'
+} from '@@/lib/tetris-engine/entities/piece/model/piece.ts'
+import { mathRotate, moveXy } from '@@/lib/tetris-engine/shared/utils/piece.ts'
+import type { Xy, XydxdyOpt } from '@@/utils/math/rect.ts'
+import type { Opt, PartOpt } from '@@/utils/ts/ts.ts'
 
 
 

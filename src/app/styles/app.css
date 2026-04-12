@@ -2,8 +2,8 @@
 @import './parts/reset.css';
 @import './parts/fonts.css';
 @import './parts/tailwind.css';
-@import '@styles/colors.css';
-@import '@styles/text.css';
+@import '@@/styles/colors.css';
+@import '@@/styles/text.css';
 
 
 

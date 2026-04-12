@@ -1,26 +1,26 @@
 import {
   MappedGamepadContext, type MappedGamepadContextValue,
-} from '@lib/gamepad-input/mapped/context/MappedGamepadContext.ts'
+} from '@@/lib/gamepad-input/mapped/context/MappedGamepadContext.ts'
 import {
   dInputOldToXXInputMapping
-} from '@lib/gamepad-input/mapped/lib/dInputOldToXXInputMapping.ts'
+} from '@@/lib/gamepad-input/mapped/lib/dInputOldToXXInputMapping.ts'
 import {
   dInputPS3ToXXInputMapping
-} from '@lib/gamepad-input/mapped/lib/dInputPS3ToXXInputMapping.ts'
-import { xInputToXXInputMapping } from '@lib/gamepad-input/mapped/lib/xInputToXXInputMapping.ts'
+} from '@@/lib/gamepad-input/mapped/lib/dInputPS3ToXXInputMapping.ts'
+import { xInputToXXInputMapping } from '@@/lib/gamepad-input/mapped/lib/xInputToXXInputMapping.ts'
 import {
   type MappedGamepad,
   type MappedGamepadEv, type MappedGamepadGotStateEv,
   nativeGamepadStateToMappedState,
-} from '@lib/gamepad-input/mapped/model/mappedGamepad.model.ts'
-import { NativeGamepadContext } from '@lib/gamepad-input/native/context/NativeGamepadContext.ts'
+} from '@@/lib/gamepad-input/mapped/model/mappedGamepad.model.ts'
+import { NativeGamepadContext } from '@@/lib/gamepad-input/native/context/NativeGamepadContext.ts'
 import type {
   NativeGamepadEv,
   NativeGamepadId,
-} from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
-import type { Children } from '@utils/react/props/propTypes.ts'
-import { useRefGetSet } from '@utils/react/state/useRefGetSet.ts'
-import { type EvHandler } from '@utils/ts/ts.ts'
+} from '@@/lib/gamepad-input/native/model/nativeGamepad.model.ts'
+import type { Children } from '@@/utils/react/props/propTypes.ts'
+import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
+import { type EvHandler } from '@@/utils/ts/ts.ts'
 import { use, useLayoutEffect } from 'react'
 
 

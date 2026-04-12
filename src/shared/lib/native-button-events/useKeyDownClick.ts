@@ -1,4 +1,4 @@
-import { useAsCb } from '@utils/react/state/useAsCb.ts'
+import { useAsCb } from '@@/utils/react/state/useAsCb.ts'
 import React from 'react'
 
 

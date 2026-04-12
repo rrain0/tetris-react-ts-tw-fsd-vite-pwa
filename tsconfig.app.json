@@ -68,18 +68,8 @@
       ],
       
       "src/*": ["./src/*"],
-      
-      "@app/*": ["./src/app/*"],
-      "@entities/*": ["./src/entities/*"],
-      "@features/*": ["./src/features/*"],
-      "@screens/*": ["./src/screens/*"],
-      "@widgets/*": ["./src/widgets/*"],
-      
-      "@assets/*": ["./src/shared/assets/*"],
-      "@components/*": ["./src/shared/components/*"],
-      "@styles/*": ["./src/shared/styles/*"],
-      "@lib/*": ["./src/shared/lib/*"],
-      "@utils/*": ["./src/shared/utils/*"],
+      "@/*": ["./src/*"],
+      "@@/*": ["./src/shared/*"],
     }
   }
 }

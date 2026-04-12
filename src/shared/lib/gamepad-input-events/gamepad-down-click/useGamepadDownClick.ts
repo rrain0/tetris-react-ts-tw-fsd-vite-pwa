@@ -1,10 +1,10 @@
 import type {
   GamepadKeyDownClickEv,
   GamepadKeyDownClickEvHandler,
-} from '@lib/gamepad-input-events/gamepad-down-click/gamepadKeyDownClick.model.ts'
-import { GamepadChangeContext } from '@lib/gamepad-input/change/context/GamepadChangeContext.ts'
-import type { GamepadChangeEv } from '@lib/gamepad-input/change/model/GamepadChange.model.ts'
-import { useAsCb } from '@utils/react/state/useAsCb.ts'
+} from '@@/lib/gamepad-input-events/gamepad-down-click/gamepadKeyDownClick.model.ts'
+import { GamepadChangeContext } from '@@/lib/gamepad-input/change/context/GamepadChangeContext.ts'
+import type { GamepadChangeEv } from '@@/lib/gamepad-input/change/model/GamepadChange.model.ts'
+import { useAsCb } from '@@/utils/react/state/useAsCb.ts'
 import { use, useLayoutEffect } from 'react'
 
 

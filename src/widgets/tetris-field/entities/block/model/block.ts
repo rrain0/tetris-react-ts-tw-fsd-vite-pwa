@@ -1,4 +1,4 @@
-import type { TetrominoType } from '@lib/tetris-engine/entities/piece/model/tetromino.ts'
+import type { TetrominoType } from '@@/lib/tetris-engine/entities/piece/model/tetromino.ts'
 
 
 

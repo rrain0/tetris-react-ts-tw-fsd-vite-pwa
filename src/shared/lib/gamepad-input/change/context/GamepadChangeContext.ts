@@ -1,8 +1,8 @@
 import type {
   GamepadChangeEv,
   GamepadChanges,
-} from '@lib/gamepad-input/change/model/GamepadChange.model.ts'
-import type { Cb1, Getter } from '@utils/ts/ts.ts'
+} from '@@/lib/gamepad-input/change/model/GamepadChange.model.ts'
+import type { Cb1, Getter } from '@@/utils/ts/ts.ts'
 import { createContext } from 'react'
 
 

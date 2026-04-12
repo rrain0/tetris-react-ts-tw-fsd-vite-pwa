@@ -1,5 +1,5 @@
-import { useAsRefGet } from '@utils/react/state/useAsRefGet.ts'
-import type { anyfun } from '@utils/ts/ts.ts'
+import { useAsRefGet } from '@@/utils/react/state/useAsRefGet.ts'
+import type { anyfun } from '@@/utils/ts/ts.ts'
 
 
 

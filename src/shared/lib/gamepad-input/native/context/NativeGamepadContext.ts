@@ -1,7 +1,7 @@
 import type {
   NativeGamepadEv, NativeGamepads,
-} from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
-import type { Cb1, Getter } from '@utils/ts/ts.ts'
+} from '@@/lib/gamepad-input/native/model/nativeGamepad.model.ts'
+import type { Cb1, Getter } from '@@/utils/ts/ts.ts'
 import { createContext } from 'react'
 
 

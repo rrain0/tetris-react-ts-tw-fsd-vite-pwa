@@ -1,10 +1,10 @@
-import type { PieceType } from '@lib/tetris-engine/entities/piece/model/piece.ts'
-import { mapBlockTypeToSrc } from '@widgets/tetris-field/entities/block/lib/block.ts'
+import type { PieceType } from '@@/lib/tetris-engine/entities/piece/model/piece.ts'
+import { mapBlockTypeToSrc } from '@/widgets/tetris-field/entities/block/lib/block.ts'
 import type {
   BlockUiData,
   BlockUiType,
-} from '@widgets/tetris-field/entities/block/model/blockUi.ts'
-import type { BlockType } from '@widgets/tetris-field/entities/block/model/block.ts'
+} from '@/widgets/tetris-field/entities/block/model/blockUi.ts'
+import type { BlockType } from '@/widgets/tetris-field/entities/block/model/block.ts'
 
 
 

@@ -1,4 +1,4 @@
-import type { OffsetsSrs } from '@lib/tetris-engine/entities/piece/model/pieceSrs.ts'
+import type { OffsetsSrs } from '@@/lib/tetris-engine/entities/piece/model/pieceSrs.ts'
 
 
 

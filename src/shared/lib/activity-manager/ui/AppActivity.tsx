@@ -1,8 +1,8 @@
-import { AppActivitiesContext } from '@lib/activity-manager/context/AppActivitiesContext.ts'
-import { AppActivityContext } from '@lib/activity-manager/context/AppActivityContext.ts'
-import type { AppActivityState } from '@lib/activity-manager/model/app-activity.ts'
-import type { Children } from '@utils/react/props/propTypes.ts'
-import { isundef } from '@utils/ts/ts.ts'
+import { AppActivitiesContext } from '@@/lib/activity-manager/context/AppActivitiesContext.ts'
+import { AppActivityContext } from '@@/lib/activity-manager/context/AppActivityContext.ts'
+import type { AppActivityState } from '@@/lib/activity-manager/model/app-activity.ts'
+import type { Children } from '@@/utils/react/props/propTypes.ts'
+import { isundef } from '@@/utils/ts/ts.ts'
 import { use } from 'react'
 
 

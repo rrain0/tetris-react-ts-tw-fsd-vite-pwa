@@ -1,9 +1,9 @@
-import type { Game } from '@lib/tetris-engine/entities/game/model/game.ts'
-import { elemSizeContain } from '@utils/css/elemSizeContain.ts'
-import { ingameScreenLandSizes } from '@screens/ingame/land/ingameScreenLandSizes.ts'
-import TetrisField from '@widgets/tetris-field/ui/TetrisField.tsx'
-import FullscreenIc from '@assets/ic/svg/ui/fullscreen.svg?react'
-import PauseIc from '@assets/ic/svg/ui/pause.svg?react'
+import type { Game } from '@@/lib/tetris-engine/entities/game/model/game.ts'
+import { elemSizeContain } from '@@/utils/css/elemSizeContain.ts'
+import { ingameScreenLandSizes } from '@/screens/ingame/land/ingameScreenLandSizes.ts'
+import TetrisField from '@/widgets/tetris-field/ui/TetrisField.tsx'
+import FullscreenIc from '@@/assets/ic/svg/ui/fullscreen.svg?react'
+import PauseIc from '@@/assets/ic/svg/ui/pause.svg?react'
 
 
 

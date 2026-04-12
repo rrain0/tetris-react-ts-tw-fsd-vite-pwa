@@ -1,4 +1,4 @@
-import type { GamepadMapping } from '@lib/gamepad-input/mapped/model/mappedGamepad.model.ts'
+import type { GamepadMapping } from '@@/lib/gamepad-input/mapped/model/mappedGamepad.model.ts'
 
 
 

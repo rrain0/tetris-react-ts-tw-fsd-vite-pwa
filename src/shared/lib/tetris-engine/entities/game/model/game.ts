@@ -1,8 +1,8 @@
-import { Field } from '@lib/tetris-engine/entities/field/model/field.ts'
-import type { Piece } from '@lib/tetris-engine/entities/piece/model/piece.ts'
-import { randomTetrominoSrs } from '@lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
-import { matrixCopy } from '@lib/tetris-engine/shared/utils/matrix.ts'
-import { array } from '@utils/array/arrCreate.ts'
+import { Field } from '@@/lib/tetris-engine/entities/field/model/field.ts'
+import type { Piece } from '@@/lib/tetris-engine/entities/piece/model/piece.ts'
+import { randomTetrominoSrs } from '@@/lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
+import { matrixCopy } from '@@/lib/tetris-engine/shared/utils/matrix.ts'
+import { array } from '@@/utils/array/arrCreate.ts'
 
 
 

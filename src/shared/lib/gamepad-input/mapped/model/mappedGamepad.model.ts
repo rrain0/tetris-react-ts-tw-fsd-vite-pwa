@@ -1,10 +1,10 @@
 import type {
   NativeGamepadId,
   NativeGamepadMeta, NativeGamepadState,
-} from '@lib/gamepad-input/native/model/nativeGamepad.model.ts'
-import { type num2, rangeHas, rangeMapClamp } from '@utils/math/range.ts'
-import { rf5 } from '@utils/math/rounding.ts'
-import { isbool, isdef, isnumber, isundef } from '@utils/ts/ts.ts'
+} from '@@/lib/gamepad-input/native/model/nativeGamepad.model.ts'
+import { type num2, rangeHas, rangeMapClamp } from '@@/utils/math/range.ts'
+import { rf5 } from '@@/utils/math/rounding.ts'
+import { isbool, isdef, isnumber, isundef } from '@@/utils/ts/ts.ts'
 
 
 
