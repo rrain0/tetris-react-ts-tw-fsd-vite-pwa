@@ -55,7 +55,6 @@ export default defineConfig(({ command, mode }) => {
       // Aliases here are necessary to build paths for Workers & CSS.
       // Aliases must be duplicated in tsconfig.app.json for ts compiler.
       alias: {
-        'src': fileURLToPath(new URL('./src', import.meta.url)),
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         '@@': fileURLToPath(new URL('./src/shared', import.meta.url)),
       },

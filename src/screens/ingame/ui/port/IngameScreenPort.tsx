@@ -4,14 +4,17 @@ import { ingameScreenPortSizes } from '@/screens/ingame/ui/port/ingameScreenPort
 import TetrisField from '@/widgets/tetris-field/ui/TetrisField.tsx'
 import FullscreenIc from '@@/assets/ic/svg/ui/fullscreen.svg?react'
 import PauseIc from '@@/assets/ic/svg/ui/pause.svg?react'
+import type { IngameStats } from '@/screens/ingame/model/ingameScreen.ts'
 
 
 
-export type IngameScreenPortProps = {
+export type IngameScreenPortProps = IngameStats & {
   game: Game
 }
 
-export default function IngameScreenPort({ game }: IngameScreenPortProps) {
+export default function IngameScreenPort(props: IngameScreenPortProps) {
+  const { game, hiScore, score, level, lines } = props
+  
   const combinedField = game.renderCombinedField()
   
   const {
@@ -86,7 +89,7 @@ export default function IngameScreenPort({ game }: IngameScreenPortProps) {
               SCORE
             </div>
             <div>
-              <div cn='txHudDigitsBold' st={digitsSt}>194638</div>
+              <div cn='txHudDigitsBold' st={digitsSt}>{score}</div>
             </div>
           </div>
           
@@ -95,7 +98,7 @@ export default function IngameScreenPort({ game }: IngameScreenPortProps) {
               HI-SCORE
             </div>
             <div>
-              <div cn='txHudDigitsBold' st={digitsSt}>194638</div>
+              <div cn='txHudDigitsBold' st={digitsSt}>{hiScore}</div>
             </div>
           </div>
           
@@ -104,7 +107,7 @@ export default function IngameScreenPort({ game }: IngameScreenPortProps) {
               LEVEL
             </div>
             <div>
-              <div cn='txHudDigitsBold' st={digitsSt}>12</div>
+              <div cn='txHudDigitsBold' st={digitsSt}>{level}</div>
             </div>
           </div>
           
@@ -113,7 +116,7 @@ export default function IngameScreenPort({ game }: IngameScreenPortProps) {
               LINES
             </div>
             <div>
-              <div cn='txHudDigitsBold' st={digitsSt}>57</div>
+              <div cn='txHudDigitsBold' st={digitsSt}>{lines}</div>
             </div>
           </div>
         

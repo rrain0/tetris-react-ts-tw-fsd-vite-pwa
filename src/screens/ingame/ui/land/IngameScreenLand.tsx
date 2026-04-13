@@ -1,17 +1,20 @@
+import type { IngameStats } from '@/screens/ingame/model/ingameScreen.ts'
 import type { Game } from '@@/lib/tetris-engine/entities/game/model/game.ts'
 import { elemSizeContain } from '@@/utils/css/elemSizeContain.ts'
-import { ingameScreenLandSizes } from '@/screens/ingame/land/ingameScreenLandSizes.ts'
+import { ingameScreenLandSizes } from '@/screens/ingame/ui/land/ingameScreenLandSizes.ts'
 import TetrisField from '@/widgets/tetris-field/ui/TetrisField.tsx'
 import FullscreenIc from '@@/assets/ic/svg/ui/fullscreen.svg?react'
 import PauseIc from '@@/assets/ic/svg/ui/pause.svg?react'
 
 
 
-export type IngameScreenLandProps = {
+export type IngameScreenLandProps = IngameStats & {
   game: Game
 }
 
-export default function IngameScreenLand({ game }: IngameScreenLandProps) {
+export default function IngameScreenLand(props: IngameScreenLandProps) {
+  const { game, hiScore, score, level, lines } = props
+  
   const field = game.renderField()
   const nextField = game.renderNextField()
   
@@ -58,28 +61,28 @@ export default function IngameScreenLand({ game }: IngameScreenLandProps) {
             HI-SCORE
           </div>
           <div cn='flex col end'>
-            <div cn='txHudDigits' st={digitsSt}>194638</div>
+            <div cn='txHudDigits' st={digitsSt}>{hiScore}</div>
           </div>
           
           <div cn='txHudTitle' st={titleSt}>
             SCORE
           </div>
           <div cn='flex col end'>
-            <div cn='txHudDigits' st={digitsSt}>1666</div>
+            <div cn='txHudDigits' st={digitsSt}>{score}</div>
           </div>
           
           <div cn='txHudTitle' st={titleSt}>
             LEVEL
           </div>
           <div cn='flex col end'>
-            <div cn='txHudDigits' st={digitsSt}>12</div>
+            <div cn='txHudDigits' st={digitsSt}>{level}</div>
           </div>
           
           <div cn='txHudTitle' st={titleSt}>
             LINES
           </div>
           <div cn='flex col end'>
-            <div cn='txHudDigits' st={digitsSt}>57</div>
+            <div cn='txHudDigits' st={digitsSt}>{lines}</div>
           </div>
           
           <div cn='txHudTitle' st={titleSt}>

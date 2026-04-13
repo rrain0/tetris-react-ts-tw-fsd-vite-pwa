@@ -1,6 +1,6 @@
 {
   // defines paths to apply this tsconfig to
-  "include": ["src", "node_modules_type_overrides"],
+  "include": ["src"],
   "compilerOptions": {
     // A file for storing compilation information to build faster
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
@@ -62,12 +62,6 @@
     // Aliases for ts compiler.
     // Aliases used in CSS & Workers must be duplicated in vite.config.ts.
     "paths": {
-      "*": [
-        "./src/*",
-        "./node_modules_type_overrides/*"
-      ],
-      
-      "src/*": ["./src/*"],
       "@/*": ["./src/*"],
       "@@/*": ["./src/shared/*"],
     }

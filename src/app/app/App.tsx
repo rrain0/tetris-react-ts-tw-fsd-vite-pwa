@@ -6,7 +6,7 @@ import GamepadInputProvider
 import InputLayoutProvider from '@/entities/input-layout/providers/InputLayoutProvider.tsx'
 import { useState } from 'react'
 import * as React from 'react'
-import IngameScreen from '@/screens/ingame/IngameScreen.tsx'
+import IngameScreen from '@/screens/ingame/ui/IngameScreen.tsx'
 
 
 

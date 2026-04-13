@@ -18,13 +18,14 @@ import { InputLayoutContext } from '@/entities/input-layout/context/InputLayoutC
 import { isGamepadKeyAction } from '@/entities/input-layout/model/isGamepadKeyAction.ts'
 import { isKeyboardAction } from '@/entities/input-layout/model/isKeyboardAction.ts'
 import { use, useState } from 'react'
-import { ingameScreenLandSmSizes } from '@/screens/ingame/land-sm/ingameScreenLandSmSizes.ts'
-import IngameScreenLand from '@/screens/ingame/land/IngameScreenLand.tsx'
-import IngameScreenLandSm from '@/screens/ingame/land-sm/IngameScreenLandSm.tsx'
-import { ingameScreenLandSizes } from '@/screens/ingame/land/ingameScreenLandSizes.ts'
+import { ingameScreenLandSmSizes } from '@/screens/ingame/ui/land-sm/ingameScreenLandSmSizes.ts'
+import IngameScreenLand from '@/screens/ingame/ui/land/IngameScreenLand.tsx'
+import IngameScreenLandSm from '@/screens/ingame/ui/land-sm/IngameScreenLandSm.tsx'
+import { ingameScreenLandSizes } from '@/screens/ingame/ui/land/ingameScreenLandSizes.ts'
 import IngameScreenPort from '@/screens/ingame/ui/port/IngameScreenPort.tsx'
 import PageFullVp from '@@/components/elems/PageFullVp.tsx'
 import bg from '@@/assets/im/bg4.jpg'
+import type { IngameStats } from '@/screens/ingame/model/ingameScreen.ts'
 
 
 
@@ -64,9 +65,9 @@ export default function IngameScreen() {
     game.field.addPiece(newTSrs({ x: 8, y: 16 }).toRotatedLeft().next().value!)
     return game
   })
-  const [gameStats] = useState({
-    hiScore: 194638,
-    score: 194638,
+  const [ingameStats] = useState<IngameStats>({
+    hiScore: 123456,
+    score: 123456,
     level: 12,
     lines: 57,
   })
@@ -102,9 +103,9 @@ export default function IngameScreen() {
         {...pageProps}
       >
         <div cn='sz-full grid center2 container-size' ref={refFun}>
-          {layout === 'land' && <IngameScreenLand game={game}/>}
-          {layout === 'landSm' && <IngameScreenLandSm game={game}/>}
-          {layout === 'port' && <IngameScreenPort game={game}/>}
+          {layout === 'land' && <IngameScreenLand game={game} {...ingameStats}/>}
+          {layout === 'landSm' && <IngameScreenLandSm game={game} {...ingameStats}/>}
+          {layout === 'port' && <IngameScreenPort game={game} {...ingameStats}/>}
         </div>
       </PageFullVp>
     </>
