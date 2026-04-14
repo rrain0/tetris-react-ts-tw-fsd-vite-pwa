@@ -23,7 +23,7 @@ export default function IngameScreenPort(props: IngameScreenPortProps) {
     fullFieldBoxH,
     topH, topTitleH, topTitleMl,
     bottomG, bottomH, titleH, digitH, bottomTxG,
-    icSz, icsG, icsW,
+    controlsIcSz, controlsG, controlsW,
     gameW, gameH, gameRatio,
     h,
   } = ingameScreenPortSizes()
@@ -32,7 +32,7 @@ export default function IngameScreenPort(props: IngameScreenPortProps) {
   const containerSt = { width: elemSizeContain(gameRatio).width }
   const gameSt = {
     grid: `
-      'ics' 1fr
+      'controls' 1fr
       'top' ${h(topH)}
       'fieldBox' ${h(fieldBoxH)}
       'bottom' ${h(bottomH)}
@@ -50,23 +50,25 @@ export default function IngameScreenPort(props: IngameScreenPortProps) {
   const bottomItemSt = { gap: h(bottomTxG) }
   const titleSt = { fontSize: h(titleH) }
   const digitsSt = { fontSize: h(digitH) }
-  const icsSt = { gap: h(icsG) }
-  const icSt = { width: h(icSz), height: h(icSz) }
+  const controlsSt = { gap: h(controlsG) }
+  const contolsIcSt = { width: h(controlsIcSz), height: h(controlsIcSz) }
   
   return (
     <>
+      {/* Controls container */}
+      <div cn='h-full jus-end flex row start-end container-size' st={containerSt}>
+        <div cn='flex row start-end' st={controlsSt}>
+          <div cn='flex col center2' st={contolsIcSt}>
+            <FullscreenIc cn={`sz-full ${icCn}`}/>
+          </div>
+          <div cn='flex col center2' st={contolsIcSt}>
+            <PauseIc cn={`sz-full ${icCn}`}/>
+          </div>
+        </div>
+      </div>
       
       <div cn='h-full container-size' st={containerSt}>
         <div cn='sz-full grid' st={gameSt}>
-          
-          <div cn='flex row start-end pls-[start_end]' st={icsSt}>
-            <div cn='flex col center2' st={icSt}>
-              <FullscreenIc cn={`sz-full ${icCn}`}/>
-            </div>
-            <div cn='flex col center2' st={icSt}>
-              <PauseIc cn={`sz-full ${icCn}`}/>
-            </div>
-          </div>
           
           <div cn='flexrc w-full in-area-[top]' st={topSt}>
             <div cn='txHudTitle' st={topTitleSt}>

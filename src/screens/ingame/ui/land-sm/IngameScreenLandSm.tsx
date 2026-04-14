@@ -22,7 +22,7 @@ export default function IngameScreenLandSm(props: IngameScreenLandSmProps) {
     blockSz,
     fieldBoxBdSz, fieldBoxW, fieldBoxH,
     sideW, sideG, nextW, titleH, digitH,
-    icSz, icsG, icsW,
+    controlsIcSz, controlsG, controlsW,
     gameG, gameW, gameH, gameRatio,
     w,
   } = ingameScreenLandSmSizes(nextField.cols)
@@ -30,8 +30,8 @@ export default function IngameScreenLandSm(props: IngameScreenLandSmProps) {
   const containerSt = { height: elemSizeContain(gameRatio).height }
   const gameSt = {
     grid: `
-      'spaceL fieldBox ... side spaceR ... ics' 100%
-      / 1fr ${w(fieldBoxW)} ${w(gameG)} ${w(sideW)} 1fr ${w(gameG)} ${w(icsW)}
+      'spaceL fieldBox ... side spaceR ... controlsSpace' 100%
+      / 1fr ${w(fieldBoxW)} ${w(gameG)} ${w(sideW)} 1fr ${w(gameG)} ${w(controlsW)}
     `,
   }
   const fieldBoxSt = { borderWidth: w(fieldBoxBdSz), width: w(fieldBoxW) }
@@ -39,69 +39,74 @@ export default function IngameScreenLandSm(props: IngameScreenLandSmProps) {
   const titleSt = { fontSize: w(titleH) }
   const digitsSt = { fontSize: w(digitH) }
   const nextSt = { width: w(nextW) }
-  const icsSt = { gap: w(icsG) }
-  const icSt = { width: w(icSz), height: w(icSz) }
+  const controlsSt = { gap: w(controlsG) }
+  const controlsIcSt = { width: w(controlsIcSz), height: w(controlsIcSz) }
   
   return (
-    <div cn='w-full container-size' st={containerSt}>
-      <div cn='grid sz-full' st={gameSt}>
-        
-        <div cn='flex col in-area-[fieldBox] w-ct bd-cl-[var(--cl-tetris-field-bd)] rad-[1cqh]'
-          st={fieldBoxSt}
-        >
-          <TetrisField cn='w-full' field={field}/>
-        </div>
-        
-        <div cn='flex col in-area-[side]' st={sideSt}>
-          
-          <div cn='txHudTitle' st={titleSt}>
-            HI-SCORE
-          </div>
-          <div cn='flex col end'>
-            <div cn='txHudDigits' st={digitsSt}>{hiScore}</div>
-          </div>
-          
-          <div cn='txHudTitle' st={titleSt}>
-            SCORE
-          </div>
-          <div cn='flex col end'>
-            <div cn='txHudDigits' st={digitsSt}>{score}</div>
-          </div>
-          
-          <div cn='txHudTitle' st={titleSt}>
-            LEVEL
-          </div>
-          <div cn='flex col end'>
-            <div cn='txHudDigits' st={digitsSt}>{level}</div>
-          </div>
-          
-          <div cn='txHudTitle' st={titleSt}>
-            LINES
-          </div>
-          <div cn='flex col end'>
-            <div cn='txHudDigits' st={digitsSt}>{lines}</div>
-          </div>
-          
-          <div cn='txHudTitle' st={titleSt}>
-            NEXT
-          </div>
-          <div cn='flex col end'>
-            <TetrisField st={nextSt} field={nextField}/>
-          </div>
-        
-        </div>
-        
-        <div cn='flex row start-end in-area-[ics]' st={icsSt}>
-          <div cn='flex col center2' st={icSt}>
+    <>
+      {/* Controls container */}
+      <div cn='w-full jus-end flex row start-end container-size' st={containerSt}>
+        <div cn='flex row start-end' st={controlsSt}>
+          <div cn='flex col center2' st={controlsIcSt}>
             <FullscreenIc cn={`sz-full ${icCn}`}/>
           </div>
-          <div cn='flex col center2' st={icSt}>
+          <div cn='flex col center2' st={controlsIcSt}>
             <PauseIc cn={`sz-full ${icCn}`}/>
           </div>
         </div>
-      
       </div>
-    </div>
+      
+      <div cn='w-full container-size' st={containerSt}>
+        <div cn='grid sz-full' st={gameSt}>
+          
+          <div cn='flex col in-area-[fieldBox] w-ct bd-cl-[var(--cl-tetris-field-bd)] rad-[1cqh]'
+            st={fieldBoxSt}
+          >
+            <TetrisField cn='w-full' field={field}/>
+          </div>
+          
+          <div cn='flex col in-area-[side]' st={sideSt}>
+            
+            <div cn='txHudTitle' st={titleSt}>
+              HI-SCORE
+            </div>
+            <div cn='flex col end'>
+              <div cn='txHudDigits' st={digitsSt}>{hiScore}</div>
+            </div>
+            
+            <div cn='txHudTitle' st={titleSt}>
+              SCORE
+            </div>
+            <div cn='flex col end'>
+              <div cn='txHudDigits' st={digitsSt}>{score}</div>
+            </div>
+            
+            <div cn='txHudTitle' st={titleSt}>
+              LEVEL
+            </div>
+            <div cn='flex col end'>
+              <div cn='txHudDigits' st={digitsSt}>{level}</div>
+            </div>
+            
+            <div cn='txHudTitle' st={titleSt}>
+              LINES
+            </div>
+            <div cn='flex col end'>
+              <div cn='txHudDigits' st={digitsSt}>{lines}</div>
+            </div>
+            
+            <div cn='txHudTitle' st={titleSt}>
+              NEXT
+            </div>
+            <div cn='flex col end'>
+              <TetrisField st={nextSt} field={nextField}/>
+            </div>
+          
+          </div>
+        
+        </div>
+      </div>
+    </>
   )
 }
 

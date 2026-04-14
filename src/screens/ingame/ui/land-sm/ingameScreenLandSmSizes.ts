@@ -14,12 +14,12 @@ export const ingameScreenLandSmSizes = (nextFieldCols = 4) => {
   const titleH = 0.8
   const digitH = 0.9
   
-  const icSz = 1
-  const icsG = 0.3
-  const icsW = icSz + icsG + icSz
+  const controlsIcSz = 1
+  const controlsG = 0.3
+  const controlsW = controlsIcSz + controlsG + controlsIcSz
   
   const gameG = 0.5
-  const gameW = fieldBoxW + gameG + sideW + gameG + icsW
+  const gameW = fieldBoxW + gameG + sideW + gameG + controlsW
   const gameH = fieldBoxH
   const gameRatio = gameW / gameH
   
@@ -29,7 +29,7 @@ export const ingameScreenLandSmSizes = (nextFieldCols = 4) => {
     blockSz,
     fieldBoxBdSz, fieldBoxW, fieldBoxH,
     sideW, sideG, nextW, titleH, digitH,
-    icSz, icsG, icsW,
+    controlsIcSz, controlsG, controlsW,
     gameG, gameW, gameH, gameRatio,
     w,
   }
