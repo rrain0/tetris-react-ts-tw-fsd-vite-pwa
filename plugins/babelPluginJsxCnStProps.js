@@ -1,24 +1,29 @@
 import _template from '@babel/template'
 const template = _template.default || _template // Handles both ESM and CJS
+const exprAst = template.expression.ast
 import * as t from '@babel/types'
 
-const exprAst = template.expression.ast
 
 
+// This plugin adds 'cn' & 'st' props (and spread) to jsx element.
 
-// This plugin adds 'cn' & 'st' props to jsx element.
-// 'cn' & 'st' only available as a prop declaration, use of them in spread is not supported.
+// 'cn' & 'st' always has lower precedence to 'className' & 'style'
+// as they are meant for local styles.
 
-// Absence of 'cn' has no impact.
-// Falsy value (e.g. when !!value === false) of 'cn' has no impact.
+// Any 'cn' & 'st' are removed from jsx (but original object in spread is not touched).
+// and is merged with 'className' & 'style'.
+// Any 'style' & 'className' are preserved as is.
+
+// Absence of 'cn' has no impact on merged prop.
+// Falsy value (e.g. when !!value === false) of 'cn' has no impact on merged prop.
 // Preserved last value of 'className' prop or 'className' in spread.
 // Value of 'cn' prop is added before final 'className' value (including spread values).
 // Final className value is added as last spread prop.
 // Final className value is added as last spread prop and any 'cn' prop is removed.
 
-// Absence of 'st' has no impact.
-// Falsy value (e.g. when !!value === false) of 'st' has no impact.
-// Empty object value (object without own enumerable props) of 'st' has no impact.
+// Absence of 'st' has no impact on merged prop.
+// Falsy value (e.g. when !!value === false) of 'st' has no impact on merged prop.
+// Empty object value (object without own enumerable props) of 'st' has no impact on merged prop.
 // Preserved last value of 'style' prop or 'style' in spread.
 // Props of value of 'st' prop are added before final 'style' value props (including spread values).
 // Final style value is added as last spread prop and any 'st' prop is removed.
@@ -34,15 +39,19 @@ export default function babelPluginJsxCnStProps() {
         
         let hasClassNameAttr
         let classNameAttrValue
+        const classNameSpreads = [] // from last to first
+        
         let hasCnAttr
         let cnAttrValue
-        const classNameSpreads = []
+        const cnSpreads = [] // from last to first
         
         let hasStyleAttr
         let styleAttrValue
+        const styleSpreads = [] // from last to first
+        
         let hasStAttr
         let stAttrValue
-        const styleSpreads = []
+        const stSpreads = [] // from last to first
         
         for (let i = attrs.length - 1; i >= 0; i--) {
           const attr = attrs[i]
@@ -52,24 +61,12 @@ export default function babelPluginJsxCnStProps() {
             let v = attr.node.value
             if (t.isJSXExpressionContainer(v)) v = v.expression
             
-            if (name === 'className') {
-              if (!hasClassNameAttr) {
-                hasClassNameAttr = true
-                classNameAttrValue = v
-              }
-            }
-            else if (name === 'cn') {
+            if (name === 'cn') {
               if (!hasCnAttr) {
                 hasCnAttr = true
                 cnAttrValue = v
               }
               attr.remove()
-            }
-            else if (name === 'style') {
-              if (!hasStyleAttr) {
-                hasStyleAttr = true
-                styleAttrValue = v
-              }
             }
             else if (name === 'st') {
               if (!hasStAttr) {
@@ -78,37 +75,52 @@ export default function babelPluginJsxCnStProps() {
               }
               attr.remove()
             }
+            else if (name === 'className') {
+              if (!hasClassNameAttr) {
+                hasClassNameAttr = true
+                classNameAttrValue = v
+              }
+            }
+            else if (name === 'style') {
+              if (!hasStyleAttr) {
+                hasStyleAttr = true
+                styleAttrValue = v
+              }
+            }
+            
           }
           else if (attr.isJSXSpreadAttribute()) {
+            const arg = attr.node.argument
             
-            if (!hasClassNameAttr) {
-              const arg = attr.node.argument
-              classNameSpreads.push(arg)
-            }
-            if (!hasStyleAttr) {
-              const arg = attr.node.argument
-              styleSpreads.push(arg)
-            }
+            if (!hasCnAttr) cnSpreads.push(arg)
+            if (!hasStAttr) stSpreads.push(arg)
+            if (!hasClassNameAttr) classNameSpreads.push(arg)
+            if (!hasStyleAttr) styleSpreads.push(arg)
+            
+            // Remove 'cn' & 'st' from spread
+            attr.node.argument = exprAst`(({ cn, st, ...spread }) => spread)(${arg})`
             
           }
         }
         
         
         
-        // Calculate final value of className
+        // Calculate className final value
         {
           const cnBox = (() => {
             // If cn attr does not exist, return empty container-object.
             if (!hasCnAttr) return exprAst`{ }`
-            // If cn attr evaluates to falsy value (meaning cn attr does not exist)
-            // then return empty container-object.
-            // Otherwise, return container-object with attr & value.
-            return exprAst`(() => {
-              const cn = ${cnAttrValue}
-              if (!cn) return { }
-              return { className: cn }
-            })()`
+            // If cn attr evaluates to truly value then return container-object with attr & value.
+            // Otherwise, return empty container-object.
+            return exprAst`((cn) => cn ? { className: cn } : { })(${cnAttrValue})`
           })()
+          
+          // Find spread with non-falsy value of cn prop in it and return it in container-object.
+          // Otherwise, return cnBox.
+          const cnSpreadAndPropBox = exprAst`((cnSpread, cnBox) => {
+            cnSpread = cnSpread.find(it => !!it.cn)
+            return cnSpread ? { className: cnSpread.cn } : cnBox
+          })(${t.arrayExpression(cnSpreads)}, ${cnBox})`
           
           const classNameBox = (() => {
             // If className attr does not exist, return empty container-object.
@@ -119,25 +131,21 @@ export default function babelPluginJsxCnStProps() {
           
           // Find spread with className prop in it and return it in container-object.
           // Otherwise, return classNameBox.
-          const classNameSpreadAndAttrBox = exprAst`(() => {
-            const classNameSpread = ${t.arrayExpression(classNameSpreads)}
-              .find(it => 'className' in it)
-            if (!classNameSpread) return ${classNameBox}
-            return { className: classNameSpread.className }
-          })()`
+          const classNameSpreadAndPropBox = exprAst`((classNameSpread, classNameBox) => {
+            classNameSpread = classNameSpread.find(it => 'className' in it)
+            return classNameSpread ? { className: classNameSpread.className } : classNameBox
+          })(${t.arrayExpression(classNameSpreads)}, ${classNameBox})`
           
           // If cn-container is empty then return empty container-object
           // so nothing changes.
           // Else if there was no className prop in spread
           // then return cn container-object.
           // Else combine values (cn first) and return in container-object
-          const finalClassNameBox = exprAst`(() => {
-            const cnBox = ${cnBox}
-            if (!('className' in cnBox)) return { }
-            const className = ${classNameSpreadAndAttrBox}
-            if (!('className' in className)) return cnBox
-            return { className: [cnBox.className, className.className].join(' ') }
-          })()`
+          const finalClassNameBox = exprAst`((cnBox, classNameBox) =>
+            !('className' in cnBox) ? { }
+            : !('className' in classNameBox) ? cnBox
+            : { className: [cnBox.className, classNameBox.className].join(' ') }
+          )(${cnSpreadAndPropBox}, ${classNameSpreadAndPropBox})`
           
           // Add container-object as spread
           path.node.attributes.push(
@@ -147,21 +155,25 @@ export default function babelPluginJsxCnStProps() {
         
         
         
-        // Calculate final value of style
+        // Calculate style final value
         {
           const stBox = (() => {
             // If st attr does not exist, return empty container-object.
             if (!hasStAttr) return exprAst`{ }`
-            // If st attr evaluates to falsy value or empty object (meaning st attr does not exist)
-            // then return empty container-object.
-            // Otherwise, return container-object with attr & value.
-            return exprAst`(() => {
-              const st = ${stAttrValue}
-              if (!st) return { }
-              if (!Object.keys(st).length) return { }
-              return { style: st }
-            })()`
+            // If st attr evaluates to truly value with any own enumerable keys
+            // then return container-object with attr & value.
+            // Otherwise, return empty container-object.
+            return exprAst`((st) => st && Object.keys(st).length ? { style: st } : { })(${
+              stAttrValue
+            })`
           })()
+          
+          // Find spread with non-falsy st prop in it and return it in container-object.
+          // Otherwise, return stBox.
+          const stSpreadAndPropBox = exprAst`((stSpread, stBox) => {
+            stSpread = stSpread.find(it => !!it.st)
+            return stSpread ? { style: stSpread.st } : stBox
+          })(${t.arrayExpression(stSpreads)}, ${stBox})`
           
           const styleBox = (() => {
             // If style attr does not exist, return empty container-object.
@@ -172,25 +184,21 @@ export default function babelPluginJsxCnStProps() {
           
           // Find spread with style prop in it and return it in container-object.
           // Otherwise, return styleBox.
-          const styleSpreadAndAttrBox = exprAst`(() => {
-            const styleSpread = ${t.arrayExpression(styleSpreads)}
-              .find(it => 'style' in it)
-            if (!styleSpread) return ${styleBox}
-            return { style: styleSpread.style }
-          })()`
+          const styleSpreadAndPropBox = exprAst`((styleSpread, styleBox) => {
+            styleSpread = styleSpread.find(it => 'style' in it)
+            return styleSpread ? { style: styleSpread.style } : styleBox
+          })(${t.arrayExpression(styleSpreads)}, ${styleBox})`
           
           // If st-container is empty then return empty container-object
           // so nothing changes.
           // Else if there was no style prop in spread
           // then return st container-object.
           // Else combine values (st first) and return in container-object
-          const finalStyleBox = exprAst`(() => {
-            const stBox = ${stBox}
-            if (!('style' in stBox)) return { }
-            const styleBox = ${styleSpreadAndAttrBox}
-            if (!('style' in styleBox)) return stBox
-            return { style: { ...stBox.style, ...styleBox.style } }
-          })()`
+          const finalStyleBox = exprAst`((stBox, styleBox) =>
+            !('style' in stBox) ? { }
+            : !('style' in styleBox) ? stBox
+            : { style: { ...stBox.style, ...styleBox.style } }
+          )(${stSpreadAndPropBox}, ${styleSpreadAndPropBox})`
           
           // Add container-object as spread
           path.node.attributes.push(

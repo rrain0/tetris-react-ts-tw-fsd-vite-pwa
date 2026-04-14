@@ -5,7 +5,7 @@
 /*** 🔶Grid🔶 ***/
 
 /* shortcuts */
-@utility stack { @apply grid-['stack'] center2; & > * { @apply in-area-[stack]; } }
+@utility stack { @apply grid-['stack']; & > * { @apply in-area-[stack]; } }
 
 /** grid **/
 @utility grid { display: grid; }

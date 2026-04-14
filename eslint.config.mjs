@@ -277,7 +277,7 @@ export default defineConfig([
       '@stylistic/jsx-quotes': ['warn', 'prefer-single'],
       '@stylistic/jsx-self-closing-comp': 'warn',
       '@stylistic/jsx-sort-props': 'off',
-      '@stylistic/jsx-tag-spacing': ['error', { beforeSelfClosing: 'never' }],
+      '@stylistic/jsx-tag-spacing': ['warn', { beforeSelfClosing: 'never' }],
       '@stylistic/jsx-wrap-multilines': ['error', {
         declaration: 'parens-new-line',
         assignment: 'parens-new-line',

@@ -2,7 +2,9 @@ import { AppActivityContext } from '@@/lib/activity-manager/context/AppActivityC
 import {
   useGamepadDownClick
 } from '@@/lib/gamepad-input-events/gamepad-down-click/useGamepadDownClick.ts'
-import { useGamepadKeyHold } from '@@/lib/gamepad-input-events/gamepad-key-hold/useGamepadKeyHold.ts'
+import {
+  useGamepadKeyHold,
+} from '@@/lib/gamepad-input-events/gamepad-key-hold/useGamepadKeyHold.ts'
 import { useKeyDownClick } from '@@/lib/native-button-events/useKeyDownClick.ts'
 import { useKeyHold } from '@@/lib/native-button-events/useKeyHold.ts'
 import { Game } from '@@/lib/tetris-engine/entities/game/model/game.ts'
@@ -55,7 +57,9 @@ export default function IngameScreen() {
     //game.current = newOSrs(undefined)
     game.current.x = 4
     game.current.y = 5
-    game.field.addPiece(newTSrs({ x: 0, y: 14 }).toRotatedRight().next().value!.toRotatedRight().next().value!)
+    game.field.addPiece(
+      newTSrs({ x: 0, y: 14 }).toRotatedRight().next().value!.toRotatedRight().next().value!
+    )
     game.field.addPiece(newISrs({ x: -3, y: 15 }).toRotatedRight().next().value!)
     game.field.addPiece(newZSrs({ x: 1, y: 18 }))
     game.field.addPiece(newSSrs({ x: 3, y: 15 }).toRotatedLeft().next().value!)
@@ -94,6 +98,7 @@ export default function IngameScreen() {
   
   const pageProps = combineProps(onKeyboardKeyHold, onKeyboardKeyDownClick)
   
+  
   return (
     <>
       <PageFullVp cn='p-[8] bg-pos-[center] bg-sz-[cover]'
@@ -102,7 +107,7 @@ export default function IngameScreen() {
         tabIndex={-1}
         {...pageProps}
       >
-        <div cn='sz-full grid center2 container-size' ref={refFun}>
+        <div cn='sz-full stack center2 container-size' ref={refFun}>
           {layout === 'land' && <IngameScreenLand game={game} {...ingameStats}/>}
           {layout === 'landSm' && <IngameScreenLandSm game={game} {...ingameStats}/>}
           {layout === 'port' && <IngameScreenPort game={game} {...ingameStats}/>}

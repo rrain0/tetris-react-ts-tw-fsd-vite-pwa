@@ -62,3 +62,4 @@
 
 /** placed 2 **/
 @utility centered2 { place-self: center; }
+@utility ps-* { place-self: --value([*]); }
