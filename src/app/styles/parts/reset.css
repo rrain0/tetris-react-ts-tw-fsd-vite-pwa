@@ -3,7 +3,18 @@
 
 @layer reset {
   
-  *,::before,::after,::backdrop {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+    place-items: normal;
+    place-content: normal;
+  }
+  input,textarea {
+    justify-items: normal;
+  }
+  * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -11,19 +22,12 @@
     place-items: normal;
     place-content: normal;
     
-    /* background of body is WINDOW background */
-    background: none;
     /* disable outline on keyboard navigation */
     &:focus-visible { outline: none; }
     /* disable highlight when tapping on screen on mobile devices */
     -webkit-tap-highlight-color: transparent;
     
     overflow-wrap: anywhere;
-  }
-  input,textarea {
-    justify-items: normal;
-  }
-  * {
     /* use auto as default value */
     pointer-events: auto;
   }

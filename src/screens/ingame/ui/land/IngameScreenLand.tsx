@@ -1,10 +1,9 @@
 import type { IngameStats } from '@/screens/ingame/model/ingameScreen.ts'
+import IngameControls from '@/screens/ingame/ui/controls/IngameControls.tsx'
 import type { Game } from '@@/lib/tetris-engine/entities/game/model/game.ts'
 import { elemSizeContain } from '@@/utils/css/elemSizeContain.ts'
 import { ingameScreenLandSizes } from '@/screens/ingame/ui/land/ingameScreenLandSizes.ts'
 import TetrisField from '@/widgets/tetris-field/ui/TetrisField.tsx'
-import FullscreenIc from '@@/assets/ic/svg/ui/fullscreen.svg?react'
-import PauseIc from '@@/assets/ic/svg/ui/pause.svg?react'
 
 
 
@@ -27,7 +26,7 @@ export default function IngameScreenLand(props: IngameScreenLandProps) {
     w,
   } = ingameScreenLandSizes(nextField.cols)
   
-  const containerSt = { height: elemSizeContain(gameRatio).height }
+  const containerSt = { width: '100%', height: elemSizeContain(gameRatio).height }
   const gameSt = {
     gap: w(gameG),
     grid: `
@@ -47,18 +46,6 @@ export default function IngameScreenLand(props: IngameScreenLandProps) {
   
   return (
     <>
-      {/* Controls container */}
-      <div cn='w-full jus-end flex row start-end container-size' st={containerSt}>
-        <div cn='flex row start-end' st={controlsSt}>
-          <div cn='flex col center2' st={controlsIcSt}>
-            <FullscreenIc cn={`sz-full ${icCn}`}/>
-          </div>
-          <div cn='flex col center2' st={controlsIcSt}>
-            <PauseIc cn={`sz-full ${icCn}`}/>
-          </div>
-        </div>
-      </div>
-      
       <div cn='w-full container-size' st={containerSt}>
         <div cn='sz-full grid' st={gameSt}>
           
@@ -109,11 +96,12 @@ export default function IngameScreenLand(props: IngameScreenLandProps) {
         
         </div>
       </div>
+      
+      <IngameControls
+        containerSt={containerSt}
+        controlsSt={controlsSt}
+        controlsIcSt={controlsIcSt}
+      />
     </>
   )
 }
-
-
-
-// Content styles
-const icCn = 'cl-[var(--cl-hud-tx)] svg-curr-cl'

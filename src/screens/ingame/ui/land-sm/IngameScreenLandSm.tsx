@@ -1,10 +1,9 @@
 import type { IngameStats } from '@/screens/ingame/model/ingameScreen.ts'
+import IngameControls from '@/screens/ingame/ui/controls/IngameControls.tsx'
 import type { Game } from '@@/lib/tetris-engine/entities/game/model/game.ts'
 import { elemSizeContain } from '@@/utils/css/elemSizeContain.ts'
 import { ingameScreenLandSmSizes } from '@/screens/ingame/ui/land-sm/ingameScreenLandSmSizes.ts'
 import TetrisField from '@/widgets/tetris-field/ui/TetrisField.tsx'
-import FullscreenIc from '@@/assets/ic/svg/ui/fullscreen.svg?react'
-import PauseIc from '@@/assets/ic/svg/ui/pause.svg?react'
 
 
 
@@ -27,7 +26,7 @@ export default function IngameScreenLandSm(props: IngameScreenLandSmProps) {
     w,
   } = ingameScreenLandSmSizes(nextField.cols)
   
-  const containerSt = { height: elemSizeContain(gameRatio).height }
+  const containerSt = { width: '100%', height: elemSizeContain(gameRatio).height }
   const gameSt = {
     grid: `
       'spaceL fieldBox ... side spaceR ... controlsSpace' 100%
@@ -44,18 +43,6 @@ export default function IngameScreenLandSm(props: IngameScreenLandSmProps) {
   
   return (
     <>
-      {/* Controls container */}
-      <div cn='w-full jus-end flex row start-end container-size' st={containerSt}>
-        <div cn='flex row start-end' st={controlsSt}>
-          <div cn='flex col center2' st={controlsIcSt}>
-            <FullscreenIc cn={`sz-full ${icCn}`}/>
-          </div>
-          <div cn='flex col center2' st={controlsIcSt}>
-            <PauseIc cn={`sz-full ${icCn}`}/>
-          </div>
-        </div>
-      </div>
-      
       <div cn='w-full container-size' st={containerSt}>
         <div cn='grid sz-full' st={gameSt}>
           
@@ -106,11 +93,12 @@ export default function IngameScreenLandSm(props: IngameScreenLandSmProps) {
         
         </div>
       </div>
+      
+      <IngameControls
+        containerSt={containerSt}
+        controlsSt={controlsSt}
+        controlsIcSt={controlsIcSt}
+      />
     </>
   )
 }
-
-
-
-// Content styles
-const icCn = 'cl-[var(--cl-hud-tx)] svg-curr-cl'

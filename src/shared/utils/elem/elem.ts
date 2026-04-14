@@ -13,6 +13,10 @@ export function isSVGElement<S extends SVGElement, T>(view: T | S): view is S {
   return view instanceof SVGElement
 }
 
+export const getWindowHtml = (window: Window) => window.document
+export const getDocHtml = (doc: Document) => doc.documentElement
+export const getElemHtml = (elem: HSElem) => elem.ownerDocument.documentElement
+
 
 // Атрибут, который либо просто есть без значения, либо его нет (<div attr/> или <div/>)
 export type HtmlEmptyAttr = '' | undefined
