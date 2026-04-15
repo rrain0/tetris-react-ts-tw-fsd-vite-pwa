@@ -1,19 +1,21 @@
 import { FullscreenContext } from '@@/lib/fullscreen-manager/context/FullscreenContext.ts'
+import { PageLifecycleContext } from '@@/lib/page-lifecycle/context/PageLifecycleContext.ts'
+import type { PageLifecycleEv } from '@@/lib/page-lifecycle/model/page-lifecycle.ts'
 import type { Children } from '@@/utils/react/props/propTypes.ts'
+import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
 import { useStateAndRef } from '@@/utils/react/state/useStateAndRef.ts'
-import { useEffectEvent, useLayoutEffect } from 'react'
+import { use, useEffectEvent, useLayoutEffect } from 'react'
 
 
 
 
 // ⚠️ Browser-Initiated Fullscreen (F11) is not controlled by
 // <Element>.requestFullscreen() & <Document>.exitFullscreen()
+// and has no fullscreenchange events.
 
 // TODO detect PWA fullscreen
-// TODO { navigationUI: 'show' }
 // TODO I don't need to auto-toggle fullscreen if user pushed fullscreen button
 //  (onClick gesture is last so i need to detect that i do not need auto-toggle)
-// TODO I can't detect if user exits fullscreen via back button
 
 export type FullscreenManagerProps = Children & {
   resumeByGesture?: boolean | undefined
@@ -45,13 +47,26 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
     state: transitioning, get: getTransitioning, set: setTransitioning,
   } = useStateAndRef(false)
   
-  // Waiting for action to go fullscreen
-  const getNeedEnter = () => canNeedEnter && getEnabled() && !getActive()
-  const needEnter = canNeedEnter && enabled && !active
-  // Waiting for gesture to re-enter fullscreen
-  const getNeedGesture = () => byGesture && getNeedEnter() && !getTransitioning()
-  // Waiting for manual fullscreen re-enter
-  const needConfirmation = byConfirmation && needEnter && !transitioning
+  // Need action to enter fullscreen
+  const getNeedEnter = () => canNeedEnter && !getTransitioning() && getEnabled() && !getActive()
+  const needEnter = canNeedEnter && !transitioning && enabled && !active
+  
+  // Need gesture to enter fullscreen
+  const getNeedGesture = () => byGesture && !getTransitioning() && getNeedEnter()
+  
+  // Need explicit confirmation (modal dialog) to enter fullscreen
+  const needConfirmation = byConfirmation && !transitioning && needEnter
+  
+  
+  const [getLastRestored, setLastRestored] = useRefGetSet<PageLifecycleEv | undefined>(undefined)
+  const pageLContext = use(PageLifecycleContext)
+  useLayoutEffect(() => {
+    const onPageL = (ev: PageLifecycleEv) => {
+      if (ev.transition === 'Restored') setLastRestored(ev)
+    }
+    pageLContext.on(onPageL)
+    return () => { pageLContext.off(onPageL) }
+  }, [pageLContext])
   
   
   // Listen for browser enter / exit fullscreen
@@ -59,6 +74,12 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
     const onFullscreen = (ev: Event) => {
       const active = getFullscreenActive()
       setActive(active)
+      
+      // If there is recent page restore event and exit fullscreen
+      // then it is browser (not user) who exited fullscreen via page hiding.
+      // On user enter / exit event is removed.
+      const wasBrowserExit = !active && (getLastRestored()?.ts ?? 0) >= ev.timeStamp - 200
+      if (!active && !wasBrowserExit) setEnabled(false)
       
       console.log('fullscreenchange', active, 'ts', ev.timeStamp)
     }
@@ -68,9 +89,9 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
   
   
   async function enter() {
+    setLastRestored(undefined)
     setEnabled(true)
-    const canGoFullscreen = !getTransitioning() &&
-      getFullscreenAvailable() && getGestureHaveActivation()
+    const canGoFullscreen = !getTransitioning() && available && getGestureHaveActivation()
     if (canGoFullscreen) try {
       setTransitioning(true)
       // @ts-expect-error
@@ -84,7 +105,9 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
       setTransitioning(false)
     }
   }
+  
   async function exit() {
+    setLastRestored(undefined)
     setEnabled(false)
     const canExitFullscreen = !getTransitioning() && getFullscreenActive()
     if (canExitFullscreen) try {
@@ -99,12 +122,12 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
   
   
   const syncFullscreen = useEffectEvent(() => {
-    if (!canNeedEnter && enabled && !active) setEnabled(false)
-    if (active && !enabled) exit()
+    if (!transitioning) {
+      if (enabled && !active && !canNeedEnter) setEnabled(false)
+      if (!enabled && active) exit()
+    }
   })
-  useLayoutEffect(() => {
-    if (!transitioning) syncFullscreen()
-  }, [transitioning, active, enabled])
+  useLayoutEffect(syncFullscreen, [transitioning, active, enabled])
   
   
   const tryGoFullscreen = useEffectEvent(() => {
@@ -142,6 +165,7 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
     }
   }, [])
 
+  
   const contextValue = {
     available, enabled, active,
     needEnter, needConfirmation,

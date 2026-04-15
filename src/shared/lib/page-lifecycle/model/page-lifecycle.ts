@@ -14,7 +14,7 @@ export type PageTransition =
   | 'Restored' // page becomes visible
   | 'Minimized' // page becomes invisible
 
-export type PageLifecycleEv =
+export type PageNativeLifecycleEv =
   | 'load'
   | 'pageshow'
   | 'windowfocus'
@@ -24,13 +24,13 @@ export type PageLifecycleEv =
   | 'freeze'
   | 'pagehide'
 
-export type PageStateEv = {
+export type PageLifecycleEv = {
   ts: number
   state: PageState
   transition: PageTransition | undefined
 }
 
-export type OnPageState = EvCb<PageStateEv>
+export type OnPageLifecycle = EvCb<PageLifecycleEv>
 
 
 
@@ -48,7 +48,7 @@ function getActiveOrPassiveOrHidden(): PageState {
   return 'Passive'
 }
 
-export function getCurrPageState(prevState: PageState, lEv: PageLifecycleEv): PageState {
+export function getCurrPageState(prevState: PageState, lEv: PageNativeLifecycleEv): PageState {
   if (lEv === 'load') {
     if (document['wasDiscarded']) return 'Discarded'
     return prevState

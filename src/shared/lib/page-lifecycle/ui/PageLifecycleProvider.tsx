@@ -1,8 +1,8 @@
 import { PageLifecycleContext } from '@@/lib/page-lifecycle/context/PageLifecycleContext.ts'
 import {
   getInitialPageState, getCurrPageState, getCurrPageTransition,
-  type PageLifecycleEv,
-  type PageState, type PageStateEv, type PageTransition,
+  type PageNativeLifecycleEv,
+  type PageState, type PageLifecycleEv, type PageTransition,
 } from '@@/lib/page-lifecycle/model/page-lifecycle.ts'
 import {
   PageLifecycleStateContext,
@@ -23,10 +23,10 @@ export default function PageLifecycleProvider({ children }: Children) {
   } = useStateAndRef<PageTransition | undefined>(undefined)
   //const [getPageEv, setPageEv] = useRefGetSet<PageEv | null>(null)
   
-  const listeners = useListeners<PageStateEv>()
+  const listeners = useListeners<PageLifecycleEv>()
   
   useLayoutEffect(() => {
-    const onPageEv = (lEv: PageLifecycleEv, ev: Event) => {
+    const onPageEv = (lEv: PageNativeLifecycleEv, ev: Event) => {
       const prevState = getPageState()
       const state = getCurrPageState(prevState, lEv)
       const transition = getCurrPageTransition(prevState, state)
