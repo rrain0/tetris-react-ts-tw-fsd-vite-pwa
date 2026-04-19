@@ -18,4 +18,4 @@ export const tetroOSrsOffsets: OffsetsSrs = {
 }
 
 // invert y-axis
-Object.values(tetroOSrsOffsets).forEach(it => it.forEach(it => it[1] = -it[1]))
+Object.values(tetroOSrsOffsets).forEach(it => it.forEach(it => it.y = -it.y))

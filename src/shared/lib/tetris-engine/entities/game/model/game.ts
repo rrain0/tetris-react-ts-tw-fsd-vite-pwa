@@ -35,17 +35,6 @@ export class Game {
   }
   
   
-  spawnNewPiece() {
-    if (this.field.canPlacePiece(this.next)) {
-      this.current = this.next
-      this.next = randomTetrominoSrs()
-    }
-    else {
-      throw new Error('GAME OVER')
-    }
-  }
-  
-  
   moveCurrentPieceLeft() {
     const moved = this.current.toMoved({ dx: -1 })
     this.tryPlaceNewCurrentPiece(moved)
@@ -72,7 +61,7 @@ export class Game {
       if (this.tryPlaceNewCurrentPiece(rotated)) return
     }
   }
-  // Only drop, does not apply any lock or delay
+  // Hard drop - drop instantly & lock instantly
   hardDropCurrentPiece() {
     const { x: fx0, y: fy0 } = this.current
     let freeY = this.field.rows
@@ -84,13 +73,38 @@ export class Game {
     }
     
     const moved = this.current.toMoved({ y: freeY })
-    this.tryPlaceNewCurrentPiece(moved)
+    this.current = moved
+    this.finishCurrentPiece()
   }
   
   
   tryPlaceNewCurrentPiece(current: Piece): boolean {
     if (this.field.canPlacePiece(current)) {
       this.current = current
+      return true
+    }
+    return false
+  }
+  
+  
+  finishCurrentPiece() {
+    // Add current piece to field
+    this.field.addPiece(this.current)
+    
+    // Check lines
+    
+    // Clear lines
+    
+    // Try spawn new piece
+    const spawned = this.trySpawnNewPiece()
+    if (!spawned) throw new Error('GAME OVER')
+  }
+  
+  
+  trySpawnNewPiece(): boolean {
+    if (this.field.canPlacePiece(this.next)) {
+      this.current = this.next
+      this.next = randomTetrominoSrs()
       return true
     }
     return false

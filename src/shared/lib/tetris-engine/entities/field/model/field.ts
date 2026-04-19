@@ -63,7 +63,7 @@ export class Field {
   firstBlockUnder(x: number, y: number): FieldCoordBlockPresent | null {
     y++
     for (; y < this.rows; y++) {
-      const value = this.blocks[y][x]
+      const value = this.blocks[y]?.[x]
       if (value) return { x, y, value }
     }
     return null
@@ -88,7 +88,8 @@ export class Field {
     for (const pieceBlock of piece.blocksPresentIterator()) {
       const { x: px, y: py, value: { id } } = pieceBlock
       const x = fx0 + px, y = fy0 + py
-      if (y >= 0 && y < this.rows && x >= 0 && x < this.cols) {
+      // TODO field with 4 rows above 20
+      if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
         this.blocks[y][x] = { id, type, pieceId, pieceType }
       }
     }

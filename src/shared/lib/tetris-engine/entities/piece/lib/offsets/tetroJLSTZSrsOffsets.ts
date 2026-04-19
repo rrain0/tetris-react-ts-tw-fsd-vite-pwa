@@ -34,4 +34,4 @@ export const tetroJLSTZSrsOffsets: OffsetsSrs = {
 }
 
 // invert y-axis
-Object.values(tetroJLSTZSrsOffsets).forEach(it => it.forEach(it => it[1] = -it[1]))
+Object.values(tetroJLSTZSrsOffsets).forEach(it => it.forEach(it => it.y = -it.y))

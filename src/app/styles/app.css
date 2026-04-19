@@ -10,7 +10,7 @@
 }
 
 
-/*** Performance optimizers: ***/
+/*** Performance optimizers (need to try them for scrollable lists) ***/
 /* https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/contain#description */
 /* Note: Using layout, paint, strict or content values for this property creates:`
     A new containing block (for the descendants whose position property is absolute or fixed).
