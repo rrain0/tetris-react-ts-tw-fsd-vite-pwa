@@ -11,8 +11,10 @@ export const ingameScreenPortSizes = () => {
   const fullFieldBoxH = fieldBoxBdSz + 22 * blockSz
   
   const topH = 2 * blockSz - fieldBoxBdSz
+  
+  const topTitleBoxH = 1 * blockSz
+  const topTitleBoxW = 3 * blockSz
   const topTitleH = 0.7
-  const topTitleMl = 1 * blockSz
   
   const bottomG = 0.2
   const bottomH = bottomG + 0.5 * blockSz + bottomG + 0.5 * blockSz + bottomG
@@ -34,7 +36,8 @@ export const ingameScreenPortSizes = () => {
     blockSz,
     fieldBoxBdSz, fieldBoxW, fieldBoxH,
     fullFieldBoxH,
-    topH, topTitleH, topTitleMl,
+    topH,
+    topTitleBoxH, topTitleBoxW, topTitleH,
     bottomG, bottomH, titleH, digitH, bottomTxG,
     controlsIcSz, controlsG, controlsW,
     gameW, gameH, gameRatio,

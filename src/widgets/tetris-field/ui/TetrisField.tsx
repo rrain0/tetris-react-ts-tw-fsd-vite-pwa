@@ -35,7 +35,7 @@ export default function TetrisField({ field, ...rest }: TetrisFieldProps) {
 
 
 type ListBlockProps = Xy & { type?: FieldBlockType | undefined, pieceType: PieceType }
-
+// Component used in list is not auto-memoized by React Compiler.
 const ListBlock = React.memo(function ListBlock(fieldBlock: ListBlockProps) {
   const { x, y, type, pieceType } = fieldBlock
   const data = mapPieceTypeToBlockUiData(type, pieceType)

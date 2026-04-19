@@ -20,7 +20,8 @@ export default function IngameScreenPort(props: IngameScreenPortProps) {
     blockSz,
     fieldBoxBdSz, fieldBoxW, fieldBoxH,
     fullFieldBoxH,
-    topH, topTitleH, topTitleMl,
+    topH,
+    topTitleBoxH, topTitleBoxW, topTitleH,
     bottomG, bottomH, titleH, digitH, bottomTxG,
     controlsIcSz, controlsG, controlsW,
     gameW, gameH, gameRatio,
@@ -42,7 +43,8 @@ export default function IngameScreenPort(props: IngameScreenPortProps) {
   const fieldBoxSt = { borderWidth: h(fieldBoxBdSz), height: h(fieldBoxH) }
   const fieldSt = { borderWidth: h(fieldBoxBdSz), height: h(fullFieldBoxH), borderTop: 'none' }
   const topSt = { height: h(topH) }
-  const topTitleSt = { marginLeft: h(topTitleMl), fontSize: h(topTitleH) }
+  const topTitleBoxSt = { width: h(topTitleBoxW), height: h(topTitleBoxH) }
+  const topTitleSt = { fontSize: h(topTitleH) }
   const bottomSt = {
     height: h(bottomH), paddingTop: h(bottomG), paddingBottom: h(bottomG), gap: h(bottomG),
   }
@@ -57,10 +59,14 @@ export default function IngameScreenPort(props: IngameScreenPortProps) {
       <div cn='h-full container-size' st={containerSt}>
         <div cn='sz-full grid' st={gameSt}>
           
-          <div cn='flexrc w-full in-area-[top]' st={topSt}>
-            <div cn='txHudTitle' st={topTitleSt}>
-              NEXT
+          <div cn='flex row w-full in-area-[top]' st={topSt}>
+            
+            <div cn='flexrc center2' st={topTitleBoxSt}>
+              <div cn='txHudTitle' st={topTitleSt}>
+                NEXT
+              </div>
             </div>
+            
           </div>
           
           <div cn='flex col in-area-[fieldBox] bd-cl-[var(--cl-tetris-field-bd)] rad-[1cqh]'
