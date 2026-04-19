@@ -6,6 +6,9 @@ export type HSElem = HTMLElement | SVGElement
 export function isWindow<W extends Window, T>(view: T | W): view is W {
   return view instanceof Window
 }
+export function isElement<E extends Element, T>(view: T | E): view is E {
+  return view instanceof Element
+}
 export function isHTMLElement<H extends HTMLElement, T>(view: T | H): view is H {
   return view instanceof HTMLElement
 }

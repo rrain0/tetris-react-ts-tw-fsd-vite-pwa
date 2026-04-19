@@ -26,12 +26,14 @@ export default function IngameControls(props: IngameControlsProps) {
       <div cn='flex row start-end no-pointer' st={controlsSt}>
         {fscreen.available && (
           <div cn='stack center2 no-pointer' st={controlsIcSt}>
-            {!fscreen.enabled && <FullscreenIc cn={`sz-full ${icCn}`} onClick={fscreen.enter}/>}
-            {fscreen.enabled && <WindowedIc cn={`sz-full ${icCn}`} onClick={fscreen.exit}/>}
+            {!fscreen.enabled && (
+              <FullscreenIc cn={`sz-full ${icCn} fscreen-on`} onClick={fscreen.enter}/>
+            )}
+            {fscreen.enabled && (
+              <WindowedIc cn={`sz-full ${icCn} fscreen-off`} onClick={fscreen.exit}/>
+            )}
             {fscreen.needEnter && (
-              <SpinnerTwoQuarterArcsIc
-                cn={`sz-[30%] ended2 no-pointer ${icCn} rotation-1s`}
-              />
+              <SpinnerTwoQuarterArcsIc cn={`sz-[30%] ended2 no-pointer ${icCn} rotation-1s`}/>
             )}
           </div>
         )}

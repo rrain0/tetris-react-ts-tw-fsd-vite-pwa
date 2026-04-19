@@ -20,7 +20,7 @@ export default function App() {
     <PageLifecycleProvider>
       <GamepadInputProvider>
         <InputLayoutProvider>
-          <FullscreenProvider navUiShow resumeByConfirmation>
+          <FullscreenProvider navUiShow resumeByGesture>
             
             <AppActivitiesProvider currentActivity={activity}>
               

@@ -66,7 +66,6 @@ export default function IngameScreenPort(props: IngameScreenPortProps) {
                 NEXT
               </div>
             </div>
-            
           </div>
           
           <div cn='flex col in-area-[fieldBox] bd-cl-[var(--cl-tetris-field-bd)] rad-[1cqh]'

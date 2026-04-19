@@ -1,6 +1,7 @@
 import { FullscreenContext } from '@@/lib/fullscreen-manager/context/FullscreenContext.ts'
 import { PageLifecycleContext } from '@@/lib/page-lifecycle/context/PageLifecycleContext.ts'
 import type { PageLifecycleEv } from '@@/lib/page-lifecycle/model/page-lifecycle.ts'
+import { isElement } from '@@/utils/elem/elem.ts'
 import type { Children } from '@@/utils/react/props/propTypes.ts'
 import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
 import { useStateAndRef } from '@@/utils/react/state/useStateAndRef.ts'
@@ -14,8 +15,14 @@ import { use, useEffectEvent, useLayoutEffect } from 'react'
 // and has no fullscreenchange events.
 
 // TODO detect PWA fullscreen
-// TODO I don't need to auto-toggle fullscreen if user pushed fullscreen button
-//  (onClick gesture is last so i need to detect that i do not need auto-toggle)
+// TODO Check toggle by modals
+
+
+
+// Elements that toggle fullscreen must have one of these classes to prevent unnecessary toggling.
+const f = '.fscreen-on,.fscreen-off'
+
+
 
 export type FullscreenManagerProps = Children & {
   resumeByGesture?: boolean | undefined
@@ -130,11 +137,12 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
   useLayoutEffect(syncFullscreen, [transitioning, active, enabled])
   
   
-  const tryGoFullscreen = useEffectEvent(() => {
-    if (getNeedGesture()) enter()
+  const tryGoFullscreen = useEffectEvent((target) => {
+    const toggler = isElement(target) && target.closest(f)
+    if (!toggler && getNeedGesture()) enter()
   })
   useLayoutEffect(() => {
-    const tryFullscreen = () => { tryGoFullscreen() }
+    const tryFullscreen = (ev: Event) => { tryGoFullscreen(ev.target) }
     window.addEventListener('click', tryFullscreen)
     window.addEventListener('dblclick', tryFullscreen)
     window.addEventListener('mousedown', tryFullscreen)
