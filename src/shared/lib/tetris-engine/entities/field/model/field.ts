@@ -156,18 +156,11 @@ export class Field {
     }
     
     const linesY = linesFy.map(fy => fy0 + fy)
-    let up = 0
-    for (let y = rows - 1; y + up >= 0; y--) {
+    for (let y = rows - 1, up = 0; y + up >= 0; y--) {
       const drop = linesY.includes(y)
       if (!drop && up) replaceLine(y + up, y)
       if (drop) { replaceLine(y + up, y - 1); up++ }
     }
   }
-  
-  // addBlocks
-  
-  // hasLines
-  
-  // clearLines
   
 }

@@ -5,17 +5,22 @@ import { matrixCopy } from '@@/lib/tetris-engine/shared/utils/matrix.ts'
 
 
 
+// Это всё уже будет хранится где-то в другом месте
+// и будет обновляться во время анимация падения и тп.
+
+// Game не отвечает за анимации,
+// он просто сообщает что можно сделать и делает дискретные действия.
+
 const linesToLvlUp = 10
 const startLevel = 0
+
+let lines = 0
+let score = 0
+let level = 0
 
 
 
 export class Game {
-  lines = 0
-  score = 0
-  
-  level = 0
-  
   field: Field = Field.empty(10, 24, 0, 4)
   
   current: Piece | undefined = randomTetrominoSrs()
@@ -24,9 +29,6 @@ export class Game {
   
   copy() {
     const g = new Game()
-    g.lines = this.lines
-    g.score = this.score
-    g.level = this.level
     g.field = this.field.copy()
     g.current = this.current
     g.next = this.next
@@ -100,22 +102,6 @@ export class Game {
       return true
     }
     return false
-  }
-  
-  
-  
-  __finishCurrentPiece() {
-    // Add current piece to field
-    this.field.addPiece(this.current)
-    this.current = undefined
-    
-    // Check lines
-    
-    // Clear lines
-    
-    // Drop pieces
-    
-    // Try spawn new piece
   }
   
   
