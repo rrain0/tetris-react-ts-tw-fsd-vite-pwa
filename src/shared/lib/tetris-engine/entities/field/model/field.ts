@@ -7,6 +7,7 @@ import type { Piece, PieceType } from '@@/lib/tetris-engine/entities/piece/model
 import { matrixCopy } from '@@/lib/tetris-engine/shared/utils/matrix.ts'
 import type { Id } from '@@/utils/app/id.ts'
 import { array } from '@@/utils/array/arrCreate.ts'
+import { compareAnyReversed } from '@@/utils/js/compare.ts'
 
 
 
@@ -114,7 +115,8 @@ export class Field {
     return true
   }
   
-  addPiece(piece: Piece, type?: FieldBlockType) {
+  addPiece(piece?: Piece, type?: FieldBlockType) {
+    if (!piece) return
     const { fx0, fy0, fxStart, fyStart, fxEnd, fyEnd } = this
     const { x: px, y: py, type: pieceType, id: pieceId } = piece
     
@@ -125,6 +127,40 @@ export class Field {
         const x = fx0 + bfx, y = fy0 + bfy
         this.blocks[y][x] = { id, type, pieceId, pieceType }
       }
+    }
+  }
+  
+  getFullLines(): number[] {
+    const linesFy = []
+    const { blocks: b, rows, cols, fy0 } = this
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+      const fy = y - fy0
+      const value = b[y][x]
+      if (!value) break
+      if (x === cols - 1) { linesFy.push(fy); break }
+    }
+    return linesFy
+  }
+  
+  clearLines(linesFy: number[]) {
+    const { fy0 } = this
+    for (const fy of linesFy) Array(fy + fy0).fill(null)
+  }
+  
+  dropLines(linesFy: number[]) {
+    const { blocks: b, cols, rows, fy0 } = this
+    
+    function replaceLine(line: number, from: number) {
+      if (from >= 0) b[line].splice(0, cols, ...b[from])
+      else b[line].fill(null)
+    }
+    
+    const linesY = linesFy.map(fy => fy0 + fy)
+    let up = 0
+    for (let y = rows - 1; y + up >= 0; y--) {
+      const drop = linesY.includes(y)
+      if (!drop && up) replaceLine(y + up, y)
+      if (drop) { replaceLine(y + up, y - 1); up++ }
     }
   }
   

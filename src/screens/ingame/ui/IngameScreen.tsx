@@ -55,8 +55,8 @@ export default function IngameScreen() {
   const [game, setGame] = useState(() => {
     const game = new Game()
     //game.current = newOSrs(undefined)
-    game.current.x = 4
-    game.current.y = 5
+    game.current!.x = 4
+    game.current!.y = 5
     game.field.addPiece(
       newTSrs({ x: 0, y: 14 }).toRotatedRight().next().value!.toRotatedRight().next().value!
     )
@@ -123,114 +123,101 @@ function useAppActions(setGame: SetterOrUpdater<Game>) {
   
   const onKeyboardKeyHold = useKeyHold({ interval: 150 }, ev => {
     if (isKeyboardAction('ingame', 'moveLeft', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.moveCurrentPieceLeft()
-        return game
-      })
+      setGame(game => moveLeft(game))
     }
     if (isKeyboardAction('ingame', 'moveRight', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.moveCurrentPieceRight()
-        return game
-      })
+      setGame(game => moveRight(game))
     }
     if (isKeyboardAction('ingame', 'moveDown', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.moveCurrentPieceDown()
-        return game
-      })
+      setGame(game => moveDown(game))
     }
     if (isKeyboardAction('ingame', 'moveUp', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.moveCurrentPieceUp()
-        return game
-      })
+      setGame(game => moveUp(game))
     }
   })
   
   const onKeyboardKeyDownClick = useKeyDownClick(ev => {
     if (isKeyboardAction('ingame', 'rotateLeft', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.rotateCurrentPieceLeft()
-        return game
-      })
+      setGame(game => rotateLeft(game))
     }
     if (isKeyboardAction('ingame', 'rotateRight', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.rotateCurrentPieceRight()
-        return game
-      })
+      setGame(game => rotateRight(game))
     }
     if (isKeyboardAction('ingame', 'hardDrop', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.hardDropCurrentPiece()
-        return game
-      })
+      setGame(game => hardDrop(game))
     }
   })
   
   
   useGamepadKeyHold({ interval: 150 }, ev => {
     if (isGamepadKeyAction('ingame', 'moveLeft', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.moveCurrentPieceLeft()
-        return game
-      })
+      setGame(game => moveLeft(game))
     }
     if (isGamepadKeyAction('ingame', 'moveRight', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.moveCurrentPieceRight()
-        return game
-      })
+      setGame(game => moveRight(game))
     }
     if (isGamepadKeyAction('ingame', 'moveDown', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.moveCurrentPieceDown()
-        return game
-      })
+      setGame(game => moveDown(game))
     }
     if (isGamepadKeyAction('ingame', 'moveUp', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.moveCurrentPieceUp()
-        return game
-      })
+      setGame(game => moveUp(game))
     }
   })
   
   useGamepadDownClick(ev => {
     if (isGamepadKeyAction('ingame', 'rotateLeft', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.rotateCurrentPieceLeft()
-        return game
-      })
+      setGame(game => rotateLeft(game))
     }
     if (isGamepadKeyAction('ingame', 'rotateRight', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.rotateCurrentPieceRight()
-        return game
-      })
+      setGame(game => rotateRight(game))
     }
     if (isGamepadKeyAction('ingame', 'hardDrop', ev, inputLayout)) {
-      setGame(game => {
-        game = game.copy()
-        game.hardDropCurrentPiece()
-        return game
-      })
+      setGame(game => hardDrop(game))
     }
   })
   
   return { onKeyboardKeyHold, onKeyboardKeyDownClick }
+}
+
+
+
+function moveLeft(game: Game) {
+  game = game.copy()
+  game.moveCurrentPieceLeft()
+  return game
+}
+function moveRight(game: Game) {
+  game = game.copy()
+  game.moveCurrentPieceRight()
+  return game
+}
+function moveDown(game: Game) {
+  game = game.copy()
+  game.moveCurrentPieceDown()
+  return game
+}
+function moveUp(game: Game) {
+  game = game.copy()
+  game.moveCurrentPieceUp()
+  return game
+}
+function rotateLeft(game: Game) {
+  game = game.copy()
+  game.rotateCurrentPieceLeft()
+  return game
+}
+function rotateRight(game: Game) {
+  game = game.copy()
+  game.rotateCurrentPieceRight()
+  return game
+}
+function hardDrop(game: Game) {
+  game = game.copy()
+  game.dropCurrentPiece()
+  game.lockCurrentPiece()
+  const lines = game.getFullLines()
+  game.clearLines(lines)
+  game.dropLines(lines)
+  game.spawnNewPieceOrGameOver()
+  return game
 }

@@ -18,7 +18,7 @@ export class Game {
   
   field: Field = Field.empty(10, 24, 0, 4)
   
-  current: Piece = randomTetrominoSrs()
+  current: Piece | undefined = randomTetrominoSrs()
   next: Piece = randomTetrominoSrs()
   
   
@@ -35,46 +35,62 @@ export class Game {
   
   
   moveCurrentPieceLeft() {
-    const moved = this.current.toMoved({ dx: -1 })
-    this.tryPlaceNewCurrentPiece(moved)
+    const curr = this.current
+    if (curr) {
+      const moved = curr.toMoved({ dx: -1 })
+      this.tryPlaceNewCurrentPiece(moved)
+    }
   }
   moveCurrentPieceRight() {
-    const moved = this.current.toMoved({ dx: 1 })
-    this.tryPlaceNewCurrentPiece(moved)
+    const curr = this.current
+    if (curr) {
+      const moved = curr.toMoved({ dx: 1 })
+      this.tryPlaceNewCurrentPiece(moved)
+    }
   }
   moveCurrentPieceDown() {
-    const moved = this.current.toMoved({ dy: 1 })
-    this.tryPlaceNewCurrentPiece(moved)
+    const curr = this.current
+    if (curr) {
+      const moved = curr.toMoved({ dy: 1 })
+      this.tryPlaceNewCurrentPiece(moved)
+    }
   }
   moveCurrentPieceUp() {
-    const moved = this.current.toMoved({ dy: -1 })
-    this.tryPlaceNewCurrentPiece(moved)
+    const curr = this.current
+    if (curr) {
+      const moved = curr.toMoved({ dy: -1 })
+      this.tryPlaceNewCurrentPiece(moved)
+    }
   }
   rotateCurrentPieceLeft() {
-    for (const rotated of this.current.toRotatedLeft()) {
+    const curr = this.current
+    if (curr) for (const rotated of curr.toRotatedLeft()) {
       if (this.tryPlaceNewCurrentPiece(rotated)) return
     }
   }
   rotateCurrentPieceRight() {
-    for (const rotated of this.current.toRotatedRight()) {
+    const curr = this.current
+    if (curr) for (const rotated of curr.toRotatedRight()) {
       if (this.tryPlaceNewCurrentPiece(rotated)) return
     }
   }
-  // Hard drop - drop instantly & lock instantly
-  hardDropCurrentPiece() {
-    const { x: px, y: py } = this.current
-    const { fyEnd } = this.field
-    let freeY = fyEnd
-    for (const bottomBlock of this.current.getBottomBlocks()) {
-      const { x: bpx, y: bpy } = bottomBlock
-      const bfx = px + bpx, bfy = py + bpy
-      const firstBlockUnder = this.field.firstBlockUnder(bfx, bfy)
-      if (firstBlockUnder) freeY = Math.min(freeY, firstBlockUnder.fy - bpy - 1)
+  // Only drop instantly
+  dropCurrentPiece() {
+    const curr = this.current
+    if (curr) {
+      const { x: px, y: py } = curr
+      const { fyEnd } = this.field
+      let freeY = fyEnd
+      for (const bottomBlock of curr.getBottomBlocks()) {
+        const { x: bpx, y: bpy } = bottomBlock
+        const bfx = px + bpx, bfy = py + bpy
+        const firstBlockUnder = this.field.firstBlockUnder(bfx, bfy)
+        if (firstBlockUnder) freeY = Math.min(freeY, firstBlockUnder.fy - bpy - 1)
+      }
+      
+      const moved = curr.toMoved({ y: freeY })
+      this.current = moved
     }
-    
-    const moved = this.current.toMoved({ y: freeY })
-    this.current = moved
-    this.finishCurrentPiece()
   }
   
   
@@ -87,15 +103,34 @@ export class Game {
   }
   
   
-  finishCurrentPiece() {
+  
+  __finishCurrentPiece() {
     // Add current piece to field
     this.field.addPiece(this.current)
+    this.current = undefined
     
     // Check lines
     
     // Clear lines
     
+    // Drop pieces
+    
     // Try spawn new piece
+  }
+  
+  
+  lockCurrentPiece() {
+    this.field.addPiece(this.current)
+    this.current = undefined
+  }
+  
+  getFullLines() { return this.field.getFullLines() }
+  
+  clearLines(linesFy: number[]) { this.field.clearLines(linesFy) }
+  
+  dropLines(linesFy: number[]) { this.field.dropLines(linesFy) }
+  
+  spawnNewPieceOrGameOver() {
     const spawned = this.trySpawnNewPiece()
     if (!spawned) throw new Error('GAME OVER')
   }
@@ -127,8 +162,10 @@ export class Game {
     const { blocks, y0 } = this.field
     const f = Field.ofBlocks(matrixCopy(blocks).slice(y0 - 2), 0, 2)
     
+    const curr = this.current
+    
     let nextType
-    if (this.current.toTrimmed().y < 0) nextType = 'Ghost' as const
+    if (curr && curr.toTrimmed().y < 0) nextType = 'Ghost' as const
     
     f.addPiece(this.next, nextType)
     f.addPiece(this.current)
