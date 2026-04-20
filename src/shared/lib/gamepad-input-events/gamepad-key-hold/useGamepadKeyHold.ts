@@ -29,7 +29,7 @@ export function useGamepadKeyHold(
   const checkKey = (keyId: KeyId) => {
     return getState().has(keyId)
   }
-  const startKey = (keyId: KeyId, intervalId) => {
+  const startKey = (keyId: KeyId, intervalId: any) => {
     getState().set(keyId, intervalId)
   }
   const finishKey = (keyId: KeyId) => {

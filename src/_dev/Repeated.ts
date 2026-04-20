@@ -24,8 +24,8 @@ export class Repeated {
   cb: Cb | undefined
   
   startedAt: number | undefined
-  timeoutId
-  intervalId
+  timeoutId: any
+  intervalId: any
   
   constructor({
     delay = 0,

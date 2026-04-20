@@ -7,6 +7,6 @@ export function useAsCb<Cb extends anyfun>(
   cb: Cb | undefined, // unstable
 ): Cb {
   const [getCb] = useAsRefGet(cb)
-  const stableCb = (...args) => getCb()?.(...args)
-  return stableCb as Cb // stable
+  const stableCb = ((...args) => getCb()?.(...args)) as Cb
+  return stableCb // stable
 }

@@ -21,7 +21,7 @@ export function combineProps(...propsList: any[]): object {
           if (p === 'ref') {
             if (!callbacks[p]) {
               callbacks[p] = [v0]
-              combinedProps[p] = ref => {
+              combinedProps[p] = (ref: any) => {
                 for (const cb of callbacks[p]) {
                   if (isfunction(cb)) cb(ref)
                   // @ts-ignore
@@ -44,7 +44,7 @@ export function combineProps(...propsList: any[]): object {
           else if (isfunction(v)) {
             if (!callbacks[p]) {
               callbacks[p] = [v0]
-              combinedProps[p] = (...args) => {
+              combinedProps[p] = (...args: any[]) => {
                 for (const cb of callbacks[p]) cb(...args)
               }
             }

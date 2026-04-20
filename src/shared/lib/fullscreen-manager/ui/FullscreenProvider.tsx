@@ -137,7 +137,7 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
   useLayoutEffect(syncFullscreen, [transitioning, active, enabled])
   
   
-  const tryGoFullscreen = useEffectEvent((target) => {
+  const tryGoFullscreen = useEffectEvent((target: any) => {
     const toggler = isElement(target) && target.closest(f)
     if (!toggler && getNeedGesture()) enter()
   })

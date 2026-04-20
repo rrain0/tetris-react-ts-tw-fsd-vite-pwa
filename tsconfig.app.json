@@ -1,5 +1,6 @@
 {
   // defines paths to apply this tsconfig to
+  "include": ["./src"],
   "compilerOptions": {
     // A file for storing compilation information to build faster
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
@@ -48,11 +49,11 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "noImplicitOverride": true,
     // '?' means absence of property but not 'undefined'
     "exactOptionalPropertyTypes": true,
-    // Disallow for indexed type to write 'obj.prop' in addition to 'obj['prop']'
+    // 'false' to allow to write 'obj.prop' in addition to 'obj['prop']' for indexed types.
     "noPropertyAccessFromIndexSignature": false,
     // Add 'undefined' when get prop of indexed type
     "noUncheckedIndexedAccess": false,

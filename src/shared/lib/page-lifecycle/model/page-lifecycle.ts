@@ -50,7 +50,7 @@ function getActiveOrPassiveOrHidden(): PageState {
 
 export function getCurrPageState(prevState: PageState, lEv: PageNativeLifecycleEv): PageState {
   if (lEv === 'load') {
-    if (document['wasDiscarded']) return 'Discarded'
+    if ((document as any).wasDiscarded) return 'Discarded'
     return prevState
   }
   else if (lEv === 'pageshow') return getActiveOrPassiveOrHidden()
