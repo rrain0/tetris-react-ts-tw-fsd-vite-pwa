@@ -1,8 +1,7 @@
-import { Field, type FieldBlockType } from '@@/lib/tetris-engine/entities/field/model/field.ts'
+import { Field } from '@@/lib/tetris-engine/entities/field/model/field.ts'
 import type { Piece } from '@@/lib/tetris-engine/entities/piece/model/piece.ts'
 import { randomTetrominoSrs } from '@@/lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
 import { matrixCopy } from '@@/lib/tetris-engine/shared/utils/matrix.ts'
-import { array } from '@@/utils/array/arrCreate.ts'
 
 
 
@@ -17,7 +16,7 @@ export class Game {
   
   level = 0
   
-  field: Field = Field.empty(10, 20)
+  field: Field = Field.empty(10, 24, 0, 4)
   
   current: Piece = randomTetrominoSrs()
   next: Piece = randomTetrominoSrs()
@@ -28,7 +27,7 @@ export class Game {
     g.lines = this.lines
     g.score = this.score
     g.level = this.level
-    g.field = Field.ofBlocks(matrixCopy(this.field.blocks))
+    g.field = this.field.copy()
     g.current = this.current
     g.next = this.next
     return g
@@ -63,13 +62,14 @@ export class Game {
   }
   // Hard drop - drop instantly & lock instantly
   hardDropCurrentPiece() {
-    const { x: fx0, y: fy0 } = this.current
-    let freeY = this.field.rows
+    const { x: px, y: py } = this.current
+    const { fyEnd } = this.field
+    let freeY = fyEnd
     for (const bottomBlock of this.current.getBottomBlocks()) {
-      const { x: px, y: py } = bottomBlock
-      const fx = fx0 + px, fy = fy0 + py
-      const firstBlockUnder = this.field.firstBlockUnder(fx, fy)
-      if (firstBlockUnder) freeY = Math.min(freeY, firstBlockUnder.y - py - 1)
+      const { x: bpx, y: bpy } = bottomBlock
+      const bfx = px + bpx, bfy = py + bpy
+      const firstBlockUnder = this.field.firstBlockUnder(bfx, bfy)
+      if (firstBlockUnder) freeY = Math.min(freeY, firstBlockUnder.fy - bpy - 1)
     }
     
     const moved = this.current.toMoved({ y: freeY })
@@ -112,7 +112,8 @@ export class Game {
   
   
   renderField() {
-    const f = Field.ofBlocks(matrixCopy(this.field.blocks))
+    const { y0, blocks } = this.field
+    const f = Field.ofBlocks(matrixCopy(blocks).slice(y0), 0, 0)
     f.addPiece(this.current)
     return f
   }
@@ -123,21 +124,14 @@ export class Game {
     return f
   }
   renderCombinedField() {
-    const { blocks, cols, rows } = this.field
-    const f = Field.ofBlocks([
-      array(cols, null),
-      array(cols, null),
-      ...matrixCopy(blocks),
-    ])
+    const { blocks, y0 } = this.field
+    const f = Field.ofBlocks(matrixCopy(blocks).slice(y0 - 2), 0, 2)
     
-    let nextType: FieldBlockType | undefined
-    let next = this.next.toMoved({ dy: 2 })
-    let curr = this.current
-    if (curr.toTrimmed().y < 0) nextType = 'Ghost'
-    curr = curr.toMoved({ dy: 2 })
+    let nextType
+    if (this.current.toTrimmed().y < 0) nextType = 'Ghost' as const
     
-    f.addPiece(next, nextType)
-    f.addPiece(curr)
+    f.addPiece(this.next, nextType)
+    f.addPiece(this.current)
     return f
   }
   

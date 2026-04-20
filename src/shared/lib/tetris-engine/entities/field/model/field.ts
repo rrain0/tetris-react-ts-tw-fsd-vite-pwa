@@ -4,6 +4,7 @@ import {
   blocksRows,
 } from '@@/lib/tetris-engine/entities/piece/model/block.ts'
 import type { Piece, PieceType } from '@@/lib/tetris-engine/entities/piece/model/piece.ts'
+import { matrixCopy } from '@@/lib/tetris-engine/shared/utils/matrix.ts'
 import type { Id } from '@@/utils/app/id.ts'
 import { array } from '@@/utils/array/arrCreate.ts'
 
@@ -19,8 +20,12 @@ export type FieldBlockPresent = {
 }
 export type FieldBlock = FieldBlockPresent | null
 export type FieldBlocks = FieldBlock[][]
-export type FieldCoordBlock = Block<FieldBlock>
-export type FieldCoordBlockPresent = Block<FieldBlockPresent>
+export type FieldCoordBlock = {
+  x: number, y: number, fx: number, fy: number, value: FieldBlock
+}
+export type FieldCoordBlockPresent = {
+  x: number, y: number, fx: number, fy: number, value: FieldBlockPresent
+}
 
 
 
@@ -30,68 +35,94 @@ export class Field {
   blocks: FieldBlocks
   
   private constructor() { }
-  static empty(cols = 10, rows = 20) {
+  static empty(cols: number, rows: number, x0 = 0, y0 = 0) {
     const f = new Field()
+    f.x0 = x0
+    f.y0 = y0
     f.blocks = array(rows).map(() => array<FieldBlock>(cols, null))
     return f
   }
-  static ofBlocks(blocks: FieldBlock[][]) {
+  static ofBlocks(blocks: FieldBlock[][], x0 = 0, y0 = 0) {
     const f = new Field()
+    f.x0 = x0
+    f.y0 = y0
     f.blocks = blocks
+    return f
+  }
+  
+  copy() {
+    const f = new Field()
+    f.x0 = this.x0
+    f.y0 = this.y0
+    f.blocks = matrixCopy(this.blocks)
     return f
   }
   
   get rows() { return blocksRows(this.blocks) }
   get cols() { return blocksCols(this.blocks) }
+  get fx0() { return this.x0 }
+  get fy0() { return this.y0 }
+  get fxStart() { return -this.fx0 }
+  get fyStart() { return -this.fy0 }
+  get fxEnd() { return this.cols - this.fx0 }
+  get fyEnd() { return this.rows - this.fy0 }
+  
   
   ;*blocksIterator(): IterableIterator<FieldCoordBlock> {
-    const { blocks: b, rows, cols } = this
+    const { blocks: b, rows, cols, fx0, fy0 } = this
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-      yield { x, y, value: b[y][x] }
+      const fx = x - fx0, fy = y - fy0
+      yield { x, y, fx, fy, value: b[y][x] }
     }
   }
   
   ;*blocksPresentIterator(): IterableIterator<FieldCoordBlockPresent> {
-    const { blocks: b, rows, cols } = this
+    const { blocks: b, rows, cols, fx0, fy0 } = this
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
       const value = b[y][x]
-      if (value) yield { x, y, value }
+      const fx = x - fx0, fy = y - fy0
+      if (value) yield { x, y, fx, fy, value }
     }
   }
   
   ;[Symbol.iterator](): IterableIterator<FieldCoordBlock> { return this.blocksIterator() }
   
   
-  firstBlockUnder(x: number, y: number): FieldCoordBlockPresent | null {
-    y++
-    for (; y < this.rows; y++) {
+  firstBlockUnder(fx: number, fy: number): FieldCoordBlockPresent | null {
+    const { fx0, fy0, fyEnd } = this
+    fy++
+    for (; fy < fyEnd; fy++) {
+      const x = fx0 + fx, y = fy0 + fy
       const value = this.blocks[y]?.[x]
-      if (value) return { x, y, value }
+      if (value) return { x, y, fx, fy, value }
     }
     return null
   }
   
   canPlacePiece(piece: Piece): boolean {
-    const { x: fx0, y: fy0 } = piece
-    for (const pieceBlock of piece) {
-      const { x: px, y: py, value: pieceBlockValue } = pieceBlock
-      if (pieceBlockValue) {
-        const x = fx0 + px, y = fy0 + py
-        if (x < 0 || x >= this.cols || y >= this.rows) return false
-        const fieldBlockValue = this.blocks[y]?.[x]
-        if (fieldBlockValue) return false
-      }
+    const { fx0, fy0, fxStart, fxEnd, fyEnd } = this
+    const { x: px, y: py } = piece
+    
+    for (const pieceBlock of piece.blocksPresentIterator()) {
+      const { x: bpx, y: bpy } = pieceBlock
+      const bfx = px + bpx, bfy = py + bpy
+      if (bfx < fxStart || bfx >= fxEnd || bfy >= fyEnd) return false
+      const x = fx0 + bfx, y = fy0 + bfy
+      const fieldBlockValue = this.blocks[y]?.[x]
+      if (fieldBlockValue) return false
     }
     return true
   }
   
   addPiece(piece: Piece, type?: FieldBlockType) {
-    const { x: fx0, y: fy0, type: pieceType, id: pieceId } = piece
+    const { fx0, fy0, fxStart, fyStart, fxEnd, fyEnd } = this
+    const { x: px, y: py, type: pieceType, id: pieceId } = piece
+    
     for (const pieceBlock of piece.blocksPresentIterator()) {
-      const { x: px, y: py, value: { id } } = pieceBlock
-      const x = fx0 + px, y = fy0 + py
-      // TODO field with 4 rows above 20
-      if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
+      const { x: bpx, y: bpy, value: { id } } = pieceBlock
+      const bfx = px + bpx, bfy = py + bpy
+      if (bfx >= fxStart && bfx < fxEnd && bfy >= fyStart && bfy < fyEnd) {
+        const x = fx0 + bfx, y = fy0 + bfy
         this.blocks[y][x] = { id, type, pieceId, pieceType }
       }
     }
