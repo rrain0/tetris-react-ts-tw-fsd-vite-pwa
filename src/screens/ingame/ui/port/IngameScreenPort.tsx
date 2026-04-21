@@ -1,5 +1,5 @@
 import IngameControls from '@/screens/ingame/ui/controls/IngameControls.tsx'
-import type { Field } from '@@/lib/tetris-engine/entities/field/model/field.ts'
+import type { Field } from '@@/lib/tetris/tetris-engine/entities/field/model/field.ts'
 import { elemSizeContain } from '@@/utils/css/elemSizeContain.ts'
 import { ingameScreenPortSizes } from '@/screens/ingame/ui/port/ingameScreenPortSizes.ts'
 import TetrisField from '@/widgets/tetris-field/ui/TetrisField.tsx'

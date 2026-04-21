@@ -1,5 +1,5 @@
-import type { FieldBlockType } from '@@/lib/tetris-engine/entities/field/model/field.ts'
-import type { TetrominoType } from '@@/lib/tetris-engine/entities/piece/model/tetromino.ts'
+import type { FieldBlockType } from '@@/lib/tetris/tetris-engine/entities/field/model/field.ts'
+import type { TetrominoType } from '@@/lib/tetris/tetris-engine/entities/piece/model/tetromino.ts'
 
 
 

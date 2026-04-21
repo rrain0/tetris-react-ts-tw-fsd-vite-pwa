@@ -1,7 +1,7 @@
 import type {
   Field, FieldBlockType,
-} from '@@/lib/tetris-engine/entities/field/model/field.ts'
-import type { PieceType } from '@@/lib/tetris-engine/entities/piece/model/piece.ts'
+} from '@@/lib/tetris/tetris-engine/entities/field/model/field.ts'
+import type { PieceType } from '@@/lib/tetris/tetris-engine/entities/piece/model/piece.ts'
 import type { Xy } from '@@/utils/math/rect.ts'
 import type { Div } from '@@/utils/react/props/propTypes.ts'
 import Block from '@/widgets/tetris-field/entities/block/ui/Block.tsx'

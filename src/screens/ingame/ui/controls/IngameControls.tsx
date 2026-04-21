@@ -1,5 +1,5 @@
 import IngameControlsButton from '@/screens/ingame/ui/controls/IngameControlsButton.tsx'
-import { FullscreenContext } from '@@/lib/fullscreen-manager/context/FullscreenContext.ts'
+import { FullscreenContext } from '@@/lib/environment/fullscreen-manager/context/FullscreenContext.ts'
 import type { StylePropType } from '@@/utils/react/props/propTypes.ts'
 import FullscreenIc from '@@/assets/ic/svg/ui/fullscreen.svg?react'
 import WindowedIc from '@@/assets/ic/svg/ui/windowed.svg?react'

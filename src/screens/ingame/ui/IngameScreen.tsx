@@ -1,17 +1,17 @@
-import { AppActivityContext } from '@@/lib/activity-manager/context/AppActivityContext.ts'
+import { AppActivityContext } from '@@/lib/app/activity-manager/context/AppActivityContext.ts'
 import {
   useGamepadDownClick
-} from '@@/lib/gamepad-input-events/gamepad-down-click/useGamepadDownClick.ts'
+} from '@@/lib/input/gamepad-key-events/gamepad-key-down-click/useGamepadDownClick.ts'
 import {
   useGamepadKeyHold,
-} from '@@/lib/gamepad-input-events/gamepad-key-hold/useGamepadKeyHold.ts'
-import { useKeyDownClick } from '@@/lib/native-button-events/useKeyDownClick.ts'
-import { useKeyHold } from '@@/lib/native-button-events/useKeyHold.ts'
-import { Game } from '@@/lib/tetris-engine/entities/game/model/game.ts'
-import { Tetris } from '@@/lib/tetris-engine/entities/tetris/model/tetris.ts'
+} from '@@/lib/input/gamepad-key-events/gamepad-key-hold/useGamepadKeyHold.ts'
+import { useKeyDownClick } from '@@/lib/input/native-button-events/useKeyDownClick.ts'
+import { useKeyHold } from '@@/lib/input/native-button-events/useKeyHold.ts'
+import { Game } from '@@/lib/tetris/tetris-engine/entities/game/model/game.ts'
+import { Tetris } from '@@/lib/tetris/tetris-engine/entities/tetris/model/tetris.ts'
 import {
   newISrs, newJSrs, newLSrs, newOSrs, newSSrs, newTSrs, newZSrs,
-} from '@@/lib/tetris-engine/entities/piece/model/tetrominoSrs.ts'
+} from '@@/lib/tetris/tetris-engine/entities/piece/model/tetrominoSrs.ts'
 import { elemProps } from '@@/utils/elem/elemProps.ts'
 import { useFocusWithinElem } from '@@/utils/elem/useFocusWithinElem.ts'
 import { useResizeRef } from '@@/utils/elem/useResizeRef.ts'
@@ -42,8 +42,8 @@ const game = (() => {
   const game = new Game()
   game.tetris.current!.x = 4
   game.tetris.current!.y = 5
-  game.tetris.field.addPiece(
-    newTSrs({ x: 0, y: 14 }).toRotatedRight().next().value!.toRotatedRight().next().value!
+  game.tetris.field.addPiece(newTSrs({ x: 0, y: 14 }).toRotatedRight().next().value!
+    .toRotatedRight().next().value!
   )
   game.tetris.field.addPiece(newISrs({ x: -3, y: 15 }).toRotatedRight().next().value!)
   game.tetris.field.addPiece(newZSrs({ x: 1, y: 18 }))
@@ -55,33 +55,18 @@ const game = (() => {
   return game
 })()
 const copyTetris = () => game.tetris.copy()
+const copyStats = () => {
+  const { hiScore, score, level, lines } = game
+  return { hiScore, score, level, lines }
+}
 
 
 
 export default function IngameScreen() {
   
-  const { interactive } = use(AppActivityContext)
-  
-  const canUseInput = ({ key, mx, my }: {
-    key?: string | undefined
-    mx?: boolean | undefined
-    my?: boolean | undefined
-  }) => {
-    if (!interactive) return false
-    return true
-  }
-  
-  const [stats, setStats] = useState<IngameStats>({
-    hiScore: 123456,
-    score: 123456,
-    level: 12,
-    lines: 57,
-  })
-  
+  const [stats, setStats] = useState<IngameStats>(copyStats)
   const [tetris, setTetris] = useState<Tetris>(copyTetris)
   
-  
-  const refToFocus = useFocusWithinElem()
   
   
   const [layout, setLayout] = useState<Layout>(undefined)
@@ -96,10 +81,24 @@ export default function IngameScreen() {
     }
   })
   
+  const { interactive } = use(AppActivityContext)
+  
+  const canUseInput = ({ key, mx, my }: {
+    key?: string | undefined
+    mx?: boolean | undefined
+    my?: boolean | undefined
+  }) => {
+    if (!interactive) return false
+    return true
+  }
+  
+  const refToFocus = useFocusWithinElem()
   
   const { onKeyboardKeyHold, onKeyboardKeyDownClick } = useAppActions({ game, setTetris, setStats })
   
   const pageProps = combineProps(onKeyboardKeyHold, onKeyboardKeyDownClick)
+  
+  
   
   return (
     <>

@@ -1,5 +1,5 @@
-import type { FieldBlockType } from '@@/lib/tetris-engine/entities/field/model/field.ts'
-import type { PieceType } from '@@/lib/tetris-engine/entities/piece/model/piece.ts'
+import type { FieldBlockType } from '@@/lib/tetris/tetris-engine/entities/field/model/field.ts'
+import type { PieceType } from '@@/lib/tetris/tetris-engine/entities/piece/model/piece.ts'
 import { mapBlockTypeToSrc } from '@/widgets/tetris-field/entities/block/lib/block.ts'
 import type {
   BlockUiData,
