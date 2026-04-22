@@ -1,3 +1,4 @@
+import { noop } from '@@/utils/react/state/state.ts'
 import type { Cb } from '@@/utils/ts/ts.ts'
 import { createContext } from 'react'
 
@@ -19,6 +20,6 @@ export const FullscreenContext = createContext<FullscreenContextValue>({
   active: false,
   needEnter: false,
   needConfirmation: false,
-  enter: () => { },
-  exit: () => { },
+  enter: noop,
+  exit: noop,
 })

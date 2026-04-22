@@ -2,6 +2,8 @@ import { isfunction, isobject, isundef, type UnionToIntersection } from '@@/util
 
 
 
+export const propsOf = combineProps
+
 export function combineProps<A extends any[]>(
   ...propsList: A
 ): UnionToIntersection<NoInfer<A>[number] & object> {

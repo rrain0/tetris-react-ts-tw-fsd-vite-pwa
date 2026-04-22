@@ -2,6 +2,7 @@ import type {
   GamepadChangeEv,
   GamepadChanges,
 } from '@@/lib/input/gamepad-input/change/model/gamepadChange.model.ts'
+import { mapOf, noop } from '@@/utils/react/state/state.ts'
 import type { Cb1, Getter } from '@@/utils/ts/ts.ts'
 import { createContext } from 'react'
 
@@ -14,7 +15,7 @@ export type GamepadChangeContextValue = {
 }
 
 export const GamepadChangeContext = createContext<GamepadChangeContextValue>({
-  getGamepads: () => new Map(),
-  on: () => { },
-  off: () => { },
+  getGamepads: mapOf,
+  on: noop,
+  off: noop,
 })

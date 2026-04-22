@@ -1,13 +1,18 @@
-import { GamepadChangeContext } from '@@/lib/input/gamepad-input/change/context/GamepadChangeContext.ts'
-import type { GamepadChangeEv } from '@@/lib/input/gamepad-input/change/model/gamepadChange.model.ts'
+import {
+  GamepadChangeContext,
+} from '@@/lib/input/gamepad-input/change/context/GamepadChangeContext.ts'
 import type {
-  GamepadKeyHoldEv, GamepadKeyHoldEvHandler,
-} from '@@/lib/input/gamepad-key-events/gamepad-key-hold/gamepadKeyHold.model.ts'
-import type { MappedGamepadSignalId } from '@@/lib/input/gamepad-input/mapped/model/mappedGamepad.model.ts'
-import type { NativeGamepadId } from '@@/lib/input/gamepad-input/native/model/nativeGamepad.model.ts'
+  GamepadChangeEv,
+} from '@@/lib/input/gamepad-input/change/model/gamepadChange.model.ts'
+import type {
+  MappedGamepadSignalId,
+} from '@@/lib/input/gamepad-input/mapped/model/mappedGamepad.model.ts'
+import type {
+  NativeGamepadId,
+} from '@@/lib/input/gamepad-input/native/model/nativeGamepad.model.ts'
 import { useAsCb } from '@@/utils/react/state/useAsCb.ts'
 import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
-import { isbool } from '@@/utils/ts/ts.ts'
+import { type EvCb, isbool } from '@@/utils/ts/ts.ts'
 import { use, useLayoutEffect } from 'react'
 
 
@@ -75,7 +80,7 @@ export function useGamepadKeyHold(
     const onGamepad = (ev: GamepadChangeEv) => {
       if (ev.type === 'gamepadChange') {
         const gps = gamepadChangeContextValue.getGamepads()
-        for (const [gpId,  { state }] of gps.entries()) {
+        for (const [gpId, { state }] of gps.entries()) {
           for (const [sId, s] of Object.entries(state)) {
             if (isbool(s)) {
               // if (sId === 'XX_LXRight_Push') {
@@ -127,3 +132,14 @@ interface KeyEv {
 function getKeyId(gpId: NativeGamepadId, signalId: MappedGamepadSignalId): KeyId {
   return JSON.stringify({ gpId, signalId })
 }
+
+
+
+export interface GamepadKeyHoldEv {
+  type: 'gamepadKeyHold'
+  ts: number
+  gpId: string
+  signalId: string
+}
+
+export type GamepadKeyHoldEvHandler = EvCb<GamepadKeyHoldEv>

@@ -3,9 +3,7 @@ import { isfunction, type Producer } from '@@/utils/ts/ts.ts'
 
 
 
-export function useRefGetSetInit<T>(
-  initialValue: T | Producer<T>,
-) {
+export function useRefGetSetInit<T>(initialValue: T | Producer<T>) {
   const [getInited, setInited] = useRefGetSet(false)
   function init(): T {
     // @ts-ignore

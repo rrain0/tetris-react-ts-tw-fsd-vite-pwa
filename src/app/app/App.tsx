@@ -1,6 +1,7 @@
 import '@/app/styles/app.css'
-import AppActivitiesProvider from '@@/lib/app/activity-manager/ui/AppActivitiesProvider.tsx'
+import AppActivitiesProvider from '@@/lib/app/activity-manager/providers/AppActivitiesProvider.tsx'
 import AppActivity from '@@/lib/app/activity-manager/ui/AppActivity.tsx'
+import InputManagerProvider from '@@/lib/app/input-manager/providers/InputManagerProvider.tsx'
 import FullscreenProvider from '@@/lib/environment/fullscreen-manager/ui/FullscreenProvider.tsx'
 import GamepadInputProvider
   from '@@/lib/input/gamepad-input/provider/providers/GamepadInputProvider.tsx'
@@ -22,14 +23,16 @@ export default function App() {
         <InputLayoutProvider>
           <FullscreenProvider navUiShow resumeByGesture>
             
-            <AppActivitiesProvider currentActivity={activity}>
+            <InputManagerProvider>
+              <AppActivitiesProvider currentActivity={activity}>
+                
+                <AppActivity name='Ingame'>
+                  <IngameScreen/>
+                </AppActivity>
               
-              <AppActivity name='Ingame'>
-                <IngameScreen/>
-              </AppActivity>
-              
-            </AppActivitiesProvider>
-          
+              </AppActivitiesProvider>
+            </InputManagerProvider>
+            
           </FullscreenProvider>
         </InputLayoutProvider>
       </GamepadInputProvider>

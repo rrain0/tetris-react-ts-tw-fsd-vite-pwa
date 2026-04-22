@@ -17,14 +17,6 @@ export type objectkey = keyof any // string | number | symbol
 
 
 
-// ℹ️ Empty values
-
-export const noop = () => { }
-export const emptyArr = []
-
-
-
-
 // ℹ️ Value modifiers
 
 export type Nonnullishval<T> = T & {}

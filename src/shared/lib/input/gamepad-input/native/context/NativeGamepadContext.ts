@@ -1,6 +1,7 @@
 import type {
   NativeGamepadEv, NativeGamepads,
 } from '@@/lib/input/gamepad-input/native/model/nativeGamepad.model.ts'
+import { mapOf, noop } from '@@/utils/react/state/state.ts'
 import type { Cb1, Getter } from '@@/utils/ts/ts.ts'
 import { createContext } from 'react'
 
@@ -13,7 +14,7 @@ export type NativeGamepadContextValue = {
 }
 
 export const NativeGamepadContext = createContext<NativeGamepadContextValue>({
-  getGamepads: () => new Map(),
-  on: () => { },
-  off: () => { },
+  getGamepads: mapOf,
+  on: noop,
+  off: noop,
 })

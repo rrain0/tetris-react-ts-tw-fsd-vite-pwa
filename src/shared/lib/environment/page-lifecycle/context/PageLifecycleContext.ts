@@ -1,6 +1,7 @@
 import {
   type OnPageLifecycle,
 } from '@@/lib/environment/page-lifecycle/model/page-lifecycle.model.ts'
+import { noop } from '@@/utils/react/state/state.ts'
 import type { Cb1 } from '@@/utils/ts/ts.ts'
 import { createContext } from 'react'
 
@@ -12,6 +13,6 @@ export type PageLifecycleContextValue = {
 }
 
 export const PageLifecycleContext = createContext<PageLifecycleContextValue>({
-  on: () => { },
-  off: () => { },
+  on: noop,
+  off: noop,
 })

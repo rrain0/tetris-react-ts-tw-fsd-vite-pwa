@@ -1,13 +1,14 @@
 import { ingameScreenPortSizes } from '@/screens/ingame/ui/port/ingameScreenPortSizes.ts'
 import { AppActivityContext } from '@@/lib/app/activity-manager/context/AppActivityContext.ts'
+import { InputManagerContext } from '@@/lib/app/input-manager/context/InputManagerContext.ts'
 import {
   useGamepadDownClick
-} from '@@/lib/input/gamepad-key-events/gamepad-key-down-click/useGamepadDownClick.ts'
+} from '@@/lib/input/gamepad-key/useGamepadDownClick.ts'
 import {
   useGamepadKeyHold,
-} from '@@/lib/input/gamepad-key-events/gamepad-key-hold/useGamepadKeyHold.ts'
-import { useKeyDownClick } from '@@/lib/input/native-button-events/useKeyDownClick.ts'
-import { useKeyHold } from '@@/lib/input/native-button-events/useKeyHold.ts'
+} from '@@/lib/input/gamepad-key/useGamepadKeyHold.ts'
+import { useKeyDownClick } from '@@/lib/input/key/useKeyDownClick.ts'
+import { useKeyHold } from '@@/lib/input/key/useKeyHold.ts'
 import useLockSelection from '@@/lib/input/pointer/useLockSelection.ts'
 import { usePointer } from '@@/lib/input/pointer/usePointer.ts'
 import { usePointersData } from '@@/lib/input/pointer/usePointersData.ts'
@@ -19,13 +20,13 @@ import { elemProps } from '@@/utils/elem/elemProps.ts'
 import { useFocusWithinElem } from '@@/utils/elem/useFocusWithinElem.ts'
 import { useResizeRef } from '@@/utils/elem/useResizeRef.ts'
 import { floorTo0 } from '@@/utils/math/rounding.ts'
-import { combineProps } from '@@/utils/react/props/combineProps.ts'
+import { propsOf } from '@@/utils/react/props/combineProps.ts'
 import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
-import { assertNever, type Setter, type SetterOrUpdater } from '@@/utils/ts/ts.ts'
+import { assertNever, type Setter } from '@@/utils/ts/ts.ts'
 import { InputLayoutContext } from '@/entities/input-layout/context/InputLayoutContext.ts'
 import { isGamepadKeyAction } from '@/entities/input-layout/model/isGamepadKeyAction.ts'
 import { isKeyboardAction } from '@/entities/input-layout/model/isKeyboardAction.ts'
-import React, { use, useState } from 'react'
+import React, { use, useLayoutEffect, useState } from 'react'
 import { ingameScreenLandSmSizes } from '@/screens/ingame/ui/land-sm/ingameScreenLandSmSizes.ts'
 import IngameScreenLand from '@/screens/ingame/ui/land/IngameScreenLand.tsx'
 import IngameScreenLandSm from '@/screens/ingame/ui/land-sm/IngameScreenLandSm.tsx'
@@ -34,12 +35,9 @@ import IngameScreenPort from '@/screens/ingame/ui/port/IngameScreenPort.tsx'
 import PageFullVp from '@@/components/elems/PageFullVp.tsx'
 import bg from '@@/assets/im/bg4.jpg'
 import type { IngameData } from '@/screens/ingame/model/ingameScreen.model.ts'
+import * as uuid from 'uuid'
 
 
-
-
-// TODO loading screen to save images to RAM (dataUrl)
-// TODO ℹ️Use keyboard or mouse key or touch to go fullscreen
 
 
 
@@ -60,6 +58,8 @@ const game = (() => {
   return game
 })()
 const getIngameData = () => gameToIngameData(game)
+
+
 
 
 
@@ -105,10 +105,30 @@ export default function IngameScreen() {
   
   const [getDPos, setDPos] = usePointersData<{ dCol: number, dRot: number }>()
   
-  const onPointer = usePointer((move) => {
+  
+  const inputId = uuid.v4()
+  const { tryLock, unlock, allow } = use(InputManagerContext)
+  
+  useLayoutEffect(() => {
+    const onPointer = (ev: PointerEvent) => {
+      unlock(inputId, `pointer[${ev.pointerId}]`)
+    }
+    window.addEventListener('pointercancel', onPointer)
+    window.addEventListener('pointerup', onPointer)
+    return () => {
+      window.removeEventListener('pointercancel', onPointer)
+      window.removeEventListener('pointerup', onPointer)
+    }
+  })
+  
+  const onPointer = usePointer((move, upd) => {
     const { ev, start, wasStart, first, last, move: m, vp0, vp, pointerId } = move
     if (wasStart) {
       if (first) {
+        if (!tryLock(inputId, `pointer[${pointerId}]`)) {
+          upd({ wasStart: false })
+          return
+        }
         ev.currentTarget.setPointerCapture(pointerId)
         lockSelection()
       }
@@ -143,6 +163,7 @@ export default function IngameScreen() {
       
       if (last) {
         setDPos(pointerId, undefined)
+        unlock(inputId, `pointer[${ev.pointerId}]`)
         unlockSelection()
       }
     }
@@ -155,7 +176,7 @@ export default function IngameScreen() {
         st={{ backgroundImage: `url(${bg})` }}
         ref={refToFocus}
         tabIndex={-1}
-        {...combineProps(onKeyboardKeyHold, onKeyboardKeyDownClick, onPointer())}
+        {...propsOf(onKeyboardKeyHold, onKeyboardKeyDownClick, onPointer())}
       >
         <div cn='sz-full stack center2 container-size' ref={refFun}>
           <ScreenLayout layout={layout} {...ingameData}/>
