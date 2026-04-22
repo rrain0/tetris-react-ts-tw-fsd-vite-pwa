@@ -7,6 +7,7 @@ import {
 } from '@@/lib/input/gamepad-key-events/gamepad-key-hold/useGamepadKeyHold.ts'
 import { useKeyDownClick } from '@@/lib/input/native-button-events/useKeyDownClick.ts'
 import { useKeyHold } from '@@/lib/input/native-button-events/useKeyHold.ts'
+import { usePointer } from '@@/lib/input/pointer/usePointer.ts'
 import { Game } from '@@/lib/tetris/tetris-engine/entities/game/model/game.ts'
 import { Tetris } from '@@/lib/tetris/tetris-engine/entities/tetris/model/tetris.ts'
 import {
@@ -99,6 +100,12 @@ export default function IngameScreen() {
   const pageProps = combineProps(onKeyboardKeyHold, onKeyboardKeyDownClick)
   
   
+  const [cnt, setCnt] = useState(0)
+  const onPointer = usePointer((move, upd, n: number) => {
+    if (move.wasStart) console.log('move', move)
+  })
+  
+  
   
   return (
     <>
@@ -107,6 +114,10 @@ export default function IngameScreen() {
         ref={refToFocus}
         tabIndex={-1}
         {...pageProps}
+        
+        {...onPointer(1234)}
+        onClick={() => setCnt(cnt => cnt + 1)}
+        
       >
         <div cn='sz-full stack center2 container-size' ref={refFun}>
           <ScreenLayout layout={layout} tetris={tetris} {...stats}/>
