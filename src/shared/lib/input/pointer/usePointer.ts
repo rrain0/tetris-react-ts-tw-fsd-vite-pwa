@@ -1,30 +1,19 @@
+import { usePointersData } from '@@/lib/input/pointer/usePointersData.ts'
 import type { Xy } from '@@/utils/math/rect.ts'
 import type { Consumer } from '@@/utils/ts/ts.ts'
 import React from 'react'
-import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
 
 
 
 export function usePointer<A extends any[]>(onDrag: OnDrag<A>) {
   
-  type Args = any[]
-  type PointerId = number
-  type Moves = Record<string, MoveData | undefined>
-  
-  // TODO сохранять для каждого инстанса листенеров свои данные
-  const [getMoves] = useRefGetSet<Moves>({ })
-  
-  const getMove = (pointerId: PointerId) => getMoves()[pointerId]
-  const setMove = (pointerId: PointerId, move?: MoveData) => {
-    if (!move) delete getMoves()[pointerId]
-    else getMoves()[pointerId] = move
-  }
+  const [getMove, setMove] = usePointersData<MoveData>()
   
   // Performs shallow update of current move object with props that exists in update.
   // If your move does not start from 'down' then you can update { wasStarted: true }.
   // Changes are saved across events (if event does not write particular prop with its data).
   // You have different move object references on each event.
-  const updateMove = (pointerId: PointerId, update: MoveUpdate) => {
+  const updateMove = (pointerId: number, update: MoveUpdate) => {
     const move = getMove(pointerId)
     if (move) Object.assign(move, update)
   }
@@ -185,9 +174,9 @@ export type MoveData = {
   first: boolean
   last: boolean
   
-  // Start of drag coords relative viewport
+  // Coords relative viewport (start point) of first pointer event.
   vp0: Xy
-  // Current coords relative viewport
+  // Coords relative viewport of current event.
   vp: Xy
   // Distance from start point to current point
   move: Xy

@@ -1,4 +1,4 @@
-import type { IngameStats } from '@/screens/ingame/model/ingameScreen.ts'
+import type { IngameStats } from '@/screens/ingame/model/ingameScreen.model.ts'
 import IngameControls from '@/screens/ingame/ui/controls/IngameControls.tsx'
 import type { Field } from '@@/lib/tetris/tetris-engine/entities/field/model/field.ts'
 import { elemSizeContain } from '@@/utils/css/elemSizeContain.ts'
@@ -21,23 +21,25 @@ export default function IngameScreenLandSm(props: IngameScreenLandSmProps) {
     sideW, sideG, nextW, titleH, digitH,
     controlsIcSz, controlsG, controlsW,
     gameG, gameW, gameH, gameRatio,
-    w,
+    wOfCqh,
   } = ingameScreenLandSmSizes(nextField.cols)
   
   const containerSt = { width: '100%', height: elemSizeContain(gameRatio).height }
   const gameSt = {
     grid: `
       'spaceL fieldBox ... side spaceR ... controlsSpace' 100%
-      / 1fr ${w(fieldBoxW)} ${w(gameG)} ${w(sideW)} 1fr ${w(gameG)} ${w(controlsW)}
+      / 1fr ${wOfCqh(fieldBoxW)}
+      ${wOfCqh(gameG)} ${wOfCqh(sideW)} 1fr ${wOfCqh(gameG)}
+      ${wOfCqh(controlsW)}
     `,
   }
-  const fieldBoxSt = { borderWidth: w(fieldBoxBdSz), width: w(fieldBoxW) }
-  const sideSt = { width: w(sideW), gap: w(sideG) }
-  const titleSt = { fontSize: w(titleH) }
-  const digitsSt = { fontSize: w(digitH) }
-  const nextSt = { width: w(nextW) }
-  const controlsSt = { gap: w(controlsG) }
-  const controlsIcSt = { width: w(controlsIcSz), height: w(controlsIcSz) }
+  const fieldBoxSt = { borderWidth: wOfCqh(fieldBoxBdSz), width: wOfCqh(fieldBoxW) }
+  const sideSt = { width: wOfCqh(sideW), gap: wOfCqh(sideG) }
+  const titleSt = { fontSize: wOfCqh(titleH) }
+  const digitsSt = { fontSize: wOfCqh(digitH) }
+  const nextSt = { width: wOfCqh(nextW) }
+  const controlsSt = { gap: wOfCqh(controlsG) }
+  const controlsIcSt = { width: wOfCqh(controlsIcSz), height: wOfCqh(controlsIcSz) }
   
   return (
     <>

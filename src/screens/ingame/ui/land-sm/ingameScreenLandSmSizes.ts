@@ -23,7 +23,10 @@ export const ingameScreenLandSmSizes = (nextFieldCols = 4) => {
   const gameH = fieldBoxH
   const gameRatio = gameW / gameH
   
-  const w = (w: number) => `${w / gameW * 100 * gameRatio}cqh`
+  const wRel = (w: number) => w / gameW * gameRatio
+  
+  const wOfCqh = (w: number) => `${wRel(w) * 100}cqh`
+  const wOfH = (w: number, ofH: number) => wRel(w) * ofH
   
   return {
     blockSz,
@@ -31,6 +34,6 @@ export const ingameScreenLandSmSizes = (nextFieldCols = 4) => {
     sideW, sideG, nextW, titleH, digitH,
     controlsIcSz, controlsG, controlsW,
     gameG, gameW, gameH, gameRatio,
-    w,
+    wOfCqh, wOfH,
   }
 }

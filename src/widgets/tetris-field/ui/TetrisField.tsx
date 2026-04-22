@@ -40,5 +40,5 @@ const ListBlock = React.memo(function ListBlock(fieldBlock: ListBlockProps) {
   const { x, y, type, pieceType } = fieldBlock
   const data = mapPieceTypeToBlockUiData(type, pieceType)
   const row = y + 1, col = x + 1
-  return <Block {...data} style={{ gridArea: `${row} / ${col}` }}/>
+  return <Block draggable={false} {...data} style={{ gridArea: `${row} / ${col}` }}/>
 })

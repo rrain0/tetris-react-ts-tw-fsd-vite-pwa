@@ -89,6 +89,14 @@ export type RecordPuro<K extends keyof any, T> = {
 
 // ℹ️ Object unions
 
+
+// В TypeScript параметры функций находятся в контрвариантной позиции.
+// Когда мы заставляем TypeScript сопоставить несколько функцийс разными аргументами
+// в одну (infer I), он вынужден создать пересечение (&) этих аргументов,
+// чтобы обеспечить безопасность типов.
+export type UnionToIntersection<U> =
+  (U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
+
 // Makes optional props in one object to be opt or undef in another object
 export type ObjectSymmetricUnion<O1 extends object, O2 extends object> =
   | O1 & { [OptKeys in keyof Omit<O2, keyof O1>]?: undefined }

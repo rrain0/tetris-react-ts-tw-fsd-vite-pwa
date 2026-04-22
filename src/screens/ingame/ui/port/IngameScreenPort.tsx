@@ -3,7 +3,7 @@ import type { Field } from '@@/lib/tetris/tetris-engine/entities/field/model/fie
 import { elemSizeContain } from '@@/utils/css/elemSizeContain.ts'
 import { ingameScreenPortSizes } from '@/screens/ingame/ui/port/ingameScreenPortSizes.ts'
 import TetrisField from '@/widgets/tetris-field/ui/TetrisField.tsx'
-import type { IngameStats } from '@/screens/ingame/model/ingameScreen.ts'
+import type { IngameStats } from '@/screens/ingame/model/ingameScreen.model.ts'
 
 
 
@@ -24,7 +24,7 @@ export default function IngameScreenPort(props: IngameScreenPortProps) {
     bottomG, bottomH, titleH, digitH, bottomTxG,
     controlsIcSz, controlsG, controlsW,
     gameW, gameH, gameRatio,
-    h,
+    hOfCqw,
   } = ingameScreenPortSizes()
   
   // Size styles
@@ -32,26 +32,33 @@ export default function IngameScreenPort(props: IngameScreenPortProps) {
   const gameSt = {
     grid: `
       'controls' 1fr
-      'top' ${h(topH)}
-      'fieldBox' ${h(fieldBoxH)}
-      'bottom' ${h(bottomH)}
+      'top' ${hOfCqw(topH)}
+      'fieldBox' ${hOfCqw(fieldBoxH)}
+      'bottom' ${hOfCqw(bottomH)}
       '.' 1fr
        / 100%
     `,
   }
-  const fieldBoxSt = { borderWidth: h(fieldBoxBdSz), height: h(fieldBoxH) }
-  const fieldSt = { borderWidth: h(fieldBoxBdSz), height: h(fullFieldBoxH), borderTop: 'none' }
-  const topSt = { height: h(topH) }
-  const topTitleBoxSt = { width: h(topTitleBoxW), height: h(topTitleBoxH) }
-  const topTitleSt = { fontSize: h(topTitleH), opacity: isCurrentPieceAboveField ? 0.5 : 1 }
-  const bottomSt = {
-    height: h(bottomH), paddingTop: h(bottomG), paddingBottom: h(bottomG), gap: h(bottomG),
+  const fieldBoxSt = { borderWidth: hOfCqw(fieldBoxBdSz), height: hOfCqw(fieldBoxH) }
+  const fieldSt = {
+    borderWidth: hOfCqw(fieldBoxBdSz),
+    height: hOfCqw(fullFieldBoxH),
+    borderTop: 'none',
   }
-  const bottomItemSt = { gap: h(bottomTxG) }
-  const titleSt = { fontSize: h(titleH) }
-  const digitsSt = { fontSize: h(digitH) }
-  const controlsSt = { gap: h(controlsG) }
-  const controlsIcSt = { width: h(controlsIcSz), height: h(controlsIcSz) }
+  const topSt = { height: hOfCqw(topH) }
+  const topTitleBoxSt = { width: hOfCqw(topTitleBoxW), height: hOfCqw(topTitleBoxH) }
+  const topTitleSt = { fontSize: hOfCqw(topTitleH), opacity: isCurrentPieceAboveField ? 0.5 : 1 }
+  const bottomSt = {
+    height: hOfCqw(bottomH),
+    paddingTop: hOfCqw(bottomG),
+    paddingBottom: hOfCqw(bottomG),
+    gap: hOfCqw(bottomG),
+  }
+  const bottomItemSt = { gap: hOfCqw(bottomTxG) }
+  const titleSt = { fontSize: hOfCqw(titleH) }
+  const digitsSt = { fontSize: hOfCqw(digitH) }
+  const controlsSt = { gap: hOfCqw(controlsG) }
+  const controlsIcSt = { width: hOfCqw(controlsIcSz), height: hOfCqw(controlsIcSz) }
   
   return (
     <>

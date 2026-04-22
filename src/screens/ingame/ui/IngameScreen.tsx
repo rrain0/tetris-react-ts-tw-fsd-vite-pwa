@@ -1,3 +1,4 @@
+import { ingameScreenPortSizes } from '@/screens/ingame/ui/port/ingameScreenPortSizes.ts'
 import { AppActivityContext } from '@@/lib/app/activity-manager/context/AppActivityContext.ts'
 import {
   useGamepadDownClick
@@ -7,6 +8,7 @@ import {
 } from '@@/lib/input/gamepad-key-events/gamepad-key-hold/useGamepadKeyHold.ts'
 import { useKeyDownClick } from '@@/lib/input/native-button-events/useKeyDownClick.ts'
 import { useKeyHold } from '@@/lib/input/native-button-events/useKeyHold.ts'
+import useLockSelection from '@@/lib/input/pointer/useLockSelection.ts'
 import { usePointer } from '@@/lib/input/pointer/usePointer.ts'
 import { Game } from '@@/lib/tetris/tetris-engine/entities/game/model/game.ts'
 import { Tetris } from '@@/lib/tetris/tetris-engine/entities/tetris/model/tetris.ts'
@@ -16,8 +18,10 @@ import {
 import { elemProps } from '@@/utils/elem/elemProps.ts'
 import { useFocusWithinElem } from '@@/utils/elem/useFocusWithinElem.ts'
 import { useResizeRef } from '@@/utils/elem/useResizeRef.ts'
+import { floorTo0 } from '@@/utils/math/rounding.ts'
 import { combineProps } from '@@/utils/react/props/combineProps.ts'
-import type { Setter, SetterOrUpdater } from '@@/utils/ts/ts.ts'
+import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
+import { assertNever, type Setter, type SetterOrUpdater } from '@@/utils/ts/ts.ts'
 import { InputLayoutContext } from '@/entities/input-layout/context/InputLayoutContext.ts'
 import { isGamepadKeyAction } from '@/entities/input-layout/model/isGamepadKeyAction.ts'
 import { isKeyboardAction } from '@/entities/input-layout/model/isKeyboardAction.ts'
@@ -29,7 +33,7 @@ import { ingameScreenLandSizes } from '@/screens/ingame/ui/land/ingameScreenLand
 import IngameScreenPort from '@/screens/ingame/ui/port/IngameScreenPort.tsx'
 import PageFullVp from '@@/components/elems/PageFullVp.tsx'
 import bg from '@@/assets/im/bg4.jpg'
-import type { IngameStats } from '@/screens/ingame/model/ingameScreen.ts'
+import type { IngameData } from '@/screens/ingame/model/ingameScreen.model.ts'
 
 
 
@@ -55,29 +59,28 @@ const game = (() => {
   game.tetris.field.addPiece(newTSrs({ x: 8, y: 16 }).toRotatedLeft().next().value!)
   return game
 })()
-const copyTetris = () => game.tetris.copy()
-const copyStats = () => {
-  const { hiScore, score, level, lines } = game
-  return { hiScore, score, level, lines }
-}
+const getIngameData = () => gameToIngameData(game)
 
 
 
 export default function IngameScreen() {
-  
-  const [stats, setStats] = useState<IngameStats>(copyStats)
-  const [tetris, setTetris] = useState<Tetris>(copyTetris)
-  
+  const [ingameData, setIngameData] = useState<IngameData>(getIngameData)
   
   
   const [layout, setLayout] = useState<Layout>(undefined)
+  const [getWh, setWh] = useRefGetSet({ w: 0, h: 0 })
+  
+  const portSizes = ingameScreenPortSizes()
+  const landSmSizes = ingameScreenLandSmSizes()
+  const landSizes = ingameScreenLandSizes()
   
   const refFun = useResizeRef(elem => {
     if (!elem) setLayout(undefined)
     else {
-      const { ratio } = elemProps(elem)
-      if (ratio >= ingameScreenLandSizes().gameRatio) setLayout('land')
-      else if (ratio >= ingameScreenLandSmSizes().gameRatio) setLayout('landSm')
+      const { ratio, wh } = elemProps(elem)
+      setWh(wh)
+      if (ratio >= landSizes.gameRatio) setLayout('land')
+      else if (ratio >= landSmSizes.gameRatio) setLayout('landSm')
       else setLayout('port')
     }
   })
@@ -95,32 +98,67 @@ export default function IngameScreen() {
   
   const refToFocus = useFocusWithinElem()
   
-  const { onKeyboardKeyHold, onKeyboardKeyDownClick } = useAppActions({ game, setTetris, setStats })
+  const { onKeyboardKeyHold, onKeyboardKeyDownClick } = useAppActions({ game, setIngameData })
   
-  const pageProps = combineProps(onKeyboardKeyHold, onKeyboardKeyDownClick)
+  const [lockSelection, unlockSelection] = useLockSelection()
   
-  
-  const [cnt, setCnt] = useState(0)
-  const onPointer = usePointer((move, upd, n: number) => {
-    if (move.wasStart) console.log('move', move)
+  const [getDpos] = useRefGetSet({ dcol: 0, drot: 0 })
+  const onPointer = usePointer((move) => {
+    const { ev, start, wasStart, first, last, move: m, vp0, vp, pointerId } = move
+    if (wasStart) {
+      const prevDpos = getDpos()
+      if (first) {
+        ev.currentTarget.setPointerCapture(pointerId)
+        lockSelection()
+        prevDpos.dcol = 0
+        prevDpos.drot = 0
+      }
+      
+      if (layout) {
+        const blockSz = (() => {
+          if (layout === 'land') return landSizes.wOfH(landSizes.blockSz, getWh().h)
+          if (layout === 'landSm') return landSmSizes.wOfH(landSizes.blockSz, getWh().h)
+          if (layout === 'port') return portSizes.hOfW(landSizes.blockSz, getWh().w)
+          assertNever(layout)
+        })()
+        
+        const dcol = floorTo0(m.x / blockSz)
+        const drot = floorTo0(m.y / blockSz)
+        for (let d = prevDpos.dcol + 1; d <= dcol; d++) {
+          game.tetris.moveCurrentPieceRight()
+        }
+        for (let d = prevDpos.dcol - 1; d >= dcol; d--) {
+          game.tetris.moveCurrentPieceLeft()
+        }
+        for (let d = prevDpos.drot + 1; d <= drot; d++) {
+          game.tetris.rotateCurrentPieceRight()
+        }
+        for (let d = prevDpos.drot - 1; d >= drot; d--) {
+          game.tetris.rotateCurrentPieceLeft()
+        }
+        prevDpos.dcol = dcol
+        prevDpos.drot = drot
+        
+        setIngameData(gameToIngameData(game))
+      }
+      
+      if (last) {
+        unlockSelection()
+      }
+    }
   })
-  
   
   
   return (
     <>
-      <PageFullVp cn='p-[8] bg-pos-[center] bg-sz-[cover]'
+      <PageFullVp cn='p-[8] bg-pos-[center] bg-sz-[cover] no-touch-action'
         st={{ backgroundImage: `url(${bg})` }}
         ref={refToFocus}
         tabIndex={-1}
-        {...pageProps}
-        
-        {...onPointer(1234)}
-        onClick={() => setCnt(cnt => cnt + 1)}
-        
+        {...combineProps(onKeyboardKeyHold, onKeyboardKeyDownClick, onPointer())}
       >
         <div cn='sz-full stack center2 container-size' ref={refFun}>
-          <ScreenLayout layout={layout} tetris={tetris} {...stats}/>
+          <ScreenLayout layout={layout} {...ingameData}/>
         </div>
       </PageFullVp>
     </>
@@ -131,10 +169,8 @@ export default function IngameScreen() {
 
 type Layout = 'land' | 'landSm' | 'port' | undefined
 
-function ScreenLayout({ layout, tetris, ...stats }: IngameStats & {
-  layout: Layout
-  tetris: Tetris
-}) {
+function ScreenLayout(props: IngameData & { layout: Layout }) {
+  const { layout, tetris, ...stats } = props
   return (
     <>
       {layout === 'land' && (
@@ -166,8 +202,7 @@ function ScreenLayout({ layout, tetris, ...stats }: IngameStats & {
 
 type UseAppActionParams = {
   game: Game,
-  setTetris: SetterOrUpdater<Tetris>,
-  setStats: Setter<IngameStats>,
+  setIngameData: Setter<IngameData>,
 }
 
 function useAppActions(params: UseAppActionParams) {
@@ -233,57 +268,43 @@ function useAppActions(params: UseAppActionParams) {
 
 
 
-function moveLeft({ game, setStats, setTetris }: UseAppActionParams) {
+function moveLeft({ game, setIngameData }: UseAppActionParams) {
   game.tetris.moveCurrentPieceLeft()
-  const { stats, tetris } = gameToStatsAndTetris(game)
-  setStats(stats)
-  setTetris(tetris)
+  setIngameData(gameToIngameData(game))
 }
-function moveRight({ game, setStats, setTetris }: UseAppActionParams) {
+function moveRight({ game, setIngameData }: UseAppActionParams) {
   game.tetris.moveCurrentPieceRight()
-  const { stats, tetris } = gameToStatsAndTetris(game)
-  setStats(stats)
-  setTetris(tetris)
+  setIngameData(gameToIngameData(game))
 }
-function moveDown({ game, setStats, setTetris }: UseAppActionParams) {
+function moveDown({ game, setIngameData }: UseAppActionParams) {
   game.tetris.moveCurrentPieceDown()
-  const { stats, tetris } = gameToStatsAndTetris(game)
-  setStats(stats)
-  setTetris(tetris)
+  setIngameData(gameToIngameData(game))
 }
-function moveUp({ game, setStats, setTetris }: UseAppActionParams) {
+function moveUp({ game, setIngameData }: UseAppActionParams) {
   game.tetris.moveCurrentPieceUp()
-  const { stats, tetris } = gameToStatsAndTetris(game)
-  setStats(stats)
-  setTetris(tetris)
+  setIngameData(gameToIngameData(game))
 }
-function rotateLeft({ game, setStats, setTetris }: UseAppActionParams) {
+function rotateLeft({ game, setIngameData }: UseAppActionParams) {
   game.tetris.rotateCurrentPieceLeft()
-  const { stats, tetris } = gameToStatsAndTetris(game)
-  setStats(stats)
-  setTetris(tetris)
+  setIngameData(gameToIngameData(game))
 }
-function rotateRight({ game, setStats, setTetris }: UseAppActionParams) {
+function rotateRight({ game, setIngameData }: UseAppActionParams) {
   game.tetris.rotateCurrentPieceRight()
-  const { stats, tetris } = gameToStatsAndTetris(game)
-  setStats(stats)
-  setTetris(tetris)
+  setIngameData(gameToIngameData(game))
 }
-function hardDrop({ game, setStats, setTetris }: UseAppActionParams) {
+function hardDrop({ game, setIngameData }: UseAppActionParams) {
   game.tetris.dropCurrentPiece()
   game.tetris.lockCurrentPiece()
   const lines = game.tetris.getFullLines()
   game.tetris.clearLines(lines)
   game.tetris.dropLines(lines)
   game.tetris.spawnNewPieceOrGameOver()
-  const { stats, tetris } = gameToStatsAndTetris(game)
-  setStats(stats)
-  setTetris(tetris)
+  setIngameData(gameToIngameData(game))
 }
 
 
 
-function gameToStatsAndTetris(game: Game): { stats: IngameStats, tetris: Tetris } {
+function gameToIngameData(game: Game): IngameData {
   const { hiScore, score, level, lines, tetris } = game
-  return { stats: { hiScore, score, level, lines }, tetris: tetris.copy() }
+  return { hiScore, score, level, lines, tetris: tetris.copy() }
 }

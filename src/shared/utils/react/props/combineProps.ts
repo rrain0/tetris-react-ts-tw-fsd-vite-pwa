@@ -1,10 +1,12 @@
-import { isfunction, isobject, isundef } from '@@/utils/ts/ts.ts'
+import { isfunction, isobject, isundef, type UnionToIntersection } from '@@/utils/ts/ts.ts'
 
 
 
-export function combineProps(...propsList: any[]): object {
-  const callbacks: Record<string, any[]> = { }
-  let combinedProps
+export function combineProps<A extends any[]>(
+  ...propsList: A
+): UnionToIntersection<NoInfer<A>[number] & object> {
+  const callbacks: Record<any, any[]> = { }
+  let combinedProps: Record<any, any> | undefined = undefined
   
   for (let i = 0; i < propsList.length; i++) {
     const props = propsList[i]
@@ -60,5 +62,6 @@ export function combineProps(...propsList: any[]): object {
     }
   }
   
-  return combinedProps
+  //@ts-ignore
+  return combinedProps ?? { }
 }
