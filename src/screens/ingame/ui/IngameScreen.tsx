@@ -10,8 +10,8 @@ import { useKeyDownClick } from '@@/lib/input/native-button-events/useKeyDownCli
 import { useKeyHold } from '@@/lib/input/native-button-events/useKeyHold.ts'
 import useLockSelection from '@@/lib/input/pointer/useLockSelection.ts'
 import { usePointer } from '@@/lib/input/pointer/usePointer.ts'
+import { usePointersData } from '@@/lib/input/pointer/usePointersData.ts'
 import { Game } from '@@/lib/tetris/tetris-engine/entities/game/model/game.ts'
-import { Tetris } from '@@/lib/tetris/tetris-engine/entities/tetris/model/tetris.ts'
 import {
   newISrs, newJSrs, newLSrs, newOSrs, newSSrs, newTSrs, newZSrs,
 } from '@@/lib/tetris/tetris-engine/entities/piece/model/tetrominoSrs.ts'
@@ -102,16 +102,15 @@ export default function IngameScreen() {
   
   const [lockSelection, unlockSelection] = useLockSelection()
   
-  const [getDpos] = useRefGetSet({ dcol: 0, drot: 0 })
+  
+  const [getDPos, setDPos] = usePointersData<{ dCol: number, dRot: number }>()
+  
   const onPointer = usePointer((move) => {
     const { ev, start, wasStart, first, last, move: m, vp0, vp, pointerId } = move
     if (wasStart) {
-      const prevDpos = getDpos()
       if (first) {
         ev.currentTarget.setPointerCapture(pointerId)
         lockSelection()
-        prevDpos.dcol = 0
-        prevDpos.drot = 0
       }
       
       if (layout) {
@@ -122,27 +121,28 @@ export default function IngameScreen() {
           assertNever(layout)
         })()
         
-        const dcol = floorTo0(m.x / blockSz)
-        const drot = floorTo0(m.y / blockSz)
-        for (let d = prevDpos.dcol + 1; d <= dcol; d++) {
+        const prev = getDPos(pointerId) ?? { dCol: 0, dRot: 0 }
+        const dCol = floorTo0(m.x / blockSz)
+        const dRot = floorTo0(m.y / blockSz)
+        for (let d = prev.dCol + 1; d <= dCol; d++) {
           game.tetris.moveCurrentPieceRight()
         }
-        for (let d = prevDpos.dcol - 1; d >= dcol; d--) {
+        for (let d = prev.dCol - 1; d >= dCol; d--) {
           game.tetris.moveCurrentPieceLeft()
         }
-        for (let d = prevDpos.drot + 1; d <= drot; d++) {
+        for (let d = prev.dRot + 1; d <= dRot; d++) {
           game.tetris.rotateCurrentPieceRight()
         }
-        for (let d = prevDpos.drot - 1; d >= drot; d--) {
+        for (let d = prev.dRot - 1; d >= dRot; d--) {
           game.tetris.rotateCurrentPieceLeft()
         }
-        prevDpos.dcol = dcol
-        prevDpos.drot = drot
+        setDPos(pointerId, { dCol, dRot })
         
         setIngameData(gameToIngameData(game))
       }
       
       if (last) {
+        setDPos(pointerId, undefined)
         unlockSelection()
       }
     }
