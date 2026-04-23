@@ -6,5 +6,4 @@ import { createContext } from 'react'
 export const AppActivityContext = createContext<AppActivityState>({
   name: '',
   rendered: false,
-  interactive: false,
 })

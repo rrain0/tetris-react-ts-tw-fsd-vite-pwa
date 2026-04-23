@@ -12,12 +12,13 @@ export function useOnClick<E = Element>(onClick: (ev: React.MouseEvent<E>) => vo
   
   return {
     onPointerDown: (ev: React.PointerEvent) => {
-      tryLock(`pointer[${ev.pointerId}]`)
+      const { pointerId } = ev
+      tryLock(pointerId)
     },
     onClick: (ev: React.MouseEvent<E>) => {
-      const p = (ev as ReactOnClickEventModern<E>).nativeEvent.pointerId
-      if (allowed(`pointer[${p}]`)) {
-        unlock(`pointer[${p}]`)
+      const { pointerId } = (ev as ReactOnClickEventModern<E>).nativeEvent
+      if (allowed(pointerId)) {
+        unlock(pointerId)
         onClickStable(ev)
       }
     },

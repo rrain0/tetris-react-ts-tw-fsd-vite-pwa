@@ -1,41 +1,80 @@
 import { InputManagerContext } from '@@/lib/app/input-manager/context/InputManagerContext.ts'
-import type { InputId, InputType } from '@@/lib/app/input-manager/model/inputManager.model.ts'
+import type {
+  InputIdData,
+} from '@@/lib/app/input-manager/model/inputManager.model.ts'
+import { arrRemoveBy } from '@@/utils/array/arrRemoveBy.ts'
 import type { Children } from '@@/utils/react/props/propTypes.ts'
-import { mapOf, setOf } from '@@/utils/react/state/state.ts'
-import { useRefGetSetInit } from '@@/utils/react/state/useRefGetSetInit.ts'
+import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
 
 
 
 export default function InputManagerProvider({ children }: Children) {
   
-  type InputLocks = Map<InputType, Set<InputId>>
-  const [getInputLocks] = useRefGetSetInit<InputLocks>(mapOf)
+  type InputLocks = InputIdData[]
+  const [getInputLocks] = useRefGetSet<InputLocks>([])
   
   
-  const lock = (type: InputType, inputId: InputId) => {
-    getInputLocks().getOrInsert(type, setOf()).add(inputId)
-  }
-  const unlock = (type: InputType, inputId: InputId) => {
-    //console.log('input unlock', type, inputId)
+  const lock = (lock: InputIdData) => {
+    //console.log('input lock', lock)
+    const { inputId, type, ...data } = lock
     const locks = getInputLocks()
-    const ids = locks.get(type)
-    if (ids) {
-      ids.delete(inputId)
-      if (!ids.size) locks.delete(type)
+    
+    if (type === 'pointer') {
+      const { pointerId } = data
+      // If no such element then add it
+      if (!locks.find(it => it.inputId === inputId && it.type === type && it.pointerId === pointerId)) {
+        return
+      }
+      locks.push(lock)
     }
   }
-  const tryLock = (type: InputType, inputId: InputId) => {
-    //console.log('input tryLock', type, inputId)
+  
+  const unlock = (lock: InputIdData) => {
+    //console.log('input unlock', lock)
+    const { inputId, type, ...data } = lock
     const locks = getInputLocks()
-    if (locks.has(type)) return false
-    locks.set(type, setOf(inputId))
-    return true
+    
+    if (type === 'pointer') {
+      const { pointerId } = data
+      // Remove such element
+      arrRemoveBy(locks, it => it.inputId === inputId && it.type === type && it.pointerId === pointerId)
+    }
   }
-  const allowed = (type: InputType, inputId: InputId) => {
-    //console.log('input allowed', type, inputId)
-    const ids = getInputLocks().get(type)
-    if (!ids?.size) return true
-    if (ids.has(inputId)) return true
+  
+  const tryLock = (lock: InputIdData) => {
+    //console.log('input tryLock', lock)
+    const { inputId, type, ...data } = lock
+    const locks = getInputLocks()
+    
+    if (type === 'pointer') {
+      const { pointerId } = data
+      // If no such lock then add it
+      if (locks.find(it => it.inputId === inputId && it.type === type && it.pointerId === pointerId)) {
+        return false
+      }
+      locks.push(lock)
+      return true
+    }
+    return false
+  }
+  
+  const allowed = (lock: InputIdData) => {
+    //console.log('input allowed', lock)
+    const { inputId, type, ...data } = lock
+    const locks = getInputLocks()
+    
+    if (type === 'pointer') {
+      const { pointerId } = data
+      // If no such lock then allowed
+      if (!locks.find(it => it.type === type && it.pointerId === pointerId)) {
+        return true
+      }
+      // If it has such element then allowed
+      if (locks.find(it => it.inputId === inputId && it.type === type && it.pointerId === pointerId)) {
+        return true
+      }
+      return false
+    }
     return false
   }
   

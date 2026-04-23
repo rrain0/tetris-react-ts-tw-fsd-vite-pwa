@@ -1,5 +1,4 @@
 import { ingameScreenPortSizes } from '@/screens/ingame/ui/port/ingameScreenPortSizes.ts'
-import { AppActivityContext } from '@@/lib/app/activity-manager/context/AppActivityContext.ts'
 import {
   useGamepadDownClick
 } from '@@/lib/input/gamepad-key/useGamepadDownClick.ts'
@@ -26,7 +25,7 @@ import { assertNever, type Setter } from '@@/utils/ts/ts.ts'
 import { InputLayoutContext } from '@/entities/input-layout/context/InputLayoutContext.ts'
 import { isGamepadKeyAction } from '@/entities/input-layout/model/isGamepadKeyAction.ts'
 import { isKeyboardAction } from '@/entities/input-layout/model/isKeyboardAction.ts'
-import React, { use, useEffect, useLayoutEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { ingameScreenLandSmSizes } from '@/screens/ingame/ui/land-sm/ingameScreenLandSmSizes.ts'
 import IngameScreenLand from '@/screens/ingame/ui/land/IngameScreenLand.tsx'
 import IngameScreenLandSm from '@/screens/ingame/ui/land-sm/IngameScreenLandSm.tsx'
@@ -100,20 +99,6 @@ export default function IngameScreen() {
   
   
   
-  
-  const { interactive } = use(AppActivityContext)
-  
-  const canUseInput = ({ key, mx, my }: {
-    key?: string | undefined
-    mx?: boolean | undefined
-    my?: boolean | undefined
-  }) => {
-    if (!interactive) return false
-    return true
-  }
-  
-  
-  
   const refToFocus = useFocusWithinElem()
   
   const { onKeyboardKeyHold, onKeyboardKeyDownClick } = useAppActions({ game, setIngameData })
@@ -129,7 +114,7 @@ export default function IngameScreen() {
     const { ev, start, wasStart, first, last, move: m, vp0, vp, pointerId } = move
     if (wasStart) {
       if (first) {
-        if (!tryLock(`pointer[${pointerId}]`)) {
+        if (!tryLock(pointerId)) {
           upd({ wasStart: false })
           return
         }
@@ -167,7 +152,7 @@ export default function IngameScreen() {
       
       if (last) {
         setDPos(pointerId, undefined)
-        unlock(`pointer[${pointerId}]`)
+        unlock(pointerId)
         unlockSelection()
       }
     }

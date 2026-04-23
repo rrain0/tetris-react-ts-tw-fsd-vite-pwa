@@ -1,11 +1,13 @@
 
 
 
-// InputType can be:
-//
-// 'pointer[0]', 'pointer[1]', 'pointer[2]', ...
-// 'pointer[-1]' - keyboard clicks.
-// 'pointer[1][h]', 'pointer[1][v]' - lock horizontal or vertical pointer usage
-// ...
-export type InputType = string
+export type PointerId = number
+
+export type PointerInputData = { type: 'pointer', pointerId: PointerId }
+
+export type InputData =
+  | PointerInputData
+
 export type InputId = string | number
+
+export type InputIdData = { inputId: InputId } & InputData

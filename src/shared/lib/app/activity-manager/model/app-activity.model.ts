@@ -26,5 +26,4 @@ export interface AppActivity {
 export interface AppActivityState {
   name: string
   rendered: boolean
-  interactive: boolean
 }

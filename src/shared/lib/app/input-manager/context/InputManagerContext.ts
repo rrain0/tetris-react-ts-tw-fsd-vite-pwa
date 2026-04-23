@@ -1,14 +1,16 @@
-import type { InputId, InputType } from '@@/lib/app/input-manager/model/inputManager.model.ts'
+import type {
+  InputIdData,
+} from '@@/lib/app/input-manager/model/inputManager.model.ts'
 import { noop } from '@@/utils/react/state/state.ts'
 import { createContext } from 'react'
 
 
 
 export type InputManagerContextValue = {
-  lock: (type: InputType, inputId: InputId) => void,
-  unlock: (type: InputType, inputId: InputId) => void,
-  tryLock: (type: InputType, inputId: InputId) => boolean,
-  allowed: (type: InputType, inputId: InputId) => boolean,
+  lock: (lock: InputIdData) => void,
+  unlock: (lock: InputIdData) => void,
+  tryLock: (lock: InputIdData) => boolean,
+  allowed: (lock: InputIdData) => boolean,
 }
 
 export const InputManagerContext = createContext<InputManagerContextValue>({
