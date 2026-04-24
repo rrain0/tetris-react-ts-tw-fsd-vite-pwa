@@ -1,4 +1,3 @@
-import { gameConfig } from '@@/lib/tetris/tetris-engine/entities/game/lib/gameConfig.ts'
 import { Tetris } from '@@/lib/tetris/tetris-engine/entities/tetris/model/tetris.ts'
 import { getDocTime } from '@@/utils/dom/getDocTime.ts'
 import { setOf } from '@@/utils/js/factory.ts'
@@ -9,12 +8,12 @@ import { type Cb, isdef } from '@@/utils/ts/ts.ts'
 export class Game {
   
   // Config
-  startLevel = gameConfig.startLevel
-  linesToLvlUp = gameConfig.linesToLvlUp
-  fallIntervalForLvl1 = gameConfig.fallIntervalForLvl1
-  dropIntervalForLvl1 = gameConfig.dropIntervalForLvl1
-  lockDelayLvl1 = gameConfig.lockDelayLvl1
-  lockDelayMovesLeft = gameConfig.lockDelayMovesLeft
+  startLevel = 1
+  linesToLvlUp = 10
+  fallIntervalForLvl1 = 1000
+  dropIntervalForLvl1 = 10
+  lockDelayLvl1 = 500
+  lockDelayMovesLeft = 50
   
   get fallInterval() { return this.fallIntervalForLvl1 }
   get dropInterval() { return this.dropIntervalForLvl1 }
@@ -26,8 +25,13 @@ export class Game {
   hiScore = 0
   lines = 0
   score = 0
-  level = 0
+  level = this.startLevel
   tetris: Tetris = new Tetris()
+  
+  addScore(score: number) {
+    this.score += score
+    this.hiScore = Math.max(this.hiScore, this.score)
+  }
   
   
   
@@ -151,7 +155,8 @@ export class Game {
       const { lastActionAt, dropInterval } = this
       const fallDepth = Math.floor((docTime - lastActionAt) / dropInterval)
       this.lastActionAt = lastActionAt + fallDepth * dropInterval
-      this.tetris.fallBy(fallDepth)
+      const fallen = this.tetris.fallBy(fallDepth)
+      this.addScore(fallen * 2)
       if (!this.tetris.canMoveDown()) { this.endTurn(); return }
     }
   }
