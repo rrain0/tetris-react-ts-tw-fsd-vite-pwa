@@ -69,13 +69,13 @@ export class Tetris {
     }
     return false
   }
-  fallBy(blocksCnt?: number): number {
+  fallBy(fallDepth?: number): number {
     const curr = this.current
     if (curr) {
       const { x: px, y: py } = curr
       const { fyEnd } = this.field
       
-      let dyMax = blocksCnt ?? Number.POSITIVE_INFINITY
+      let dyMax = fallDepth ?? Number.POSITIVE_INFINITY
       let foundDy: number | undefined
       for (const bottomBlock of curr.getBottomBlocks()) {
         const { x: bpx, y: bpy } = bottomBlock

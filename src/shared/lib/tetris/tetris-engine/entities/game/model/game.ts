@@ -40,7 +40,8 @@ export class Game {
   
   
   // Running state & actions
-  state: 'fall' | 'drop' | 'lockDelay' | 'gameOver' = 'fall'
+  state: 'fall' | 'lockDelay' | 'gameOver' = 'fall'
+  animation: IterableIterator<void, void, number> | undefined
   lastActionAt = 0 // document time ms
   pausedAt: number | undefined = 0 // document time ms
   rafPaused = true
@@ -51,8 +52,8 @@ export class Game {
   }
   get isPlaying() { return !this.isPause() && this.state !== 'gameOver' }
   get canMove() {
-    const { state } = this
-    return (state === 'fall' || state === 'lockDelay') && !this.isPause()
+    const { state, animation } = this
+    return (state === 'fall' || state === 'lockDelay') && !this.isPause() && !animation
   }
   
   resume() {
@@ -75,17 +76,22 @@ export class Game {
     if (!this.isPlaying) { this.rafPaused = true; return }
     
     //while (this.lastActionAt < docTime || this.state !== 'gameOver') { }
-    if (this.state === 'fall') {
-      this.fall(docTime)
+    
+    if (this.animation) {
+      if (this.animation.next(docTime).done) this.animation = undefined
+      this.notifyChange()
     }
-    else if (this.state === 'drop') {
-      this.drop(docTime)
-    }
-    else if (this.state === 'lockDelay') {
-      const locked = docTime - this.lastActionAt >= this.lockDelay
-      if (locked) {
-        this.lastActionAt = docTime
-        this.endTurn()
+    
+    if (!this.animation) {
+      if (this.state === 'fall') {
+        this.fall(docTime)
+      }
+      else if (this.state === 'lockDelay') {
+        const locked = docTime - this.lastActionAt >= this.lockDelay
+        if (locked) {
+          this.lastActionAt = docTime
+          this.endTurn()
+        }
       }
     }
     
@@ -93,11 +99,9 @@ export class Game {
   }
   syncState(moved = false) {
     const { state, tetris } = this
-    if (state === 'fall') {
+    if (this.animation) { }
+    else if (state === 'fall') {
       if (!tetris.canMoveDown()) { this.goLockDelay(); return }
-    }
-    else if (state === 'drop') {
-      if (!tetris.canMoveDown()) { this.endTurn(); return }
     }
     else if (state === 'lockDelay') {
       if (moved) this.lastActionAt = getDocTime()
@@ -141,13 +145,14 @@ export class Game {
       this.syncState(!!fallenBy)
     }
   }
-  drop(docTime: number) {
-    const { lastActionAt, dropInterval } = this
-    const fallDepth = Math.floor((docTime - lastActionAt) / dropInterval)
-    this.lastActionAt = lastActionAt + fallDepth * dropInterval
-    if (fallDepth) {
-      const fallenBy = this.tetris.fallBy(fallDepth)
-      this.syncState(!!fallenBy)
+  ;*dropAnim(): IterableIterator<void, void, number> {
+    while (true) {
+      const docTime = yield
+      const { lastActionAt, dropInterval } = this
+      const fallDepth = Math.floor((docTime - lastActionAt) / dropInterval)
+      this.lastActionAt = lastActionAt + fallDepth * dropInterval
+      this.tetris.fallBy(fallDepth)
+      if (!this.tetris.canMoveDown()) { this.endTurn(); return }
     }
   }
   
@@ -186,9 +191,8 @@ export class Game {
   }
   hardDrop() {
     if (!this.canMove) return
-    this.state = 'drop'
     this.lastActionAt = getDocTime()
-    this.syncState()
+    this.animation = this.dropAnim()
   }
   
 }
