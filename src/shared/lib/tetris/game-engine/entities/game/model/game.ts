@@ -10,26 +10,47 @@ export class Game {
   // Config - gameplay
   startLevel: count = 1
   linesToLvlUp: count = 10
-  fallIntervalForLvl1: ms = 1000
-  lockDelayLvl1: ms = 500
-  lockDelayMaxPlayerActions: count = 15
   
-  get fallInterval(): ms { return this.fallIntervalForLvl1 }
-  get lockDelay(): ms { return this.lockDelayLvl1 }
   
   
   
   // Config - animations
+  entryDelay: ms = 400
+  fallIntervalForLvl1: ms = 1000
   dropIntervalForLvl1: ms = 10
+  lockDelayLvl1: ms = 500
+  lockDelayMaxPlayerActions: count = 15
   clearLinesDelay: ms = 200
   removeLinesDelay: ms = 400
   
-  get dropInterval(): ms { return this.dropIntervalForLvl1 }
+  get lockDelay(): ms { return this.lockDelayLvl1 }
+  get fallInterval(): ms { return this.fallIntervalForLvl1 * (20 - Math.min(20, this.level)) / 20 }
+  get dropInterval(): ms { return this.dropIntervalForLvl1 * (20 - Math.min(20, this.level)) / 20 }
   
   
   
   // Config - scores
-  scoresForDroppedBlock: count = 2
+  scoresHardDropPerBlock: count = 2
+  scoresClear1LineLvl1: count = 100
+  scoresClear2LinesLvl1: count = 300
+  scoresClear3LinesLvl1: count = 500
+  scoresClear4LinesLvl1: count = 1200
+  scoresAllClearLvl1: count = 3000
+  
+  get scoresClear1Line() { return this.scoresClear1LineLvl1 * this.level }
+  get scoresClear2Lines() { return this.scoresClear2LinesLvl1 * this.level }
+  get scoresClear3Lines() { return this.scoresClear3LinesLvl1 * this.level }
+  get scoresClear4Lines() { return this.scoresClear4LinesLvl1 * this.level }
+  get scoresAllClear() { return this.scoresAllClearLvl1 * this.level }
+  
+  getScoresClearLines(cnt: count) {
+    return {
+      1: this.scoresClear1Line,
+      2: this.scoresClear2Lines,
+      3: this.scoresClear3Lines,
+      4: this.scoresClear4Lines,
+    }[cnt] ?? 0
+  }
   
   
   
@@ -184,12 +205,15 @@ export class Game {
     let time = getDocTime()
     this.setTime(time)
     do {
-      const { dropInterval, scoresForDroppedBlock } = this
+      const { dropInterval, scoresHardDropPerBlock } = this
+      
       const fallDepth = Math.floor(this.elapsed(time) / dropInterval)
       this.advance(fallDepth * dropInterval)
+      
       const fallen = this.tetris.fallBy(fallDepth)
-      this.addScore(fallen * scoresForDroppedBlock)
+      this.addScore(fallen * scoresHardDropPerBlock)
       const changed = !!fallen
+      
       if (!this.tetris.canMoveDown()) {
         this.tetris.lockCurrentPiece()
         return { changed, next: this.clearLinesAnimation(time) }
@@ -203,15 +227,27 @@ export class Game {
     if (!lines.length) return { changed: false, next: this.spawnNextPieceAnimation(time) }
     let changed = false
     do {
-      if (this.tick(this.clearLinesDelay, time)) {
+      const { clearLinesDelay, linesToLvlUp } = this
+      
+      if (this.tick(clearLinesDelay, time)) {
         this.tetris.clearLines(lines)
+        const prevLines = this.lines
+        
+        this.lines += lines.length
+        
+        this.level += Math.floor(this.lines / linesToLvlUp) - Math.floor(prevLines / linesToLvlUp)
+        
+        this.addScore(this.getScoresClearLines(lines.length))
+        if (this.tetris.field.bottomEmpty) this.addScore(this.scoresAllClear)
+        
         changed = !!lines.length
         break
       }
       ;({ time } = yield { changed }); changed = false
     } while (true)
     do {
-      if (this.tick(this.removeLinesDelay, time)) {
+      const { removeLinesDelay } = this
+      if (this.tick(removeLinesDelay, time)) {
         this.tetris.removeLines(lines)
         return { changed: !!lines.length, next: this.spawnNextPieceAnimation(time) }
       }
@@ -219,13 +255,19 @@ export class Game {
     } while (true)
   }
   
-  // eslint-disable-next-line require-yield
   ;*spawnNextPieceAnimation(time: ms): GameAnimation {
+    do {
+      const { entryDelay } = this
+      if (this.tick(entryDelay, time)) break
+      ;({ time } = yield { changed: false })
+    } while (true)
+    
     const spawned = this.tetris.spawnNextPiece()
     if (!spawned) {
       this.gameOver = true
       return { changed: false }
     }
+    
     return { changed: true, next: this.fallAnimation(time) }
   }
   
