@@ -136,10 +136,10 @@ export class Field {
   
   clearLines(linesFy: number[]) {
     const { fy0 } = this
-    for (const fy of linesFy) Array(fy + fy0).fill(null)
+    for (const fy of linesFy) this.blocks[fy + fy0].fill(null)
   }
   
-  dropLines(linesFy: number[]) {
+  removeLines(linesFy: number[]) {
     const { blocks: b, cols, rows, fy0 } = this
     
     function replaceLine(line: number, from: number) {

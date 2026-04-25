@@ -123,10 +123,10 @@ export class Tetris {
   
   clearLines(linesFy: number[]) { this.field.clearLines(linesFy) }
   
-  dropLines(linesFy: number[]) { this.field.dropLines(linesFy) }
+  removeLines(linesFy: number[]) { this.field.removeLines(linesFy) }
   
   
-  spawnNewPiece(): boolean {
+  spawnNextPiece(): boolean {
     if (this.field.canPlacePiece(this.next)) {
       this.current = this.next
       this.next = randomTetrominoSrs()
