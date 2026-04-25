@@ -1,6 +1,7 @@
 import { Tetris } from '@@/lib/tetris/tetris-engine/entities/tetris/model/tetris.ts'
 import { getDocTime } from '@@/utils/dom/getDocTime.ts'
 import { setOf } from '@@/utils/js/factory.ts'
+import { incIntOrZero } from '@@/utils/js/mutations.ts'
 import { type Cb, isdef } from '@@/utils/ts/ts.ts'
 
 
@@ -56,22 +57,27 @@ export class Game {
   
   
   // Running state & actions
-  state: 'lockDelay' | 'gameOver' | undefined
-  action: GameAction | undefined
+  gameOver = false
+  animation: GameAnimation | undefined
   lastActionAt = 0 // document time ms
+  allowActionsDuringAnimation = false
   pausedAt: number | undefined = 0 // document time ms
   rafPaused = true
-  currLockDelayLeftMoves = this.lockDelayMovesLeft
+  userActionsCnt = 0
   
+  nextAnimation(animation: GameAnimation | undefined) {
+    this.allowActionsDuringAnimation = false
+    this.animation = animation
+  }
   isPause(): this is { get pausedAt(): number; set pausedAt(pausedAt: number | undefined) } {
     return isdef(this.pausedAt)
   }
-  get isPlaying() { return !this.isPause() && this.state !== 'gameOver' }
+  get isPlaying() { return !this.isPause() && !this.gameOver }
   
-  get canMove() {
-    const { state, action } = this
-    return !this.isPause() && !action && state !== 'gameOver'
+  get allowUserAction() {
+    return !this.isPause() && this.allowActionsDuringAnimation && !this.gameOver
   }
+  incUserActionsCnt() { this.userActionsCnt = incIntOrZero(this.userActionsCnt) }
   
   setTime(time: number) { this.lastActionAt = time }
   elapsed(to: number) { return to - this.lastActionAt }
@@ -85,13 +91,13 @@ export class Game {
   }
   
   resume() {
-    if (this.isPause()) {
+    if (this.isPause() && !this.gameOver) {
       const pausedFor = getDocTime() - this.pausedAt
       this.lastActionAt += pausedFor
       this.pausedAt = undefined
       if (this.rafPaused) {
         this.rafPaused = false
-        requestAnimationFrame(this.run)
+        requestAnimationFrame(this.run(this.userActionsCnt))
       }
     }
   }
@@ -100,23 +106,23 @@ export class Game {
   
   
   // Lifecycle methods
-  run = (docTime: number) => {
+  run = (prevUserActionsCnt: number) => (docTime: number) => {
     if (!this.isPlaying) { this.rafPaused = true; return }
     
-    //while (this.lastActionAt < docTime || this.state !== 'gameOver') { }
+    if (!this.animation) this.nextAnimation(this.fallAnimation(docTime))
     
-    if (!this.state && !this.action) this.action = this.fallAction(docTime)
-    let changed = false, done = true
-    while (this.action && done) {
-      const result = this.action.next(docTime)
+    let changed = this.userActionsCnt !== prevUserActionsCnt
+    let done = true
+    while (this.animation && done) {
+      const result = this.animation.next(docTime)
       done = !!result.done
       changed ||= result.value.changed
       const next = result.value.next
-      if (done) this.action = next
+      if (done) this.nextAnimation(next)
     }
     if (changed) this.notifyChange()
     
-    if (!this.action) {
+    /* if (!this.animation) {
       if (this.state === 'lockDelay') {
         const locked = docTime - this.lastActionAt >= this.lockDelay
         if (locked) {
@@ -124,13 +130,14 @@ export class Game {
           this.goNextPiece()
         }
       }
-    }
+    } */
     
-    requestAnimationFrame(this.run)
+    requestAnimationFrame(this.run(this.userActionsCnt))
   }
+  /*
   syncState(moved = false) {
     const { state, tetris } = this
-    if (!this.action) {
+    if (!this.animation) {
       if (state === 'lockDelay') {
         if (moved) this.lastActionAt = getDocTime()
         const fallen = tetris.moveDown()
@@ -162,20 +169,61 @@ export class Game {
     if (!spawned) { this.state = 'gameOver'; return }
     this.goFall()
   }
+   */
   
   
+  // Engine animations
   
-  // Engine actions
   // eslint-disable-next-line require-yield
-  ;*fallAction(docTime: number): GameAction {
+  /* ;*fallAction0(docTime: number): GameAnimation {
     const { fallInterval } = this
     const fallDepth = Math.floor(this.elapsed(docTime) / fallInterval)
     this.advance(fallDepth * fallInterval)
     const fallen = this.tetris.fallBy(fallDepth)
     if (!this.tetris.canMoveDown()) this.goLockDelay()
     return { changed: !!fallen }
+  } */
+  
+  ;*fallAnimation(docTime: number): GameAnimation {
+    this.allowActionsDuringAnimation = true
+    let changed = false
+    do {
+      const { fallInterval } = this
+      
+      const fallDepth = Math.floor(this.elapsed(docTime) / fallInterval)
+      this.advance(fallDepth * fallInterval)
+      
+      const fallen = this.tetris.fallBy(fallDepth)
+      changed = !!fallen
+      
+      const canFall = this.tetris.canMoveDown()
+      if (!canFall) return { changed, next: this.lockDelayAnimation(docTime) }
+      
+      docTime = yield { changed }; changed = false
+    } while (true)
   }
-  ;*dropAction(): GameAction {
+  ;*lockDelayAnimation(docTime: number): GameAnimation {
+    this.allowActionsDuringAnimation = true
+    do {
+      const { lockDelay } = this
+      
+      const fallen = this.tetris.moveDown()
+      if (fallen) {
+        this.setTime(docTime)
+        return { changed: true, next: this.fallAnimation(docTime) }
+      }
+      
+      const locked = this.elapsed(docTime) >= lockDelay
+      if (locked) {
+        this.tetris.lockCurrentPiece()
+        this.setTime(docTime)
+        return { changed: false, next: this.clearLinesAnimation(docTime) }
+      }
+      
+      docTime = yield { changed: false }
+    } while (true)
+  }
+  ;*dropAnimation(): GameAnimation {
     let docTime = getDocTime()
     this.setTime(docTime)
     let changed = false
@@ -188,14 +236,14 @@ export class Game {
       changed = !!fallen
       if (!this.tetris.canMoveDown()) {
         this.tetris.lockCurrentPiece()
-        return { changed, next: this.clearLinesAction(docTime) }
+        return { changed, next: this.clearLinesAnimation(docTime) }
       }
       docTime = yield { changed }; changed = false
     } while (true)
   }
-  ;*clearLinesAction(docTime: number): GameAction {
+  ;*clearLinesAnimation(docTime: number): GameAnimation {
     const lines = this.tetris.getFullLines()
-    if (!lines.length) return { changed: false, next: this.spawnNextPieceAction() }
+    if (!lines.length) return { changed: false, next: this.spawnNextPieceAnimation() }
     let changed = false
     do {
       if (this.tick(this.clearLinesDelay, docTime)) {
@@ -208,62 +256,72 @@ export class Game {
     do {
       if (this.tick(this.removeLinesDelay, docTime)) {
         this.tetris.removeLines(lines)
-        return { changed: !!lines.length, next: this.spawnNextPieceAction() }
+        return { changed: !!lines.length, next: this.spawnNextPieceAnimation() }
       }
       docTime = yield { changed }; changed = false
     } while (true)
   }
   // eslint-disable-next-line require-yield
-  ;*spawnNextPieceAction(): GameAction {
+  ;*spawnNextPieceAnimation(): GameAnimation {
     const spawned = this.tetris.spawnNextPiece()
-    if (!spawned) this.state = 'gameOver'
+    if (!spawned) {
+      this.gameOver = true
+      return { changed: false }
+    }
     return { changed: true }
   }
   
   
   
+  processUserAction(moved: boolean) {
+    if (moved) {
+      this.incUserActionsCnt()
+    }
+  }
+  
+  
   // User actions
   moveLeft() {
-    if (!this.canMove) return
+    if (!this.allowUserAction) return
     const moved = this.tetris.moveLeft()
-    if (moved) this.syncState(true)
+    this.processUserAction(moved)
   }
   moveRight() {
-    if (!this.canMove) return
+    if (!this.allowUserAction) return
     const moved = this.tetris.moveRight()
-    if (moved) this.syncState(true)
+    this.processUserAction(moved)
   }
   moveDown() {
-    if (!this.canMove) return
+    if (!this.allowUserAction) return
     const moved = this.tetris.moveDown()
-    if (moved) this.syncState(true)
+    this.processUserAction(moved)
   }
   moveUp() {
-    if (!this.canMove) return
+    if (!this.allowUserAction) return
     const moved = this.tetris.moveUp()
-    if (moved) this.syncState(true)
+    this.processUserAction(moved)
   }
   rotateLeft() {
-    if (!this.canMove) return
+    if (!this.allowUserAction) return
     const moved = this.tetris.rotateLeft()
-    if (moved) this.syncState(true)
+    this.processUserAction(moved)
   }
   rotateRight() {
-    if (!this.canMove) return
+    if (!this.allowUserAction) return
     const moved = this.tetris.rotateRight()
-    if (moved) this.syncState(true)
+    this.processUserAction(moved)
   }
   hardDrop() {
-    if (!this.canMove) return
-    this.action = this.dropAction()
+    if (!this.allowUserAction) return
+    this.nextAnimation(this.dropAnimation())
   }
   
 }
 
 
 
-export type GameActionResult = { changed: boolean, next?: GameAction | undefined }
-export type GameAction = IterableIterator<
+export type GameActionResult = { changed: boolean, next?: GameAnimation | undefined }
+export type GameAnimation = IterableIterator<
   GameActionResult, // Is changed
   GameActionResult, // Is changed & next action
   number // Get current document time
