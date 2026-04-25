@@ -73,6 +73,7 @@ export class Game {
     return !this.isPause() && !action && state !== 'gameOver'
   }
   
+  setTime(time: number) { this.lastActionAt = time }
   elapsed(to: number) { return to - this.lastActionAt }
   advance(time: number) { this.lastActionAt += time }
   tick(delay: number, now: number): boolean {
@@ -175,48 +176,47 @@ export class Game {
     return { changed: !!fallen }
   }
   ;*dropAction(): GameAction {
+    let docTime = getDocTime()
+    this.setTime(docTime)
     let changed = false
-    while (true) {
-      const docTime = yield { changed }
+    do {
       const { dropInterval, scoresForDroppedBlock } = this
       const fallDepth = Math.floor(this.elapsed(docTime) / dropInterval)
       this.advance(fallDepth * dropInterval)
       const fallen = this.tetris.fallBy(fallDepth)
-      changed = !!fallen
       this.addScore(fallen * scoresForDroppedBlock)
+      changed = !!fallen
       if (!this.tetris.canMoveDown()) {
         this.tetris.lockCurrentPiece()
-        return { changed, next: this.clearLinesAction() }
+        return { changed, next: this.clearLinesAction(docTime) }
       }
-    }
+      docTime = yield { changed }; changed = false
+    } while (true)
   }
-  ;*clearLinesAction(): GameAction {
+  ;*clearLinesAction(docTime: number): GameAction {
     const lines = this.tetris.getFullLines()
     if (!lines.length) return { changed: false, next: this.spawnNextPieceAction() }
     let changed = false
-    while (true) {
-      const docTime = yield { changed }
-      changed = false
+    do {
       if (this.tick(this.clearLinesDelay, docTime)) {
         this.tetris.clearLines(lines)
         changed = !!lines.length
         break
       }
-    }
-    while (true) {
-      const docTime = yield { changed }
-      changed = false
+      docTime = yield { changed }; changed = false
+    } while (true)
+    do {
       if (this.tick(this.removeLinesDelay, docTime)) {
         this.tetris.removeLines(lines)
         return { changed: !!lines.length, next: this.spawnNextPieceAction() }
       }
-    }
+      docTime = yield { changed }; changed = false
+    } while (true)
   }
   // eslint-disable-next-line require-yield
   ;*spawnNextPieceAction(): GameAction {
     const spawned = this.tetris.spawnNextPiece()
-    if (!spawned) { this.state = 'gameOver'; return { changed: true } }
-    this.goFall()
+    if (!spawned) this.state = 'gameOver'
     return { changed: true }
   }
   
@@ -255,7 +255,6 @@ export class Game {
   }
   hardDrop() {
     if (!this.canMove) return
-    this.lastActionAt = getDocTime()
     this.action = this.dropAction()
   }
   
