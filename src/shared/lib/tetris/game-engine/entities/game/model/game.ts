@@ -16,10 +16,21 @@ export class Game {
   
   // Config - animations
   entryDelay: ms = 400
+  
   fallIntervalForLvl1: ms = 1000
+  
+  // Delay after first left/right move
+  // DAS - Delay After Shift
+  moveLeftRightDas: ms = 167
+  // Delay after any left/right move after second move
+  // ARR - Auto Repeat Rate
+  moveLeftRightArr: ms = 33
+  
   dropIntervalForLvl1: ms = 10
+  
   lockDelayLvl1: ms = 500
   lockDelayMaxPlayerActions: count = 15
+  
   clearLinesDelay: ms = 200
   removeLinesDelay: ms = 400
   
@@ -83,7 +94,12 @@ export class Game {
   allowActionsDuringAnimation = false
   pausedAt: ms | undefined = 0 // document time ms
   rafPaused = true
+  
+  // TODO
+  playerActions: PlayerActionsQueue = []
   playerActionsCnt: count = 0
+  lastPlayerActionAt: ms = 0
+  
   
   nextAnimation(animation: GameAnimation | undefined) {
     this.allowActionsDuringAnimation = false
@@ -101,8 +117,12 @@ export class Game {
   setTime(time: ms) { this.lastActionAt = time }
   elapsed(to: ms) { return to - this.lastActionAt }
   advance(time: ms) { this.lastActionAt += time }
-  tick(advance: ms, now: ms): boolean {
+  tickFor(advance: ms, now: ms): boolean {
     if (this.lastActionAt + advance <= now) { this.advance(advance); return true }
+    return false
+  }
+  tickTo(to: ms, now: ms): boolean {
+    if (to <= now) { this.setTime(to); return true }
     return false
   }
   
@@ -131,6 +151,7 @@ export class Game {
     this.playerActionsCnt = 0
     let changed = !!dPlayerActionsCnt
     let done = true
+    
     while (this.animation && done) {
       const result = this.animation.next({ time, dPlayerActionsCnt })
       done = !!result.done
@@ -165,6 +186,7 @@ export class Game {
     } while (true)
   }
   
+  // TODO Check it works correctly
   ;*lockDelayAnimation(time: ms): GameAnimation {
     this.allowActionsDuringAnimation = true
     let playerActionsCnt = 0
@@ -172,15 +194,14 @@ export class Game {
     do {
       const { lockDelay, lockDelayMaxPlayerActions } = this
       
-      const fallen = this.tetris.moveDown()
-      if (fallen) {
-        // TODO
-        this.setTime(time)
-        return { changed: true, next: this.fallAnimation(time) }
-      }
+      const anyLastActionAt = Math.max(this.lastActionAt, this.lastPlayerActionAt)
+      this.setTime(anyLastActionAt)
       
-      // TODO
+      const fallen = this.tetris.moveDown()
+      if (fallen) return { changed: true, next: this.fallAnimation(time) }
+      
       const locked = this.elapsed(time) >= lockDelay ||
+        // TODO
         playerActionsCnt >= lockDelayMaxPlayerActions
       if (locked) {
         this.tetris.lockCurrentPiece()
@@ -200,10 +221,18 @@ export class Game {
     } while (true)
   }
   
-  ;*dropAnimation(): GameAnimation {
-    // TODO
-    let time = getDocTime()
-    this.setTime(time)
+  // TODO
+  ;*moveLeftAnimation(time: ms, moveAt: ms): GameAnimation {
+    do {
+      if (this.tickTo(moveAt, time)) {
+        const changed = this.tetris.moveLeft()
+        return { changed }
+      }
+      ;({ time } = yield { changed: false })
+    } while (true)
+  }
+  
+  ;*dropAnimation(time: ms): GameAnimation {
     do {
       const { dropInterval, scoresHardDropPerBlock } = this
       
@@ -225,11 +254,12 @@ export class Game {
   ;*clearLinesAnimation(time: ms): GameAnimation {
     const lines = this.tetris.getFullLines()
     if (!lines.length) return { changed: false, next: this.spawnNextPieceAnimation(time) }
+    
     let changed = false
     do {
       const { clearLinesDelay, linesToLvlUp } = this
       
-      if (this.tick(clearLinesDelay, time)) {
+      if (this.tickFor(clearLinesDelay, time)) {
         this.tetris.clearLines(lines)
         const prevLines = this.lines
         
@@ -245,9 +275,10 @@ export class Game {
       }
       ;({ time } = yield { changed }); changed = false
     } while (true)
+    
     do {
       const { removeLinesDelay } = this
-      if (this.tick(removeLinesDelay, time)) {
+      if (this.tickFor(removeLinesDelay, time)) {
         this.tetris.removeLines(lines)
         return { changed: !!lines.length, next: this.spawnNextPieceAnimation(time) }
       }
@@ -258,7 +289,7 @@ export class Game {
   ;*spawnNextPieceAnimation(time: ms): GameAnimation {
     do {
       const { entryDelay } = this
-      if (this.tick(entryDelay, time)) break
+      if (this.tickFor(entryDelay, time)) break
       ;({ time } = yield { changed: false })
     } while (true)
     
@@ -273,13 +304,16 @@ export class Game {
   
   
   
+  // TODO
   processPlayerAction(moved: boolean) {
     if (moved) {
+      this.lastPlayerActionAt = getDocTime()
       this.playerActionsCnt++
     }
   }
   
   
+  // TODO how to process them?
   // Player actions
   moveLeft() {
     if (!this.allowPlayerAction) return
@@ -299,6 +333,7 @@ export class Game {
   moveUp() {
     if (!this.allowPlayerAction) return
     const moved = this.tetris.moveUp()
+    if (moved) this.animation = this.fallAnimation(getDocTime())
     this.processPlayerAction(moved)
   }
   rotateLeft() {
@@ -313,10 +348,26 @@ export class Game {
   }
   hardDrop() {
     if (!this.allowPlayerAction) return
-    this.nextAnimation(this.dropAnimation())
+    const time = getDocTime()
+    this.setTime(time)
+    this.nextAnimation(this.dropAnimation(time))
   }
   
 }
+
+
+
+export type PlayerActionType =
+  | 'moveLeft'
+  | 'moveRight'
+  | 'moveDown' // 'softDrop'
+  | 'moveUp'
+  | 'rotateLeft'
+  | 'rotateRight'
+  | 'hardDrop'
+
+export type PlayerAction = { type: PlayerActionType, time: ms }
+export type PlayerActionsQueue = PlayerAction[]
 
 
 
