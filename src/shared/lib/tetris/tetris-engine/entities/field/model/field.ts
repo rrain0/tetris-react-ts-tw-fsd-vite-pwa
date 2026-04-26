@@ -9,7 +9,7 @@ import { array } from '@@/utils/array/arrCreate.ts'
 
 
 
-export type FieldBlockType = 'Ghost'
+export type FieldBlockType = 'Next' | 'NextGhost'
 export type FieldBlockPresent = {
   id: Id
   type?: FieldBlockType | undefined
@@ -84,9 +84,13 @@ export class Field {
   
   
   
-  hasAnyBlocksAtOrAbove(fy: number) {
+  get bottomEmpty() {
+    return this.blocks.at(-1)?.every(it => !it) ?? true
+  }
+  
+  hasAnyBlocksAtOrAbove(atOrAboveFy: number) {
     const { fyStart, fy0 } = this
-    for (let fy = fyStart; fy <= 0; fy++) {
+    for (let fy = fyStart; fy <= atOrAboveFy; fy++) {
       const y = fy + fy0
       for (const value of this.blocks[y]) if (value) return true
     }

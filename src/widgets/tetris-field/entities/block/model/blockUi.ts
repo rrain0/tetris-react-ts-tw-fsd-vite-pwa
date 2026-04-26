@@ -15,4 +15,5 @@ export type BlockUiType = BlockUiColor | undefined
 export type BlockUiData = {
   type?: BlockUiType | undefined
   translucent?: boolean | undefined
+  pixeled?: boolean | undefined
 }

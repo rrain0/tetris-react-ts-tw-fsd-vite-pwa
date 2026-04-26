@@ -10,13 +10,18 @@ import type {
 export type BlockProps = Img & BlockUiData
 
 export default function Block(props: BlockProps) {
-  const { type, translucent, ...rest } = props
+  const { type, translucent, pixeled, ...rest } = props
   
   const src = mapBlockUiTypeToSrc(type)
   
   return (
-    <img cn='w-full h-auto square object-center object-cover'
-      st={{ ...translucent && { opacity: 0.35 } }}
+    <img
+      cn={`w-full h-auto square object-center object-cover
+        ${pixeled || translucent ? 'pixeled-filter' : ''}
+      `}
+      st={{
+        ...translucent && { opacity: 0.6 },
+      }}
       src={src}
       {...rest}
     />

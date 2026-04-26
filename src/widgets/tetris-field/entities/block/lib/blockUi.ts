@@ -27,7 +27,8 @@ export function mapPieceTypeToBlockUiData(
     T: { type: 'lightBlue' },
     Z: { type: 'green' },
     
-    Ghost: { translucent: true },
+    Next: { pixeled: true },
+    NextGhost: { pixeled: true, translucent: true },
   }
   
   // @ts-expect-error
