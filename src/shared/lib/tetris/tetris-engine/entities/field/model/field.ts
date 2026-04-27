@@ -31,26 +31,26 @@ export class Field {
   
   private constructor() { }
   static empty(cols: number, rows: number, x0 = 0, y0 = 0) {
-    const f = new Field()
-    f.x0 = x0
-    f.y0 = y0
-    f.blocks = array(rows).map(() => array<FieldBlock>(cols, null))
-    return f
+    const it = new Field()
+    it.x0 = x0
+    it.y0 = y0
+    it.blocks = array(rows).map(() => array<FieldBlock>(cols, null))
+    return it
   }
   static ofBlocks(blocks: FieldBlock[][], x0 = 0, y0 = 0) {
-    const f = new Field()
-    f.x0 = x0
-    f.y0 = y0
-    f.blocks = blocks
-    return f
+    const it = new Field()
+    it.x0 = x0
+    it.y0 = y0
+    it.blocks = blocks
+    return it
   }
   
   copy() {
-    const f = new Field()
-    f.x0 = this.x0
-    f.y0 = this.y0
-    f.blocks = matrixCopy(this.blocks)
-    return f
+    const it = new Field()
+    it.x0 = this.x0
+    it.y0 = this.y0
+    it.blocks = matrixCopy(this.blocks)
+    return it
   }
   
   get rows() { return blocksRows(this.blocks) }

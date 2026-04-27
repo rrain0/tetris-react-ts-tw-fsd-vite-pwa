@@ -2,10 +2,7 @@
 
 
 export class Timer {
-  #time: number
-  
-  get time() { return this.#time }
-  set time(time: number) { this.#time = time }
+  time: number
   
   constructor(time: number) { this.time = time }
   static at(time: number) { return new Timer(time) }

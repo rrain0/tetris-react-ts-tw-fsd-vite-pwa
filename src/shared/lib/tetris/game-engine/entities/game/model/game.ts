@@ -1,3 +1,4 @@
+import { IntervalTimer } from '@@/lib/tetris/game-engine/shared/intervalTimer.ts'
 import { Timer } from '@@/lib/tetris/game-engine/shared/timer.ts'
 import { Tetris } from '@@/lib/tetris/tetris-engine/entities/tetris/model/tetris.ts'
 import { getDocTime } from '@@/utils/dom/getDocTime.ts'
@@ -6,6 +7,9 @@ import { setOf } from '@@/utils/js/factory.ts'
 import { type Cb, isdef } from '@@/utils/ts/ts.ts'
 
 
+
+// TODO Add scores for T-Spins
+// TODO May be add scores for combos
 
 export class Game {
   
@@ -186,19 +190,17 @@ export class Game {
         const result = this.movingLeft.next({ time: t, dPlayerActionsCnt })
         changed ||= result.value.changed
         if (!result.done) break
+        this.movingLeft = undefined
       }
       while (this.movingRight) {
         const result = this.movingRight.next({ time: t, dPlayerActionsCnt })
         changed ||= result.value.changed
         if (!result.done) break
-      }
-      
-      if (type === 'stopMoveLeft') {
-        this.movingLeft = undefined
-      }
-      else if (type === 'stopMoveRight') {
         this.movingRight = undefined
       }
+      
+      if (type === 'stopMoveLeft') this.movingLeft = undefined
+      else if (type === 'stopMoveRight') this.movingRight = undefined
       
       
       if (!action || actionAt >= time) break
@@ -206,7 +208,6 @@ export class Game {
     actions.splice(0, i)
     
     if (changed) this.notifyChange()
-    
     requestAnimationFrame(this.run)
   }
   
@@ -265,79 +266,63 @@ export class Game {
     } while (true)
   }
   
-  ;*moveLeftAnimation(time: ms, moveAt: ms): GameAnimation {
-    const lastActionAt = Timer.at(moveAt)
+  ;*moveLeftAnimation(time: ms, startAt: ms): GameAnimation {
     let changed = false
     
-    const onChange = () => {
-      this.lastPlayerActionAt = lastActionAt.time
-      this.playerActionsCnt++
+    const onChange = (time: number, cnt: count) => {
+      this.lastPlayerActionAt = time
+      this.playerActionsCnt += cnt
+      changed = true
     }
+    
+    const { moveLeftRightDas, moveLeftRightArr } = this
+    const delays = [
+      { interval: 0, cnt: 1 },
+      { interval: moveLeftRightDas, cnt: 1 },
+      { interval: moveLeftRightArr },
+    ]
+    const lastActionAt = IntervalTimer.of(startAt, delays)
     
     do {
       const { allowMove } = this
-      if (time >= moveAt) {
-        if (allowMove) changed = this.tetris.moveLeft()
-        if (changed) onChange()
-        break
-      }
-      ;({ time } = yield { changed }); changed = false
-    } while (true)
-    
-    do {
-      const { allowMove, moveLeftRightDas } = this
-      if (lastActionAt.tickBy(moveLeftRightDas, time)) {
-        if (allowMove) changed = this.tetris.moveLeft()
-        if (changed) onChange()
-        break
-      }
-      ;({ time } = yield { changed }); changed = false
-    } while (true)
-    
-    do {
-      const { allowMove, moveLeftRightArr } = this
-      if (lastActionAt.tickBy(moveLeftRightArr, time)) {
-        if (allowMove) changed = this.tetris.moveLeft()
-        if (changed) onChange()
+      if (allowMove) {
+        const { time: currTime, advanceCnt } = lastActionAt.advanceTo(time)
+        if (advanceCnt) {
+          // TODO field method to move at once
+          for (let i = 0; i < advanceCnt; i++) this.tetris.moveLeft()
+          onChange(currTime, advanceCnt)
+        }
       }
       ;({ time } = yield { changed }); changed = false
     } while (true)
   }
   
-  ;*moveRightAnimation(time: ms, moveAt: ms): GameAnimation {
-    const lastActionAt = Timer.at(moveAt)
+  ;*moveRightAnimation(time: ms, startAt: ms): GameAnimation {
     let changed = false
     
-    const onChange = () => {
-      this.lastPlayerActionAt = lastActionAt.time
-      this.playerActionsCnt++
+    const onChange = (time: number, cnt: count) => {
+      this.lastPlayerActionAt = time
+      this.playerActionsCnt += cnt
+      changed = true
     }
+    
+    const { moveLeftRightDas, moveLeftRightArr } = this
+    const delays = [
+      { interval: 0, cnt: 1 },
+      { interval: moveLeftRightDas, cnt: 1 },
+      { interval: moveLeftRightArr },
+    ]
+    const lastActionAt = IntervalTimer.of(startAt, delays)
     
     do {
       const { allowMove } = this
-      if (time >= moveAt) {
-        if (allowMove) changed = this.tetris.moveRight()
-        if (changed) onChange()
-        break
-      }
-      ;({ time } = yield { changed }); changed = false
-    } while (true)
-    
-    do {
-      const { allowMove, moveLeftRightDas } = this
-      if (lastActionAt.tickBy(moveLeftRightDas, time)) {
-        if (allowMove) changed = this.tetris.moveRight()
-        if (changed) onChange()
-        break
-      }
-      ;({ time } = yield { changed }); changed = false
-    } while (true)
-    
-    do {
-      const { allowMove, moveLeftRightArr } = this
-      if (lastActionAt.tickBy(moveLeftRightArr, time)) {
-        if (allowMove) changed = this.tetris.moveRight()
-        if (changed) onChange()
+      if (allowMove) {
+        const { time: currTime, advanceCnt } = lastActionAt.advanceTo(time)
+        if (advanceCnt) {
+          // TODO field method to move at once
+          for (let i = 0; i < advanceCnt; i++) this.tetris.moveRight()
+          onChange(currTime, advanceCnt)
+        }
       }
       ;({ time } = yield { changed }); changed = false
     } while (true)

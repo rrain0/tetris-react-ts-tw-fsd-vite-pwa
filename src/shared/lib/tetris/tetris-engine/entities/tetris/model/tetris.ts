@@ -15,11 +15,11 @@ export class Tetris {
   
   
   copy() {
-    const t = new Tetris()
-    t.field = this.field.copy()
-    t.current = this.current
-    t.next = this.next
-    return t
+    const it = new Tetris()
+    it.field = this.field.copy()
+    it.current = this.current
+    it.next = this.next
+    return it
   }
   
   
