@@ -6,7 +6,7 @@ import {
 import { mathRotate, moveXy } from '@@/lib/tetris/tetris-engine/shared/utils/piece.ts'
 import type { Id } from '@@/utils/app/id.ts'
 import type { XydxdyOpt } from '@@/utils/math/rect.ts'
-import type { Opt, PartOpt } from '@@/utils/ts/ts.ts'
+import type { Opt, OptKeys } from '@@/utils/ts/ts.ts'
 
 
 
@@ -111,7 +111,7 @@ export interface PieceData {
   rotI: number
 }
 export type PieceDataOpt = Opt<PieceData>
-export type PieceDataCtor = PartOpt<PieceData, 'rotI'>
+export type PieceDataCtor = OptKeys<PieceData, 'rotI'>
 
 
 

@@ -263,7 +263,7 @@ function useAppActions(game: Game) {
       game.rotateRight()
     }
     if (isKeyboardKeyAction(inputLayout, 'ingame', 'hardDrop', ev.code)) {
-      game.hardDrop()
+      game.startHardDrop()
     }
   })
   
@@ -308,7 +308,7 @@ function useAppActions(game: Game) {
       game.rotateRight()
     }
     if (isGamepadKeyAction(inputLayout, 'ingame', 'hardDrop', ev.signalId)) {
-      game.hardDrop()
+      game.startHardDrop()
     }
   })
   

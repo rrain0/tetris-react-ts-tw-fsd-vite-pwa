@@ -27,28 +27,31 @@ export type DefinedVal<T> = Exclude<T, undefined>
 
 // ℹ️ Object modifiers
 
-// Add Partial + Undefined to every object prop
+// +partial +undefined
 export type Opt<O extends object> = {
   [Prop in keyof O]+?: O[Prop] | undefined
 }
-export type PartOpt<O extends object, PK extends keyof O> =
-  & { [Prop in Exclude<keyof O, PK>]: O[Prop] }
-  & { [Prop in PK]+?: O[Prop] | undefined }
-// Remove Partial + Undefined
+// -partial -undefined
 export type Defined<O extends object> = {
   [Prop in keyof O]-?: DefinedVal<O[Prop]>
 }
-// Add ReadOnly
+// +partial -undefined
+export type PartDefined<O extends object> = {
+  [Prop in keyof O]+?: DefinedVal<O[Prop]>
+}
+// +readonly
 export type Ro<O extends object> = {
   +readonly [Prop in keyof O]: O[Prop]
 }
-// Add Partial + Undefined + ReadOnly
+// +readonly +partial +undefined
 export type OptRo<O extends object> = {
   +readonly [Prop in keyof O]+?: O[Prop] | undefined
 }
-export type WriteablePartial<O extends object> = {
+// -readonly +partial
+export type WriteablePart<O extends object> = {
   -readonly [Prop in keyof O]+?: O[Prop]
 }
+
 // Make props in O optional if they appear in Defaults
 export type PartialDefaults<O extends object = object, Defaults extends Partial<O> = Partial<O>> =
   & Omit<O, keyof Defaults>
@@ -57,26 +60,31 @@ export type PartialDefaults<O extends object = object, Defaults extends Partial<
 export type AllOrNone<O extends object> = O | {
   [Prop in keyof O]?: undefined
 }
+// for provided keys +partial +undefined
+export type OptKeys<O extends object, OptK extends keyof O> =
+  & { [Prop in Exclude<keyof O, OptK>]: O[Prop] }
+  & { [Prop in OptK]+?: O[Prop] | undefined }
 
 
 
 
 // ℹ️ Records
 
+// +partial
 export type RecordPart<K extends keyof any, T> = {
   [P in K]+?: T
 }
+// +undefined
+export type RecordUndef<K extends keyof any, T> = {
+  [P in K]: T | undefined
+}
+// +partial +undefined
 export type RecordOpt<K extends keyof any, T> = {
   [P in K]+?: T | undefined
 }
+// +readonly
 export type RecordRo<K extends keyof any, T> = {
   +readonly [P in K]: T
-}
-export type RecordPu<K extends keyof any, T> = {
-  [P in K]+?: T | undefined
-}
-export type RecordPuro<K extends keyof any, T> = {
-  +readonly [P in K]+?: T | undefined
 }
 
 

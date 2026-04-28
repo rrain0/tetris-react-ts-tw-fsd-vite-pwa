@@ -3,7 +3,7 @@ import { Tetris } from '@@/lib/tetris/tetris-engine/entities/tetris/model/tetris
 import { getDocTime } from '@@/utils/dom/getDocTime.ts'
 import { type Comparator, compareNumbers } from '@@/utils/js/compare.ts'
 import { setOf } from '@@/utils/js/factory.ts'
-import { type Cb, isdef } from '@@/utils/ts/ts.ts'
+import { type Cb, isdef, type PartDefined, type RecordUndef } from '@@/utils/ts/ts.ts'
 
 
 
@@ -51,6 +51,7 @@ export class Game {
   
   
   // Config - scores
+  scoresSoftDropPerBlock: count = 1
   scoresHardDropPerBlock: count = 2
   scoresClear1LineLvl1: count = 100
   scoresClear2LinesLvl1: count = 300
@@ -106,7 +107,7 @@ export class Game {
   animating: GameAnimation | undefined
   lastActionAt: ms = 0
   
-  animations: Animations = {
+  animations: GameAnimations = {
     spawnNextPiece: undefined,
     clearLines: undefined,
     hardDrop: undefined,
@@ -121,9 +122,6 @@ export class Game {
     moveRight: undefined,
   }
   
-  forbidPlayerMove = false
-  allowMove = false
-  isSoftDrop = false
   
   // TODO
   softDropping: GameAnimation | undefined
@@ -138,18 +136,10 @@ export class Game {
   lastPlayerActionAt: ms = 0
   
   
-  nextAnimation(animation: GameAnimation | undefined) {
-    this.allowMove = false
-    this.animating = animation
-  }
   isPause(): this is { get pausedAt(): ms; set pausedAt(pausedAt: ms | undefined) } {
     return isdef(this.pausedAt)
   }
   get isPlaying() { return !this.isPause() && !this.gameOver }
-  
-  get allowPlayerAction() {
-    return !this.isPause() && this.allowMove && !this.gameOver
-  }
   
   setTime(time: ms) { this.lastActionAt = time }
   elapsed(to: ms) { return to - this.lastActionAt }
@@ -189,60 +179,60 @@ export class Game {
     this.playerActionsCnt = 0
     
     let changed = !!dPlayerActionsCnt
-    let i = 0
-    for (; i <= actions.length; i++) {
+    let i = 0, isLastIteration = false
+    for (; i <= actions.length && !isLastIteration; i++) {
       const action = actions[i]
       const { type, actionAt = time } = action ?? { }
+      isLastIteration = !action || actionAt >= time
       const t = Math.min(time, actionAt)
+      
+      
+      const anims = this.animations
+      
+      
+      const isExclusive = anims.hardDrop || anims.clearLines || anims.spawnNextPiece
+      const canFall = !isExclusive && !anims.lockDelay && !anims.softDrop
+      const canPlayerMove = !isExclusive
+      
+      const animParams = { time: t, dPlayerActionsCnt, canPlayerMove }
+      
+      if (canFall) anims.fall ??= fallAnimation(this, animParams)
+      else anims.fall = undefined
       
       
       
       if (type === 'startMoveLeft') {
-        if (!this.movingLeft) this.movingLeft = moveLeftAnimation(this, actionAt)
+        anims.moveLeft ??= moveLeftAnimation(this, animParams)
       }
       else if (type === 'stopMoveLeft') {
-        this.movingLeft = undefined
+        anims.moveLeft = undefined
       }
       else if (type === 'startMoveRight') {
-        if (!this.movingRight) this.movingRight = moveRightAnimation(this, actionAt)
+        anims.moveRight ??= moveRightAnimation(this, animParams)
       }
       else if (type === 'stopMoveRight') {
-        this.movingRight = undefined
+        anims.moveRight = undefined
       }
       else if (type === 'startSoftDrop') {
-        this.softDropping = softDropAnimation(this, actionAt)
+        anims.softDrop ??= softDropAnimation(this, animParams)
       }
       else if (type === 'stopSoftDrop') {
-        this.softDropping = undefined
+        anims.softDrop = undefined
       }
-      
-      
-      if (!this.animating) this.nextAnimation(fallAnimation(this, t))
-      while (this.animating) {
-        const result = this.animating.next({ time: t, dPlayerActionsCnt })
-        changed ||= result.value.changed
-        if (!result.done) break
-        this.nextAnimation(result.value.next)
-      }
-      
-      while (this.movingLeft) {
-        const result = this.movingLeft.next({ time: t, dPlayerActionsCnt })
-        changed ||= result.value.changed
-        if (!result.done) break
-        this.movingLeft = undefined
-      }
-      while (this.movingRight) {
-        const result = this.movingRight.next({ time: t, dPlayerActionsCnt })
-        changed ||= result.value.changed
-        if (!result.done) break
-        this.movingRight = undefined
+      else if (type === 'startHardDrop') {
+        anims.hardDrop ??= hardDropAnimation(this, animParams)
       }
       
       
       
-      
-      
-      if (!action || actionAt >= time) break
+      for (const name of animationNamesOrdered) {
+        while (anims[name]) {
+          const result = anims[name].next(animParams)
+          changed ||= result.value.changed
+          if (!result.done) break; else anims[name] = undefined
+          Object.assign(anims, result.value.next)
+        }
+      }
     }
     actions.splice(0, i)
     
@@ -273,48 +263,45 @@ export class Game {
   stopSoftDrop() {
     this.playerActions.push({ type: 'stopSoftDrop', actionAt: getDocTime() })
   }
+  startHardDrop() {
+    this.playerActions.push({ type: 'startHardDrop', actionAt: getDocTime() })
+  }
   
   
   
   // TODO how to process them?
   // Player actions
   // TODO
-  processPlayerAction(moved: boolean) {
-    if (moved) {
-      this.lastPlayerActionAt = getDocTime()
-      this.playerActionsCnt++
-    }
-  }
-  moveUp() {
-    if (!this.allowPlayerAction) return
-    const moved = this.tetris.moveUp()
-    if (moved) this.animating = fallAnimation(this, getDocTime())
-    this.processPlayerAction(moved)
-  }
-  rotateLeft() {
-    if (!this.allowPlayerAction) return
-    const moved = this.tetris.rotateLeft()
-    this.processPlayerAction(moved)
-  }
-  rotateRight() {
-    if (!this.allowPlayerAction) return
-    const moved = this.tetris.rotateRight()
-    this.processPlayerAction(moved)
-  }
-  hardDrop() {
-    if (!this.allowPlayerAction) return
-    const time = getDocTime()
-    this.setTime(time)
-    this.nextAnimation(hardDropAnimation(this, time))
-  }
+  // processPlayerAction(moved: boolean) {
+  //   if (moved) {
+  //     this.lastPlayerActionAt = getDocTime()
+  //     this.playerActionsCnt++
+  //   }
+  // }
+  // moveUp() {
+  //   if (!this.allowPlayerAction) return
+  //   const moved = this.tetris.moveUp()
+  //   if (moved) this.animating = fallAnimation(this, getDocTime())
+  //   this.processPlayerAction(moved)
+  // }
+  // rotateLeft() {
+  //   if (!this.allowPlayerAction) return
+  //   const moved = this.tetris.rotateLeft()
+  //   this.processPlayerAction(moved)
+  // }
+  // rotateRight() {
+  //   if (!this.allowPlayerAction) return
+  //   const moved = this.tetris.rotateRight()
+  //   this.processPlayerAction(moved)
+  // }
   
 }
 
 
 
 // Animations
-function *fallAnimation(game: Game, time: ms): GameAnimation {
-  game.allowMove = true
+function *fallAnimation(game: Game, params: GameAnimationParams): GameAnimation {
+  let { time } = params
   const { fallInterval } = game
   const multisteps = [{ step: fallInterval }]
   const lastActionAt = StepTimer.of(time, multisteps)
@@ -338,15 +325,19 @@ function *fallAnimation(game: Game, time: ms): GameAnimation {
     }
     
     const canFall = game.tetris.canMoveDown()
-    if (!canFall) return { changed, next: lockDelayAnimation(game, time) }
+    if (!canFall) return {
+      changed,
+      next: { lockDelay: lockDelayAnimation(game, params) },
+    }
     
-    ;({ time } = yield { changed })
+    params = yield { changed }; ({ time } = params)
+    changed = false
   } while (true)
 }
 
-function *softDropAnimation(game: Game, time: ms): GameAnimation {
-  game.allowMove = true
-  const { softDropInterval } = game
+function *softDropAnimation(game: Game, params: GameAnimationParams): GameAnimation {
+  let { time } = params
+  const { softDropInterval, scoresSoftDropPerBlock } = game
   const multisteps = [{ step: 0, cnt: 1 }, { step: softDropInterval }]
   const lastActionAt = StepTimer.of(time, multisteps)
   
@@ -363,21 +354,26 @@ function *softDropAnimation(game: Game, time: ms): GameAnimation {
     if (dCnt) {
       const realDCnt = game.tetris.fallBy(dCnt)
       if (realDCnt) {
+        game.addScore(realDCnt * scoresSoftDropPerBlock)
         const { time: t, dCnt } = prevLastActionAt.forwardByCnt(realDCnt)
         onChange(t)
       }
     }
     
     const canFall = game.tetris.canMoveDown()
-    if (!canFall) return { changed, next: lockDelayAnimation(game, time) }
+    if (!canFall) return {
+      changed,
+      next: { lockDelay: lockDelayAnimation(game, params) },
+    }
     
-    ;({ time } = yield { changed })
+    params = yield { changed }; ({ time } = params)
+    changed = false
   } while (true)
 }
 
 // TODO Check it works correctly
-function *lockDelayAnimation(game: Game, time: ms): GameAnimation {
-  game.allowMove = true
+function *lockDelayAnimation(game: Game, params: GameAnimationParams): GameAnimation {
+  let { time } = params
   let playerActionsCnt = 0
   let dPlayerActionsCnt = 0
   do {
@@ -387,7 +383,10 @@ function *lockDelayAnimation(game: Game, time: ms): GameAnimation {
     game.setTime(anyLastActionAt)
     
     const fallen = game.tetris.moveDown()
-    if (fallen) return { changed: true, next: fallAnimation(game, time) }
+    if (fallen) return {
+      changed: true,
+      next: { fall: fallAnimation(game, { ...params, time }) },
+    }
     
     const locked = game.elapsed(time) >= lockDelay ||
       // TODO
@@ -395,7 +394,10 @@ function *lockDelayAnimation(game: Game, time: ms): GameAnimation {
     if (locked) {
       game.tetris.lockCurrentPiece()
       game.advance(lockDelay)
-      return { changed: false, next: clearLinesAnimation(game, time) }
+      return {
+        changed: false,
+        next: { clearLines: clearLinesAnimation(game, { ...params, time }) },
+      }
     }
     
     // TODO
@@ -405,12 +407,13 @@ function *lockDelayAnimation(game: Game, time: ms): GameAnimation {
       game.setTime(time)
     }
     
-    ;({ time, dPlayerActionsCnt } = yield { changed: false })
+    params = yield { changed: false }; ({ time } = params)
     playerActionsCnt += dPlayerActionsCnt
   } while (true)
 }
 
-function *moveLeftAnimation(game: Game, time: ms): GameAnimation {
+function *moveLeftAnimation(game: Game, params: GameAnimationParams): GameAnimation {
+  let { time, canPlayerMove } = params
   const { moveLeftRightDas, moveLeftRightArr } = game
   const multisteps = [
     { step: 0, cnt: 1 },
@@ -429,8 +432,7 @@ function *moveLeftAnimation(game: Game, time: ms): GameAnimation {
   
   
   do {
-    const { allowMove } = game
-    if (allowMove) {
+    if (canPlayerMove) {
       const prevLastActionAt = lastActionAt.copy()
       const { time: t, dCnt } = lastActionAt.forwardTo(time)
       if (dCnt) {
@@ -445,11 +447,13 @@ function *moveLeftAnimation(game: Game, time: ms): GameAnimation {
         }
       }
     }
-    ;({ time } = yield { changed }); changed = false
+    params = yield { changed }; ({ time, canPlayerMove } = params)
+    changed = false
   } while (true)
 }
 
-function *moveRightAnimation(game: Game, time: ms): GameAnimation {
+function *moveRightAnimation(game: Game, params: GameAnimationParams): GameAnimation {
+  let { time, canPlayerMove } = params
   const { moveLeftRightDas, moveLeftRightArr } = game
   const multisteps = [
     { step: 0, cnt: 1 },
@@ -467,8 +471,7 @@ function *moveRightAnimation(game: Game, time: ms): GameAnimation {
   }
   
   do {
-    const { allowMove } = game
-    if (allowMove) {
+    if (canPlayerMove) {
       const prevLastActionAt = lastActionAt.copy()
       const { time: t, dCnt } = lastActionAt.forwardTo(time)
       if (dCnt) {
@@ -483,32 +486,57 @@ function *moveRightAnimation(game: Game, time: ms): GameAnimation {
         }
       }
     }
-    ;({ time } = yield { changed }); changed = false
+    params = yield { changed }; ({ time, canPlayerMove } = params)
+    changed = false
   } while (true)
 }
 
-function *hardDropAnimation(game: Game, time: ms): GameAnimation {
+function *hardDropAnimation(game: Game, params: GameAnimationParams): GameAnimation {
+  let { time } = params
+  const { dropInterval, scoresHardDropPerBlock } = game
+  const multisteps = [{ step: 0, cnt: 1 }, { step: dropInterval }]
+  const lastActionAt = StepTimer.of(time, multisteps)
+  
+  let changed = false
+  
+  const onChange = (time: number) => {
+    game.lastActionAt = time
+    changed = true
+  }
+  
   do {
-    const { dropInterval, scoresHardDropPerBlock } = game
-    
-    const fallDepth = Math.floor(game.elapsed(time) / dropInterval)
-    game.advance(fallDepth * dropInterval)
-    
-    const fallen = game.tetris.fallBy(fallDepth)
-    game.addScore(fallen * scoresHardDropPerBlock)
-    const changed = !!fallen
-    
-    if (!game.tetris.canMoveDown()) {
-      game.tetris.lockCurrentPiece()
-      return { changed, next: clearLinesAnimation(game, time) }
+    const prevLastActionAt = lastActionAt.copy()
+    const { time: t, dCnt } = lastActionAt.forwardTo(time)
+    if (dCnt) {
+      const realDCnt = game.tetris.fallBy(dCnt)
+      if (realDCnt) {
+        game.addScore(realDCnt * scoresHardDropPerBlock)
+        const { time: t, dCnt } = prevLastActionAt.forwardByCnt(realDCnt)
+        onChange(t)
+      }
     }
-    ;({ time } = yield { changed })
+    
+    const canFall = game.tetris.canMoveDown()
+    if (!canFall) {
+      game.tetris.lockCurrentPiece()
+      return {
+        changed,
+        next: { clearLines: clearLinesAnimation(game, params) },
+      }
+    }
+    
+    params = yield { changed }; ({ time } = params)
+    changed = false
   } while (true)
 }
 
-function *clearLinesAnimation(game: Game, time: ms): GameAnimation {
+function *clearLinesAnimation(game: Game, params: GameAnimationParams): GameAnimation {
+  let { time } = params
   const lines = game.tetris.getFullLines()
-  if (!lines.length) return { changed: false, next: spawnNextPieceAnimation(game, time) }
+  if (!lines.length) return {
+    changed: false,
+    next: { spawnNextPiece: spawnNextPieceAnimation(game, params) },
+  }
   
   let changed = false
   do {
@@ -528,24 +556,30 @@ function *clearLinesAnimation(game: Game, time: ms): GameAnimation {
       changed = !!lines.length
       break
     }
-    ;({ time } = yield { changed }); changed = false
+    params = yield { changed }; ({ time } = params)
+    changed = false
   } while (true)
   
   do {
     const { removeLinesDelay } = game
     if (game.tickFor(removeLinesDelay, time)) {
       game.tetris.removeLines(lines)
-      return { changed: !!lines.length, next: spawnNextPieceAnimation(game, time) }
+      return {
+        changed: !!lines.length,
+        next: { spawnNextPiece: spawnNextPieceAnimation(game, params) },
+      }
     }
-    ;({ time } = yield { changed }); changed = false
+    params = yield { changed }; ({ time } = params)
+    changed = false
   } while (true)
 }
 
-function *spawnNextPieceAnimation(game: Game, time: ms): GameAnimation {
+function *spawnNextPieceAnimation(game: Game, params: GameAnimationParams): GameAnimation {
+  let { time } = params
   do {
     const { entryDelay } = game
     if (game.tickFor(entryDelay, time)) break
-    ;({ time } = yield { changed: false })
+    params = yield { changed: false }; ({ time } = params)
   } while (true)
   
   const spawned = game.tetris.spawnNextPiece()
@@ -554,7 +588,10 @@ function *spawnNextPieceAnimation(game: Game, time: ms): GameAnimation {
     return { changed: false }
   }
   
-  return { changed: true, next: fallAnimation(game, time) }
+  return {
+    changed: true,
+    next: { fall: fallAnimation(game, params) },
+  }
 }
 
 
@@ -567,11 +604,11 @@ export type PlayerActionType =
   | 'stopMoveRight'
   | 'startSoftDrop'
   | 'stopSoftDrop'
+  | 'startHardDrop'
   
   | 'moveUp'
   | 'rotateLeft'
   | 'rotateRight'
-  | 'hardDrop'
 
 export type PlayerAction = { type: PlayerActionType, actionAt: ms }
 export type PlayerActionsQueue = PlayerAction[]
@@ -584,13 +621,14 @@ const playerActionsComparator: Comparator<PlayerAction> = (a, b) => {
 export type GameAnimationParams = {
   time: ms
   dPlayerActionsCnt: count
+  canPlayerMove: boolean
 }
 export type GameAnimationNext = {
   changed: boolean // Is game state changed
 }
 export type GameAnimationResult = {
   changed: boolean // Is game state changed
-  next?: GameAnimation | undefined // Next animation to run
+  next?: PartDefined<GameAnimations> | undefined // Next animations to run
 }
 export type GameAnimation = IteratorObject<
   GameAnimationNext, // yield <value>
@@ -600,17 +638,22 @@ export type GameAnimation = IteratorObject<
 
 
 
-export type Animations = {
-  spawnNextPiece: GameAnimation | undefined
-  clearLines: GameAnimation | undefined
-  hardDrop: GameAnimation | undefined
+const animationNamesOrdered = [
+  'spawnNextPiece',
+  'clearLines',
   
-  lockDelay: GameAnimation | undefined
+  'hardDrop',
   
-  softDrop: GameAnimation | undefined
+  'lockDelay',
   
-  fall: GameAnimation | undefined
+  'softDrop',
   
-  moveLeft: GameAnimation | undefined
-  moveRight: GameAnimation | undefined
-}
+  'fall',
+  
+  'moveLeft',
+  'moveRight',
+] as const
+
+export type GameAnimationNames = typeof animationNamesOrdered[number]
+
+export type GameAnimations = RecordUndef<GameAnimationNames, GameAnimation>

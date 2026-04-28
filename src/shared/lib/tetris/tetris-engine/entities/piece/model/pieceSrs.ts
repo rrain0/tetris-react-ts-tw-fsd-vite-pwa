@@ -5,7 +5,7 @@ import {
 } from '@@/lib/tetris/tetris-engine/entities/piece/model/piece.ts'
 import { mathRotate, moveXy } from '@@/lib/tetris/tetris-engine/shared/utils/piece.ts'
 import type { Xy, XydxdyOpt } from '@@/utils/math/rect.ts'
-import type { Opt, PartOpt } from '@@/utils/ts/ts.ts'
+import type { Opt, OptKeys } from '@@/utils/ts/ts.ts'
 
 
 
@@ -64,7 +64,7 @@ export interface PieceSrsData extends PieceData {
   offsets: OffsetsSrs
 }
 export type PieceSrsDataOpt = Opt<PieceSrsData>
-export type PieceSrsDataCtor = PartOpt<PieceSrsData, 'rotI'>
+export type PieceSrsDataCtor = OptKeys<PieceSrsData, 'rotI'>
 
 
 
