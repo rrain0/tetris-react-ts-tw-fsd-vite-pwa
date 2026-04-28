@@ -12,8 +12,6 @@ import { type Cb, isdef, type PartDefined, type RecordUndef } from '@@/utils/ts/
 // TODO Tweak levels count
 // TODO Tweak dependence of fallInterval, dropInterval, lockDelay on curr level
 
-// TODO If raf doesn't run but somehow softDrop was started then ended, then run raf ???
-
 export class Game {
   
   // Config - gameplay
@@ -31,10 +29,10 @@ export class Game {
   
   // Delay after first left/right move
   // DAS - Delay After Shift
-  moveLeftRightDas: ms = 167
+  moveDas: ms = 167
   // Delay after any left/right move after second move
   // ARR - Auto Repeat Rate
-  moveLeftRightArr: ms = 33
+  moveArr: ms = 33
   
   dropIntervalForLvl1: ms = 10
   
@@ -114,6 +112,7 @@ export class Game {
     
     lockDelay: undefined,
     
+    moveUp: undefined,
     softDrop: undefined,
     
     fall: undefined,
@@ -191,7 +190,7 @@ export class Game {
       
       
       const isExclusive = anims.hardDrop || anims.clearLines || anims.spawnNextPiece
-      const canFall = !isExclusive && !anims.lockDelay && !anims.softDrop
+      const canFall = !isExclusive && !anims.lockDelay && !anims.softDrop && !anims.moveUp
       const canPlayerMove = !isExclusive
       
       const animParams = { time: t, dPlayerActionsCnt, canPlayerMove }
@@ -218,6 +217,12 @@ export class Game {
       }
       else if (type === 'stopSoftDrop') {
         anims.softDrop = undefined
+      }
+      else if (type === 'startMoveUp') {
+        anims.moveUp ??= moveUpAnimation(this, animParams)
+      }
+      else if (type === 'stopMoveUp') {
+        anims.moveUp = undefined
       }
       else if (type === 'startHardDrop') {
         anims.hardDrop ??= hardDropAnimation(this, animParams)
@@ -256,6 +261,12 @@ export class Game {
   }
   stopMoveRight() {
     this.playerActions.push({ type: 'stopMoveRight', actionAt: getDocTime() })
+  }
+  startMoveUp() {
+    this.playerActions.push({ type: 'startMoveUp', actionAt: getDocTime() })
+  }
+  stopMoveUp() {
+    this.playerActions.push({ type: 'stopMoveUp', actionAt: getDocTime() })
   }
   startSoftDrop() {
     this.playerActions.push({ type: 'startSoftDrop', actionAt: getDocTime() })
@@ -331,6 +342,51 @@ function *fallAnimation(game: Game, params: GameAnimationParams): GameAnimation 
     }
     
     params = yield { changed }; ({ time } = params)
+    changed = false
+  } while (true)
+}
+
+function *moveUpAnimation(game: Game, params: GameAnimationParams): GameAnimation {
+  let { time, canPlayerMove } = params
+  const { moveDas, moveArr } = game
+  const multisteps = [
+    { step: 0, cnt: 1 },
+    { step: moveDas, cnt: 1 },
+    { step: moveArr },
+  ]
+  const lastActionAt = StepTimer.of(time, multisteps)
+  
+  let changed = false
+  
+  const onChange = (time: number, cnt: count) => {
+    game.lastPlayerActionAt = time
+    game.playerActionsCnt += cnt
+    changed = true
+  }
+  
+  do {
+    if (canPlayerMove) {
+      const prevLastActionAt = lastActionAt.copy()
+      const { time: t, dCnt } = lastActionAt.forwardTo(time)
+      if (dCnt) {
+        let realDCnt = 0
+        for (; realDCnt < dCnt; realDCnt++) {
+          // TODO make field method to move by count at once
+          if (!game.tetris.moveUp()) break
+        }
+        if (realDCnt) {
+          const { time: t, dCnt } = prevLastActionAt.forwardByCnt(realDCnt)
+          onChange(t, dCnt)
+        }
+      }
+      
+      const canFall = game.tetris.canMoveDown()
+      if (!canFall) return {
+        changed,
+        next: { lockDelay: lockDelayAnimation(game, params) },
+      }
+    }
+    params = yield { changed }; ({ time, canPlayerMove } = params)
     changed = false
   } while (true)
 }
@@ -414,11 +470,11 @@ function *lockDelayAnimation(game: Game, params: GameAnimationParams): GameAnima
 
 function *moveLeftAnimation(game: Game, params: GameAnimationParams): GameAnimation {
   let { time, canPlayerMove } = params
-  const { moveLeftRightDas, moveLeftRightArr } = game
+  const { moveDas, moveArr } = game
   const multisteps = [
     { step: 0, cnt: 1 },
-    { step: moveLeftRightDas, cnt: 1 },
-    { step: moveLeftRightArr },
+    { step: moveDas, cnt: 1 },
+    { step: moveArr },
   ]
   const lastActionAt = StepTimer.of(time, multisteps)
   
@@ -430,7 +486,6 @@ function *moveLeftAnimation(game: Game, params: GameAnimationParams): GameAnimat
     changed = true
   }
   
-  
   do {
     if (canPlayerMove) {
       const prevLastActionAt = lastActionAt.copy()
@@ -438,7 +493,7 @@ function *moveLeftAnimation(game: Game, params: GameAnimationParams): GameAnimat
       if (dCnt) {
         let realDCnt = 0
         for (; realDCnt < dCnt; realDCnt++) {
-          // TODO make field method to move at once
+          // TODO make field method to move by count at once
           if (!game.tetris.moveLeft()) break
         }
         if (realDCnt) {
@@ -454,11 +509,11 @@ function *moveLeftAnimation(game: Game, params: GameAnimationParams): GameAnimat
 
 function *moveRightAnimation(game: Game, params: GameAnimationParams): GameAnimation {
   let { time, canPlayerMove } = params
-  const { moveLeftRightDas, moveLeftRightArr } = game
+  const { moveDas, moveArr } = game
   const multisteps = [
     { step: 0, cnt: 1 },
-    { step: moveLeftRightDas, cnt: 1 },
-    { step: moveLeftRightArr },
+    { step: moveDas, cnt: 1 },
+    { step: moveArr },
   ]
   const lastActionAt = StepTimer.of(time, multisteps)
   
@@ -477,7 +532,7 @@ function *moveRightAnimation(game: Game, params: GameAnimationParams): GameAnima
       if (dCnt) {
         let realDCnt = 0
         for (; realDCnt < dCnt; realDCnt++) {
-          // TODO make field method to move at once
+          // TODO make field method to move by count at once
           if (!game.tetris.moveRight()) break
         }
         if (realDCnt) {
@@ -598,12 +653,10 @@ function *spawnNextPieceAnimation(game: Game, params: GameAnimationParams): Game
 
 
 export type PlayerActionType =
-  | 'startMoveLeft'
-  | 'stopMoveLeft'
-  | 'startMoveRight'
-  | 'stopMoveRight'
-  | 'startSoftDrop'
-  | 'stopSoftDrop'
+  | 'startMoveLeft' | 'stopMoveLeft'
+  | 'startMoveRight' | 'stopMoveRight'
+  | 'startMoveUp' | 'stopMoveUp'
+  | 'startSoftDrop' | 'stopSoftDrop'
   | 'startHardDrop'
   
   | 'moveUp'
@@ -647,6 +700,7 @@ const animationNamesOrdered = [
   'lockDelay',
   
   'softDrop',
+  'moveUp',
   
   'fall',
   

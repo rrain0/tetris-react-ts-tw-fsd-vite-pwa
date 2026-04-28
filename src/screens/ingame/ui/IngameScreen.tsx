@@ -104,10 +104,7 @@ export default function IngameScreen() {
   
   const refToFocus = useFocusWithinElem()
   
-  const {
-    onKeyboardKeyStartEnd, onKeyboardKeyHold, onKeyboardKeyDownClick,
-    onGamepadKeyStartEnd,
-  } = useAppActions(game)
+  const appActionsEvHandlers = useAppActions(game)
   
   const [lockSelection, unlockSelection] = useLockSelection()
   
@@ -168,11 +165,7 @@ export default function IngameScreen() {
         st={{ backgroundImage: `url(${bg})` }}
         ref={refToFocus}
         tabIndex={-1}
-        {...propsOf(
-          onKeyboardKeyStartEnd, onKeyboardKeyHold, onKeyboardKeyDownClick,
-          onGamepadKeyStartEnd,
-          onPointer(),
-        )}
+        {...propsOf(...appActionsEvHandlers, onPointer())}
       >
         <div cn='sz-full stack center2 container-size' ref={refFun}>
           <ScreenLayout layout={layout} {...ingameData}/>
@@ -232,6 +225,9 @@ function useAppActions(game: Game) {
       if (isKeyboardKeyAction(inputLayout, 'ingame', 'moveRight', ev.key)) {
         game.startMoveRight()
       }
+      if (isKeyboardKeyAction(inputLayout, 'ingame', 'moveUp', ev.key)) {
+        game.startMoveUp()
+      }
       if (isKeyboardKeyAction(inputLayout, 'ingame', 'moveDown', ev.key)) {
         game.startSoftDrop()
       }
@@ -243,15 +239,12 @@ function useAppActions(game: Game) {
       if (isKeyboardKeyAction(inputLayout, 'ingame', 'moveRight', ev.key)) {
         game.stopMoveRight()
       }
+      if (isKeyboardKeyAction(inputLayout, 'ingame', 'moveUp', ev.key)) {
+        game.stopMoveUp()
+      }
       if (isKeyboardKeyAction(inputLayout, 'ingame', 'moveDown', ev.key)) {
         game.stopSoftDrop()
       }
-    }
-  })
-  
-  const onKeyboardKeyHold = useKeyHold({ interval: 150 }, ev => {
-    if (isKeyboardKeyAction(inputLayout, 'ingame', 'moveUp', ev.code)) {
-      game.moveUp()
     }
   })
   
@@ -279,6 +272,9 @@ function useAppActions(game: Game) {
       if (isGamepadKeyAction(inputLayout, 'ingame', 'moveDown', ev.signalId)) {
         game.startSoftDrop()
       }
+      if (isGamepadKeyAction(inputLayout, 'ingame', 'moveDown', ev.signalId)) {
+        game.startSoftDrop()
+      }
     }
     if (ev.type === 'gamepadKeyEnd') {
       if (isGamepadKeyAction(inputLayout, 'ingame', 'moveLeft', ev.signalId)) {
@@ -290,13 +286,9 @@ function useAppActions(game: Game) {
       if (isGamepadKeyAction(inputLayout, 'ingame', 'moveDown', ev.signalId)) {
         game.stopSoftDrop()
       }
-    }
-  })
-  
-  
-  useGamepadKeyHold({ interval: 150 }, ev => {
-    if (isGamepadKeyAction(inputLayout, 'ingame', 'moveUp', ev.signalId)) {
-      game.moveUp()
+      if (isGamepadKeyAction(inputLayout, 'ingame', 'moveDown', ev.signalId)) {
+        game.stopSoftDrop()
+      }
     }
   })
   
@@ -312,10 +304,10 @@ function useAppActions(game: Game) {
     }
   })
   
-  return {
-    onKeyboardKeyStartEnd, onKeyboardKeyHold, onKeyboardKeyDownClick,
+  return [
+    onKeyboardKeyStartEnd, onKeyboardKeyDownClick,
     onGamepadKeyStartEnd,
-  }
+  ] as const
 }
 
 
