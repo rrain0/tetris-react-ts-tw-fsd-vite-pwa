@@ -118,6 +118,8 @@ export class Game {
   // TODO Pause
   lastPlayerActionsAt: ms[] = []
   
+  get playerActionsBufferDuration() { return Math.max(this.lockDelay) }
+  
   animations: GameAnimations = {
     spawnNextPiece: undefined,
     clearLines: undefined,
@@ -166,7 +168,7 @@ export class Game {
   run = (time: ms) => {
     if (!this.isPlaying) { this.rafPaused = true; return }
     
-    const { animations: anims, playerActions } = this
+    const { animations: anims, playerActions, playerActionsBufferDuration } = this
     let { lastPlayerActionsAt } = this
     
     playerActions.sort(playerActionsComparator)
@@ -252,7 +254,7 @@ export class Game {
       
       
       
-      lastPlayerActionsAt = lastPlayerActionsAt.filter(it => it >= t)
+      lastPlayerActionsAt = lastPlayerActionsAt.filter(it => it >= t - playerActionsBufferDuration)
       lastPlayerActionsAt.push(...newLastPlayerActionsAt)
     }
     playerActions.splice(0, i)
@@ -414,12 +416,11 @@ function *softDropAnimation(game: Game, params: GameAnimationParams): GameAnimat
   } while (true)
 }
 
-// TODO Check it works correctly
 function *lockDelayAnimation(game: Game, params: GameAnimationParams): GameAnimation {
-  let { time } = params
-  const { lastPlayerActionsAt } = params
+  let { time, lastPlayerActionsAt } = params
   let playerActionsCnt = 0
   const lastLockDelayStartAt = Timer.at(time)
+  
   
   do {
     const { lockDelay, lockDelayMaxPlayerActions } = game
@@ -454,7 +455,7 @@ function *lockDelayAnimation(game: Game, params: GameAnimationParams): GameAnima
     }
     
     params = yield { changed: false }
-    ;({ time } = params)
+    ;({ time, lastPlayerActionsAt } = params)
   } while (true)
 }
 
@@ -488,6 +489,7 @@ function *moveLeftAnimation(game: Game, params: GameAnimationParams): GameAnimat
         }
       }
     }
+    
     params = yield { changed, lastPlayerActionsAt }
     ;({ time, canPlayerMove } = params)
   } while (true)
@@ -523,6 +525,7 @@ function *moveRightAnimation(game: Game, params: GameAnimationParams): GameAnima
         }
       }
     }
+    
     params = yield { changed, lastPlayerActionsAt }
     ;({ time, canPlayerMove } = params)
   } while (true)
@@ -552,6 +555,7 @@ function *rotateLeftAnimation(game: Game, params: GameAnimationParams): GameAnim
         }
       }
     }
+    
     params = yield { changed, lastPlayerActionsAt }
     ;({ time, canPlayerMove } = params)
   } while (true)
@@ -581,6 +585,7 @@ function *rotateRightAnimation(game: Game, params: GameAnimationParams): GameAni
         }
       }
     }
+    
     params = yield { changed, lastPlayerActionsAt }
     ;({ time, canPlayerMove } = params)
   } while (true)
@@ -649,6 +654,7 @@ function *clearLinesAnimation(game: Game, params: GameAnimationParams): GameAnim
       changed = !!lines.length
       break
     }
+    
     params = yield { changed }
     ;({ time } = params)
     changed = false
@@ -656,6 +662,7 @@ function *clearLinesAnimation(game: Game, params: GameAnimationParams): GameAnim
   
   do {
     const { removeLinesDelay } = game
+    
     if (lastActionAt.tickBy(removeLinesDelay, time)) {
       game.tetris.removeLines(lines)
       return {
@@ -663,6 +670,7 @@ function *clearLinesAnimation(game: Game, params: GameAnimationParams): GameAnim
         next: { spawnNextPiece: spawnNextPieceAnimation(game, params) },
       }
     }
+    
     params = yield { changed }
     ;({ time } = params)
     changed = false
@@ -675,7 +683,9 @@ function *spawnNextPieceAnimation(game: Game, params: GameAnimationParams): Game
   
   do {
     const { entryDelay } = game
+    
     if (lastActionAt.tickBy(entryDelay, time)) break
+    
     params = yield { changed: false }
     ;({ time } = params)
   } while (true)
