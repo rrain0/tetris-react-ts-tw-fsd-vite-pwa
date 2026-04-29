@@ -6,9 +6,9 @@ import React from 'react'
 
 
 export function useKeyStartEnd<T = Element>(
-  onKeyHold: KeyStartEndEvHandler, // unstable
+  onKeyStartEnd: KeyStartEndEvHandler, // unstable
 ) {
-  const onKeyStartEndCb = useAsCb(onKeyHold)
+  const onKeyStartEndCb = useAsCb(onKeyStartEnd)
   
   
   // ⬤⬤ State layer ⬤⬤

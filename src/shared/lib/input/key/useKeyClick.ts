@@ -4,7 +4,7 @@ import React from 'react'
 
 
 
-export function useKeyClick<T = HTMLDivElement>(
+export function useKeyClick<T = Element>(
   onKeyClick: React.KeyboardEventHandler<T>, // unstable
 ) {
   const onKeyClickCb = useAsCb(onKeyClick)

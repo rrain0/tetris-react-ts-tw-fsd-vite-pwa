@@ -5,8 +5,8 @@ import React from 'react'
 
 
 
-export function useOnClick<E = Element>(onClick: (ev: React.MouseEvent<E>) => void) {
-  const onClickStable = useAsCb(onClick)
+export function usePointerClick<E = Element>(onClick: (ev: React.MouseEvent<E>) => void) {
+  const onClickCb = useAsCb(onClick)
   
   const { tryLock, unlock, allowed } = useLockClick()
   
@@ -19,7 +19,7 @@ export function useOnClick<E = Element>(onClick: (ev: React.MouseEvent<E>) => vo
       const { pointerId } = (ev as ReactOnClickEventModern<E>).nativeEvent
       if (allowed(pointerId)) {
         unlock(pointerId)
-        onClickStable(ev)
+        onClickCb(ev)
       }
     },
   }

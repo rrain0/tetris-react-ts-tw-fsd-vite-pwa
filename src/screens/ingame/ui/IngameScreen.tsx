@@ -1,3 +1,4 @@
+import IngameControls2 from '@/screens/ingame/ui/controls-2/IngameControls2.tsx'
 import { ingameScreenPortSizes } from '@/screens/ingame/ui/port/ingameScreenPortSizes.ts'
 import {
   useGamepadDownClick
@@ -172,7 +173,11 @@ export default function IngameScreen() {
       >
         <div cn='sz-full p-[8]'>
           <div cn='sz-full stack center2 container-size' ref={refFun}>
+            
             <ScreenLayout layout={layout} {...ingameData}/>
+            
+            <IngameControls2 cn='in-area-[1/1/-1/-1]' game={game}/>
+            
           </div>
         </div>
       </PageFullVp>

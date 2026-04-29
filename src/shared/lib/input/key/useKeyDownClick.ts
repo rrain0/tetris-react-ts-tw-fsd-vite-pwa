@@ -3,7 +3,7 @@ import React from 'react'
 
 
 
-export function useKeyDownClick<T = HTMLDivElement>(
+export function useKeyDownClick<T = Element>(
   onKeyDownClick: React.KeyboardEventHandler<T>, // unstable
 ) {
   const onKeyDownClickCb = useAsCb(onKeyDownClick)

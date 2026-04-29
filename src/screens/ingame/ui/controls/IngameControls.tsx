@@ -2,7 +2,7 @@ import IngameControlsButton from '@/screens/ingame/ui/controls/IngameControlsBut
 import {
   HtmlFullscreenContext,
 } from '@@/lib/environment/fullscreen-manager/context/HtmlFullscreenContext.ts'
-import { useOnClick } from '@@/lib/input/pointer/useOnClick.ts'
+import { usePointerClick } from '@@/lib/input/pointer/usePointerClick.ts'
 import type { StylePropType } from '@@/utils/react/props/propTypes.ts'
 import FullscreenIc from '@@/assets/ic/svg/ui/fullscreen.svg?react'
 import WindowedIc from '@@/assets/ic/svg/ui/windowed.svg?react'
@@ -30,7 +30,7 @@ export default function IngameControls(props: IngameControlsProps) {
   
   const fscreen = use(HtmlFullscreenContext)
   
-  const onClickFscreen = useOnClick(!fscreen.enabled ? fscreen.enter : fscreen.exit)
+  const onClickFscreen = usePointerClick(!fscreen.enabled ? fscreen.enter : fscreen.exit)
   //const onClickPause = useOnClick(() => { })
   
   return (

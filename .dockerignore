@@ -21,6 +21,7 @@ Makefile
 Dockerfile
 docker-compose*
 *.env
+README.md
 
 # Editor directories and files
 .vscode/*
