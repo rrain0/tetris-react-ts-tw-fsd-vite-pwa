@@ -34,7 +34,7 @@
   - Вдохновлялся управлением из скролл-шутеров.
   - Summary: Touch and hold then move left or right, up or down. Use up, down, hard drop buttons on the left.
   - ◀️ ▶️ Move left or right - Touch and hold then move left or right
-  - 🔽 Soft drop  - soft drop button on the left.
+  - 🔽 Soft drop - down button on the left.
   - 🔼 Move up - up button on the left.
   - ↶ ↷ Rotate left or right - Touch and hold then move up or down
   - ⭳ Hard drop - hard drop button on the left.
