@@ -13,6 +13,15 @@ dist-ssr
 dev-dist
 *.local
 
+nginx-proxy
+nginx-react
+.git
+.gitignore
+Makefile
+Dockerfile
+docker-compose*
+*.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

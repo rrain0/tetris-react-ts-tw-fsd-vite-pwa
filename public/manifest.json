@@ -1,0 +1,26 @@
+{
+  "lang": "en-US",
+  "short_name": "Tetris",
+  "name": "Tetris",
+  "description": "Tetris game",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  
+  
+  "theme_color": "#282c34",
+  "background_color": "#282c34",
+  
+  "icons": [
+    {
+      "src": "static/assets/tetris-favicon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "static/assets/tetris-favicon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 import babelPluginJsxCnStProps from './plugins/babelPluginJsxCnStProps.js'
 import svgr from 'vite-plugin-svgr'
+import { VitePWA } from 'vite-plugin-pwa'
 import legacy from '@vitejs/plugin-legacy'
 
 
@@ -80,6 +81,8 @@ export default defineConfig(({ command, mode }) => {
       
       addSvgrPlugin(),
       
+      addVitePwaPlugin(),
+      
       // Add polyfills to build (dev mode has no polyfills)
       legacy({
         polyfills: false,
@@ -131,5 +134,35 @@ function addSvgrPlugin() {
         ],
       },
     },
+  })
+}
+
+
+
+function addVitePwaPlugin() {
+  return VitePWA({
+    strategies: 'injectManifest',
+    // SW folder
+    srcDir: 'src/service-worker',
+    // SW filename
+    filename: 'service-worker.ts',
+    // Prompt user to reload page when SW was updated
+    registerType: 'prompt',
+    
+    devOptions: {
+      enabled: true, // enable PWA in dev mode
+      type: 'module', // Service Worker is module
+    },
+    
+    // Do not inject manifest, only service worker,
+    // so you can write your own link to manifest in index.html
+    // https://vite-pwa-org.netlify.app/guide/service-worker-without-pwa-capabilities
+    injectRegister: 'script',
+    manifest: false,
+    
+    base: '/',
+    
+    includeAssets: ['public/**'],
+    pwaAssets: { disabled: true },
   })
 }

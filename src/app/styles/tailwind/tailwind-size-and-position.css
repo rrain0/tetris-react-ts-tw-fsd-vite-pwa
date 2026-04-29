@@ -111,17 +111,17 @@
 @utility fixed { position: fixed; }
 @utility pos-* { position: --value([*]); }
 
-@utility a-* {
+@utility pos-a-* {
   top: --value([number])px; top: --value(--size-*, [*]);
   right: --value([number])px; right: --value(--size-*, [*]);
   bottom: --value([number])px; bottom: --value(--size-*, [*]);
   left: --value([number])px; left: --value(--size-*, [*]);
 }
-@utility v-* {
+@utility pos-v-* {
   top: --value([number])px; top: --value(--size-*, [*]);
   bottom: --value([number])px; bottom: --value(--size-*, [*]);
 }
-@utility h-* {
+@utility pos-h-* {
   right: --value([number])px; right: --value(--size-*, [*]);
   left: --value([number])px; left: --value(--size-*, [*]);
 }

@@ -17,8 +17,10 @@ export function combineProps<A extends any[]>(
       if (!combinedProps) combinedProps = { ...props }
       else for (const [p, v] of Object.entries(props)) {
         // save first value
+        //@ts-expect-error
         if (isundef(combinedProps[p])) combinedProps[p] = v
         else {
+          //@ts-expect-error
           const v0 = combinedProps[p]
           
           // combine object or fun refs to single fun ref
@@ -46,16 +48,22 @@ export function combineProps<A extends any[]>(
           }
           // combine callbacks to single callback
           else if (isfunction(v)) {
+            //@ts-expect-error
             if (!callbacks[p]) {
+              //@ts-expect-error
               callbacks[p] = [v0]
+              //@ts-expect-error
               combinedProps[p] = (...args: any[]) => {
+                //@ts-expect-error
                 for (const cb of callbacks[p]) cb(...args)
               }
             }
+            //@ts-expect-error
             callbacks[p].push(v)
           }
           // replace old value by new value
           else {
+            //@ts-expect-error
             combinedProps[p] = v
           }
           

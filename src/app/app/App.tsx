@@ -10,6 +10,7 @@ import PageLifecycleProvider from '@@/lib/environment/page-lifecycle/ui/PageLife
 import { useState } from 'react'
 import * as React from 'react'
 import IngameScreen from '@/screens/ingame/ui/IngameScreen.tsx'
+import SwUpdater from '@/features/sw-updater/ui/SwUpdater.tsx'
 
 
 
@@ -22,6 +23,8 @@ export default function App() {
       <GamepadInputProvider>
         <InputLayoutProvider>
           <FullscreenProvider navUiShow resumeByGesture>
+            
+            <SwUpdater/>
             
             <InputManagerProvider>
               <AppActivitiesProvider currentActivity={activity}>
