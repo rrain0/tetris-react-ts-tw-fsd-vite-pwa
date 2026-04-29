@@ -4,7 +4,7 @@ import { createContext } from 'react'
 
 
 
-export type FullscreenContextValue = {
+export type HtmlFullscreenContextValue = {
   available: boolean
   enabled: boolean
   active: boolean
@@ -14,7 +14,7 @@ export type FullscreenContextValue = {
   exit: Cb
 }
 
-export const FullscreenContext = createContext<FullscreenContextValue>({
+export const HtmlFullscreenContext = createContext<HtmlFullscreenContextValue>({
   available: false,
   enabled: false,
   active: false,

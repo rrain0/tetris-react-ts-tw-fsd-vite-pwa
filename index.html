@@ -5,11 +5,15 @@
     
     <meta name='viewport'
       content='
-      width=device-width, height=device-height,
-      viewport-fit=cover, shrink-to-fit=no,
-      interactive-widget=resizes-content,
-      initial-scale=1, maximum-scale=1, user-scalable=0'
+        width=device-width, height=device-height,
+        viewport-fit=cover, shrink-to-fit=no,
+        interactive-widget=resizes-content,
+        initial-scale=1
+      '
     />
+    <!-- Specifically for iOS to allow content to flow under the status bar -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <link rel='icon' href='/static/assets/tetris-favicon.png'/>
     <link rel="stylesheet" type="text/css" href='/static/styles/app.css'/>

@@ -4,12 +4,12 @@
   "name": "Tetris",
   "description": "Tetris game",
   "start_url": ".",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "portrait",
   
   
-  "theme_color": "#282c34",
-  "background_color": "#282c34",
+  "theme_color": "#0b181f",
+  "background_color": "#0b181f",
   
   "icons": [
     {

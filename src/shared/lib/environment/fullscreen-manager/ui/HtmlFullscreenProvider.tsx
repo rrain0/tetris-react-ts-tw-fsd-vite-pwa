@@ -1,8 +1,17 @@
-import { FullscreenContext } from '@@/lib/environment/fullscreen-manager/context/FullscreenContext.ts'
-import { PageLifecycleContext } from '@@/lib/environment/page-lifecycle/context/PageLifecycleContext.ts'
-import type { PageLifecycleEv } from '@@/lib/environment/page-lifecycle/model/page-lifecycle.model.ts'
+import {
+  HtmlFullscreenContext,
+} from '@@/lib/environment/fullscreen-manager/context/HtmlFullscreenContext.ts'
+import {
+  PageLifecycleContext,
+} from '@@/lib/environment/page-lifecycle/context/PageLifecycleContext.ts'
+import type {
+  PageLifecycleEv,
+} from '@@/lib/environment/page-lifecycle/model/page-lifecycle.model.ts'
+import { useIsPwa } from '@@/utils/css/useIsPwa.ts'
 import { isElement } from '@@/utils/dom/elem.ts'
 import type { Children } from '@@/utils/react/props/propTypes.ts'
+import { useAsRefGet } from '@@/utils/react/state/useAsRefGet.ts'
+import { useAsStateAndRef } from '@@/utils/react/state/useAsStateAndRef.ts'
 import { useRefGetSet } from '@@/utils/react/state/useRefGetSet.ts'
 import { useStateAndRef } from '@@/utils/react/state/useStateAndRef.ts'
 import { use, useEffectEvent, useLayoutEffect } from 'react'
@@ -32,7 +41,7 @@ export type FullscreenManagerProps = Children & {
   navUiHide?: boolean | undefined
 }
 
-export default function FullscreenProvider(props: FullscreenManagerProps) {
+export default function HtmlFullscreenProvider(props: FullscreenManagerProps) {
   const {
     resumeByGesture, resumeByConfirmation,
     navUiAuto, navUiShow, navUiHide,
@@ -43,8 +52,10 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
   const byConfirmation = !byGesture && !!resumeByConfirmation
   const canNeedEnter = byGesture || byConfirmation
   
+  const isPwa = useIsPwa()
+  
   // Is fullscreen mode available
-  const available = getFullscreenAvailable()
+  const [available, getAvailable] = useAsStateAndRef(getFullscreenAvailable() && !isPwa)
   // Is user enabled fullscreen
   const { state: enabled, get: getEnabled, set: setEnabled } = useStateAndRef(false)
   // Is document in fullscreen
@@ -63,7 +74,6 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
   
   // Need explicit confirmation (modal dialog) to enter fullscreen
   const needConfirmation = byConfirmation && !transitioning && needEnter
-  
   
   const [getLastRestored, setLastRestored] = useRefGetSet<PageLifecycleEv | undefined>(undefined)
   const pageLContext = use(PageLifecycleContext)
@@ -98,7 +108,7 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
   async function enter() {
     setLastRestored(undefined)
     setEnabled(true)
-    const canGoFullscreen = !getTransitioning() && available && getGestureHaveActivation()
+    const canGoFullscreen = !getTransitioning() && getAvailable() && getGestureHaveActivation()
     if (canGoFullscreen) try {
       setTransitioning(true)
       // @ts-expect-error
@@ -181,9 +191,9 @@ export default function FullscreenProvider(props: FullscreenManagerProps) {
   }
   
   return (
-    <FullscreenContext value={contextValue}>
+    <HtmlFullscreenContext value={contextValue}>
       {children}
-    </FullscreenContext>
+    </HtmlFullscreenContext>
   )
 }
 

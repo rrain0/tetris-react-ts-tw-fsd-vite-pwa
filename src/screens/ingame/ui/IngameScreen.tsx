@@ -2,12 +2,8 @@ import { ingameScreenPortSizes } from '@/screens/ingame/ui/port/ingameScreenPort
 import {
   useGamepadDownClick
 } from '@@/lib/input/gamepad-key/useGamepadDownClick.ts'
-import {
-  useGamepadKeyHold,
-} from '@/_unused/useGamepadKeyHold.ts'
 import { useGamepadKeyStartEnd } from '@@/lib/input/gamepad-key/useGamepadKeyStartEnd.ts'
 import { useKeyDownClick } from '@@/lib/input/key/useKeyDownClick.ts'
-import { useKeyHold } from '@/_unused/useKeyHold.ts'
 import { useKeyStartEnd } from '@@/lib/input/key/useKeyStartEnd.ts'
 import { useLockPointerDrag } from '@@/lib/input/shared/useLockPointerDrag.ts'
 import useLockSelection from '@@/lib/input/shared/useLockSelection.ts'
@@ -159,16 +155,25 @@ export default function IngameScreen() {
   })
   
   
+  // TODO Refactor
   return (
     <>
-      <PageFullVp cn='p-[8] bg-pos-[center] bg-sz-[cover] no-touch-action'
+      <PageFullVp
+        cn='bg-pos-[center] bg-sz-[cover] no-touch-action
+          pt-[env(safe-area-inset-top)]
+          pr-[env(safe-area-inset-right)]
+          pb-[env(safe-area-inset-bottom)]
+          pl-[env(safe-area-inset-left)]
+        '
         st={{ backgroundImage: `url(${bg})` }}
         ref={refToFocus}
         tabIndex={-1}
         {...propsOf(...appActionsEvHandlers, onPointer())}
       >
-        <div cn='sz-full stack center2 container-size' ref={refFun}>
-          <ScreenLayout layout={layout} {...ingameData}/>
+        <div cn='sz-full p-[8]'>
+          <div cn='sz-full stack center2 container-size' ref={refFun}>
+            <ScreenLayout layout={layout} {...ingameData}/>
+          </div>
         </div>
       </PageFullVp>
     </>

@@ -7,7 +7,7 @@ name: tetris-prod-react
 services:
 
   nginx-react:
-    image: rrain0/tetris-prod-react-react:1.0.2
+    image: rrain0/tetris-prod-react-react:1.0.3
     ports:
       - '${PROXY_PORT}:${PROXY_PORT}'
     volumes:
