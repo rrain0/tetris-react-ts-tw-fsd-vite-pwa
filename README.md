@@ -1,7 +1,9 @@
 # Tetris
 ### React + TS + Tailwind + FSD + Vite + PWA
-### Используется React 19 + React Compiler
-### Приложение можно собрать в докер
+
+- Используется React 19 + React Compiler.
+- Приложение можно собрать в докер.
+- Написал собственный Babel плагин для трансформации cn & st пропсов в className & style.
 
 
 - Играть можно, очки текут, уровни повышаются.
@@ -39,6 +41,7 @@
   - 🔼 Move up - up button on the left.
   - ↶ ↷ Rotate left or right - Touch and hold then move up or down
   - ⭳ Hard drop - hard drop button on the left.
+  - P.S. Над управлением ещё надо подумать.
 
 
 
