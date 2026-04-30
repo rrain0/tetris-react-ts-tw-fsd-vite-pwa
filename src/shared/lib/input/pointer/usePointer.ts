@@ -1,23 +1,26 @@
 import type { PointerId } from '@@/utils/pointer/types.ts'
 import { useRecord } from '@@/utils/react/more/useRecord.ts'
 import type { Xy } from '@@/utils/math/rect.ts'
-import type { Consumer } from '@@/utils/ts/ts.ts'
 import React from 'react'
 
 
 
 export function usePointer<A extends any[]>(onDrag: OnDrag<A>) {
-  
   const [getMove, setMove] = useRecord<PointerId, MoveData>()
+  
+  
   
   // Performs shallow update of current move object with props that exists in update.
   // If your move does not start from 'down' then you can update { wasStarted: true }.
   // Changes are saved across events (if event does not write particular prop with its data).
   // You have different move object references on each event.
-  const updateMove = (pointerId: number, update: MoveUpdate) => {
+  const updateMove = (pointerId: PointerId, update: MoveUpdate): MoveData | undefined => {
     const move = getMove(pointerId)
     if (move) Object.assign(move, update)
+    return move
   }
+  
+  
   
   return (...args: A) => {
     
@@ -36,12 +39,11 @@ export function usePointer<A extends any[]>(onDrag: OnDrag<A>) {
         
         vp0: { x: vpx, y: vpy },
         vp: { x: vpx, y: vpy },
-        move: { x: 0, y: 0 },
+        moved: { x: 0, y: 0 },
         delta: { x: 0, y: 0 },
       }
       setMove(pointerId, curr)
-      const updateThisMove = (update: MoveUpdate) => updateMove(pointerId, update)
-      onDrag(curr, updateThisMove, ...args)
+      onDrag(curr, updateMove, ...args)
     }
     
     const onPointerMove = (ev: React.PointerEvent) => {
@@ -60,15 +62,14 @@ export function usePointer<A extends any[]>(onDrag: OnDrag<A>) {
         
         vp0: prev?.vp0 ?? { x: vpx, y: vpy },
         vp: { x: vpx, y: vpy },
-        move: { x: 0, y: 0 },
+        moved: { x: 0, y: 0 },
         delta: { x: 0, y: 0 },
       }
       if (!prev) curr.first = true
-      curr.move = { x: curr.vp.x - curr.vp0.x, y: curr.vp.y - curr.vp0.y }
+      curr.moved = { x: curr.vp.x - curr.vp0.x, y: curr.vp.y - curr.vp0.y }
       if (prev) curr.delta = { x: curr.vp.x - prev.vp0.x, y: curr.vp.y - prev.vp0.y }
       setMove(pointerId, curr)
-      const updateThisMove = (update: MoveUpdate) => updateMove(pointerId, update)
-      onDrag(curr, updateThisMove, ...args)
+      onDrag(curr, updateMove, ...args)
     }
     
     const onPointerUp = (ev: React.PointerEvent) => {
@@ -87,15 +88,14 @@ export function usePointer<A extends any[]>(onDrag: OnDrag<A>) {
         
         vp0: prev?.vp0 ?? { x: vpx, y: vpy },
         vp: { x: vpx, y: vpy },
-        move: { x: 0, y: 0 },
+        moved: { x: 0, y: 0 },
         delta: { x: 0, y: 0 },
       }
       if (!prev) curr.first = true
-      curr.move = { x: curr.vp.x - curr.vp0.x, y: curr.vp.y - curr.vp0.y }
+      curr.moved = { x: curr.vp.x - curr.vp0.x, y: curr.vp.y - curr.vp0.y }
       if (prev) curr.delta = { x: curr.vp.x - prev.vp0.x, y: curr.vp.y - prev.vp0.y }
       setMove(pointerId, undefined)
-      const updateThisMove = (update: MoveUpdate) => updateMove(pointerId, update)
-      onDrag(curr, updateThisMove, ...args)
+      onDrag(curr, updateMove, ...args)
     }
     
     const onPointerCancel = (ev: React.PointerEvent) => {
@@ -114,15 +114,14 @@ export function usePointer<A extends any[]>(onDrag: OnDrag<A>) {
         
         vp0: prev?.vp0 ?? { x: vpx, y: vpy },
         vp: { x: vpx, y: vpy },
-        move: { x: 0, y: 0 },
+        moved: { x: 0, y: 0 },
         delta: { x: 0, y: 0 },
       }
       if (!prev) curr.first = true
-      curr.move = { x: curr.vp.x - curr.vp0.x, y: curr.vp.y - curr.vp0.y }
+      curr.moved = { x: curr.vp.x - curr.vp0.x, y: curr.vp.y - curr.vp0.y }
       if (prev) curr.delta = { x: curr.vp.x - prev.vp0.x, y: curr.vp.y - prev.vp0.y }
       setMove(pointerId, undefined)
-      const updateThisMove = (update: MoveUpdate) => updateMove(pointerId, update)
-      onDrag(curr, updateThisMove, ...args)
+      onDrag(curr, updateMove, ...args)
     }
     
     const onLostPointerCapture = (ev: React.PointerEvent) => {
@@ -141,15 +140,14 @@ export function usePointer<A extends any[]>(onDrag: OnDrag<A>) {
         
         vp0: prev?.vp0 ?? { x: vpx, y: vpy },
         vp: { x: vpx, y: vpy },
-        move: { x: 0, y: 0 },
+        moved: { x: 0, y: 0 },
         delta: { x: 0, y: 0 },
       }
       if (!prev) curr.first = true
-      curr.move = { x: curr.vp.x - curr.vp0.x, y: curr.vp.y - curr.vp0.y }
+      curr.moved = { x: curr.vp.x - curr.vp0.x, y: curr.vp.y - curr.vp0.y }
       if (prev) curr.delta = { x: curr.vp.x - prev.vp0.x, y: curr.vp.y - prev.vp0.y }
       setMove(pointerId, undefined)
-      const updateThisMove = (update: MoveUpdate) => updateMove(pointerId, update)
-      onDrag(curr, updateThisMove, ...args)
+      onDrag(curr, updateMove, ...args)
     }
     
     return {
@@ -180,12 +178,12 @@ export type MoveData = {
   // Coords relative viewport of current event.
   vp: Xy
   // Distance from start point to current point
-  move: Xy
+  moved: Xy
   // Distance from previous point to current point
   delta: Xy
 }
 
 export type MoveUpdate = Partial<MoveData>
 
-export type UpdateMove = Consumer<MoveUpdate>
+export type UpdateMove = (pointerId: PointerId, update: MoveUpdate) => MoveData | undefined
 export type OnDrag<A extends any[]> = (move: MoveData, update: UpdateMove, ...args: A) => void

@@ -1,4 +1,4 @@
-import IngameControls2 from '@/screens/ingame/ui/controls-2/IngameControls2.tsx'
+import PieceControls from '@/screens/ingame/ui/piece-controls/PieceControls.tsx'
 import { ingameScreenPortSizes } from '@/screens/ingame/ui/port/ingameScreenPortSizes.ts'
 import {
   useGamepadDownClick
@@ -10,7 +10,7 @@ import { useLockPointerDrag } from '@@/lib/input/shared/useLockPointerDrag.ts'
 import useLockSelection from '@@/lib/input/shared/useLockSelection.ts'
 import { usePointer } from '@@/lib/input/pointer/usePointer.ts'
 import { useRecord } from '@@/utils/react/more/useRecord.ts'
-import { Game } from '@@/lib/tetris/game-engine/entities/game/model/game.ts'
+import { Game, type GameEv } from '@@/lib/tetris/game-engine/entities/game/model/game.ts'
 import {
   newISrs, newJSrs, newLSrs, newOSrs, newSSrs, newTSrs, newZSrs,
 } from '@@/lib/tetris/tetris-engine/entities/piece/model/tetrominoSrs.ts'
@@ -34,6 +34,7 @@ import PageFullVp from '@@/components/elems/PageFullVp.tsx'
 import bg from '@@/assets/im/bg4.jpg'
 import type { IngameData } from '@/screens/ingame/model/ingameScreen.model.ts'
 import type { PointerId } from '@/shared/utils/pointer/types'
+import { isMobile } from 'react-device-detect'
 
 
 
@@ -64,13 +65,25 @@ export default function IngameScreen() {
   const [game, setGame] = useState<Game>(createGame)
   const [ingameData, setIngameData] = useState<IngameData>(() => gameToIngameData(game))
   
+  const [getIsNextPieceSpawned, setIsNextPieceSpawned] = useRefGetSet(false)
+  
   useEffect(() => {
-    const onChange = () => { setIngameData(gameToIngameData(game)) }
-    game.onChange(onChange)
+    const onNeedRedraw = () => { setIngameData(gameToIngameData(game)) }
+    game.onNeedRedraw(onNeedRedraw)
     game.resume()
     return () => {
       game.pause()
-      game.offChange(onChange)
+      game.offNeedRedraw(onNeedRedraw)
+    }
+  }, [game])
+  
+  useEffect(() => {
+    const onGameEv = (ev: GameEv) => {
+      if (ev.type === 'nextPieceSpawned') setIsNextPieceSpawned(true)
+    }
+    game.onGameEv(onGameEv)
+    return () => {
+      game.offGameEv(onGameEv)
     }
   }, [game])
   
@@ -103,23 +116,33 @@ export default function IngameScreen() {
   
   const appActionsEvHandlers = useAppActions(game)
   
+  
+  
   const [lockSelection, unlockSelection] = useLockSelection()
-  
-  
-  const [getDPos, setDPos] = useRecord<PointerId, { dCol: number, dRot: number }>()
-  
-  
   const { tryLock, unlock } = useLockPointerDrag()
-  const onPointer = usePointer((move, upd) => {
-    const { ev, start, wasStart, first, last, move: m, vp0, vp, pointerId } = move
+  type DPos = { isMoved: boolean, isRotated: boolean, mCol: number, mRot: number }
+  const [getDPos, setDPos] = useRecord<PointerId, DPos>()
+  
+  const onPointer = usePointer((pointer, update) => {
+    const { ev, start, wasStart, first, last, vp0, vp, pointerId } = pointer
     if (wasStart) {
       if (first) {
-        if (!tryLock(pointerId)) { upd({ wasStart: false }); return }
+        if (!tryLock(pointerId)) { update(pointerId, { wasStart: false }); return }
         ev.currentTarget.setPointerCapture(pointerId)
         lockSelection()
       }
       
+      let updatedPointer
+      
+      if (getIsNextPieceSpawned()) {
+        updatedPointer = update(pointerId, { vp0: vp, moved: { x: 0, y: 0 } })
+        setDPos(pointerId, { isMoved: false, isRotated: false, mCol: 0, mRot: 0 })
+        setIsNextPieceSpawned(false)
+      }
+      
       if (layout) {
+        const { moved } = updatedPointer ?? pointer
+        
         const blockSz = (() => {
           if (layout === 'land') return landSizes.wOfH(landSizes.blockSz, getWh().h)
           if (layout === 'landSm') return landSmSizes.wOfH(landSmSizes.blockSz, getWh().h)
@@ -127,22 +150,34 @@ export default function IngameScreen() {
           assertNever(layout)
         })()
         
-        const prev = getDPos(pointerId) ?? { dCol: 0, dRot: 0 }
-        const dCol = floorTo0(m.x / blockSz)
-        const dRot = floorTo0(m.y / blockSz)
-        for (let d = prev.dCol + 1; d <= dCol; d++) {
-          game.tetris.moveRight()
+        const blocksForMove = 1
+        const blocksForRot = 2
+        
+        const prev = getDPos(pointerId) ?? {
+          isMoved: false, isRotated: false, mCol: 0, mRot: 0,
         }
-        for (let d = prev.dCol - 1; d >= dCol; d--) {
-          game.tetris.moveLeft()
-        }
-        for (let d = prev.dRot + 1; d <= dRot; d++) {
-          game.tetris.rotateRight()
-        }
-        for (let d = prev.dRot - 1; d >= dRot; d--) {
-          game.tetris.rotateLeft()
-        }
-        setDPos(pointerId, { dCol, dRot })
+        
+        let { isMoved, isRotated } = prev
+        const mCol = Math.floor(moved.x / (blockSz * blocksForMove))
+        const mRot = Math.floor(moved.y / (blockSz * blocksForRot))
+        
+        let dCol = mCol - prev.mCol
+        let dRot = mRot - prev.mRot
+        
+        if (prev.mCol === 0 && mCol === -1 && !isMoved) dCol++
+        if (prev.mRot === 0 && mRot === -1 && !isRotated) dRot++
+        
+        if (dCol) isMoved = true
+        if (dRot) isRotated = true
+        
+        // TODO game moves, not tetris moves.
+        if (dCol > 0) while (dCol-- > 0) game.tetris.moveRight()
+        else while (dCol++ < 0) game.tetris.moveLeft()
+        
+        if (dRot > 0) while (dRot-- > 0) game.tetris.rotateRight()
+        else while (dRot++ < 0) game.tetris.rotateLeft()
+        
+        setDPos(pointerId, { isMoved, isRotated, mCol, mRot })
         
         setIngameData(gameToIngameData(game))
       }
@@ -160,12 +195,12 @@ export default function IngameScreen() {
   return (
     <>
       <PageFullVp
-        cn='bg-pos-[center] bg-sz-[cover] no-touch-action
+        cn={`bg-pos-[center] bg-sz-[cover] no-touch-action
           pt-[env(safe-area-inset-top)]
           pr-[env(safe-area-inset-right)]
           pb-[env(safe-area-inset-bottom)]
           pl-[env(safe-area-inset-left)]
-        '
+        `}
         st={{ backgroundImage: `url(${bg})` }}
         ref={refToFocus}
         tabIndex={-1}
@@ -176,7 +211,7 @@ export default function IngameScreen() {
             
             <ScreenLayout layout={layout} {...ingameData}/>
             
-            <IngameControls2 cn='in-area-[1/1/-1/-1]' game={game}/>
+            {isMobile && <PieceControls cn='in-area-[1/1/-1/-1]' game={game}/>}
             
           </div>
         </div>

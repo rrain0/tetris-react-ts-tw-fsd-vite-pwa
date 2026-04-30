@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react'
 
 
 
-export default function IngameControls2Button(props: ComponentProps<'button'>) {
+export default function PieceControlsButton(props: ComponentProps<'button'>) {
   return <button type='button' cn={ingameControlsButtonCn} {...props}/>
 }
 
@@ -11,7 +11,8 @@ const ingameControlsButtonCn = `
   isolate
   w-[min(20cqw,20cqh,100px)]
   h-[min(20cqw,20cqh,100px)]
-  rad-[calc(min(20cqw,20cqh,100px)_/_4)]
+  rad-[25%]
+  p-[8]
   cl-[#ffffff55]
   bg-cl-[#00000055]
   

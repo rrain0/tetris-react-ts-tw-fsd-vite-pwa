@@ -10,7 +10,6 @@ export type anyfun = (...args: any[]) => any
 export type Fun<A extends any[] = any[], R = any> = (...args: A) => R
 
 export type falsy = false | undefined | null | '' | 0 | 0n
-export type Sign = -1 | 0 | 1
 
 export type objectkey = keyof any // string | number | symbol
 

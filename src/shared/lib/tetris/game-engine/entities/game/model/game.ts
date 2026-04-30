@@ -4,7 +4,7 @@ import { Tetris } from '@@/lib/tetris/tetris-engine/entities/tetris/model/tetris
 import { getDocTime } from '@@/utils/dom/getDocTime.ts'
 import { type Comparator, compareAny, compareNumbers } from '@@/utils/js/compare.ts'
 import { setOf } from '@@/utils/js/factory.ts'
-import { type Cb, isdef, type Opt, type RecordUndef } from '@@/utils/ts/ts.ts'
+import { type Cb, type EvCb, isdef, type Opt, type RecordUndef } from '@@/utils/ts/ts.ts'
 
 
 
@@ -101,10 +101,20 @@ export class Game {
   
   
   // Listeners
-  listeners: Set<Cb> = setOf()
-  onChange(listener: Cb) { this.listeners.add(listener) }
-  offChange(listener: Cb) { this.listeners.delete(listener) }
-  notifyChange() { for (const l of this.listeners) l() }
+  
+  // NeedRedraw listeners
+  needRedrawListeners: Set<Cb> = setOf()
+  onNeedRedraw(listener: Cb) { this.needRedrawListeners.add(listener) }
+  offNeedRedraw(listener: Cb) { this.needRedrawListeners.delete(listener) }
+  notifyNeedRedraw() { for (const l of this.needRedrawListeners) l() }
+  
+  // GameEv listeners
+  gameEvListeners: Set<EvCb<GameEv>> = setOf()
+  onGameEv(listener: EvCb<GameEv>) { this.gameEvListeners.add(listener) }
+  offGameEv(listener: EvCb<GameEv>) { this.gameEvListeners.delete(listener) }
+  notifyGameEv(events: GameEv[]) {
+    for (const ev of events) for (const l of this.gameEvListeners) l(ev)
+  }
   
   
   
@@ -174,6 +184,8 @@ export class Game {
     playerActions.sort(playerActionsComparator)
     
     let changed = false
+    const events: GameEv[] = []
+    
     let i = 0, isLastIteration = false
     for (; i <= playerActions.length && !isLastIteration; i++) {
       const action = playerActions[i]
@@ -243,6 +255,7 @@ export class Game {
         while (anims[name]) {
           const result = anims[name].next(animParams)
           changed ||= result.value.changed
+          if (result.value.event) events.push(result.value.event)
           newLastPlayerActionsAt.push(...result.value.lastPlayerActionsAt ?? [])
           if (result.value.next) Object.entries(result.value.next).forEach(([key, value]) => {
             anims[key] ??= value
@@ -260,7 +273,8 @@ export class Game {
     playerActions.splice(0, i)
     
     this.lastPlayerActionsAt = lastPlayerActionsAt
-    if (changed) this.notifyChange()
+    if (changed) this.notifyNeedRedraw()
+    if (events.length) this.notifyGameEv(events)
     requestAnimationFrame(this.run)
   }
   
@@ -697,6 +711,7 @@ function *spawnNextPieceAnimation(game: Game, params: GameAnimationParams): Game
   }
   
   return {
+    event: { time, type: 'nextPieceSpawned' },
     changed: true,
     next: { fall: fallAnimation(game, params) },
   }
@@ -722,12 +737,20 @@ const playerActionsComparator: Comparator<PlayerAction> = (a, b) => {
 
 
 
+export type GameEvType = 'nextPieceSpawned'
+export type GameEv = {
+  time: ms
+  type: GameEvType
+  //needRedraw: boolean
+}
+
 export type GameAnimationParams = {
   time: ms
   lastPlayerActionsAt: ms[]
   canPlayerMove: boolean
 }
 export type GameAnimationResult = {
+  event?: GameEv | undefined
   changed: boolean // Is game state changed
   lastPlayerActionsAt?: ms[] | undefined
   next?: Opt<GameAnimations> | undefined // Next animations to run

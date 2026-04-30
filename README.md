@@ -1,5 +1,6 @@
 # Tetris
 ### React + TS + Tailwind + FSD + Vite + PWA
+### Используется React 19 + React Compiler
 ### Приложение можно собрать в докер
 
 

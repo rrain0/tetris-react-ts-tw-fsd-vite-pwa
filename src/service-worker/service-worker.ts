@@ -114,17 +114,21 @@ if (!envIsDev) {
 
 
 
-// Images cache
+// TODO Limit by item size or store assets only from this project (with same origin)
+// Dynamic assets cache (images, short clips, fonts)
 {
-  const imgExtsList = ['webp', 'svg', 'heic', 'heif', 'jpeg', 'jpg', 'png', 'gif', 'bmp']
-  const imgExtsPattern = new RegExp(`[.](${imgExtsList.join('|')})$`, 'i')
+  const imgExts = ['webp', 'svg', 'heic', 'heif', 'jpeg', 'jpg', 'png', 'bmp']
+  const shortClips = ['gif', 'weba', 'apng', 'avif']
+  const fontExts = ['ttf', 'woff', 'woff2', 'eot']
+  const exts = [...imgExts, ...fontExts, ...shortClips]
+  const extsPattern = new RegExp(`[.](${exts.join('|')})$`, 'i')
   
   registerRoute(
     // Add any other file extensions or routing criteria as needed.
     ({ url }) => {
       /*
       console.log('url.pathname', url.pathname)
-      console.log('url.pathname is image', imgExtsPattern.test(url.pathname))
+      console.log('url.pathname is image', extsPattern.test(url.pathname))
       console.log('url.origin', url.origin)
       console.log('self.location.origin', self.location.origin)
       console.log('url.origin === self.location.origin', url.origin === self.location.origin)
@@ -133,11 +137,11 @@ if (!envIsDev) {
       
       if (envIsDev) return false
       
-      return imgExtsPattern.test(url.pathname)
+      return extsPattern.test(url.pathname)
     },
     // You can use different cache strategies: new StaleWhileRevalidate(), new CacheFirst(), ...
     new CacheFirst({
-      cacheName: 'images',
+      cacheName: 'dynamicAssets',
       plugins: [new ExpirationPlugin({ maxEntries: 300 })] as WorkboxPlugin[],
     })
   )
