@@ -8,13 +8,14 @@ import GamepadInputProvider
   from '@@/lib/input/gamepad-input/provider/providers/GamepadInputProvider.tsx'
 import InputLayoutProvider from '@/entities/input-layout/providers/InputLayoutProvider.tsx'
 import PageLifecycleProvider from '@@/lib/environment/page-lifecycle/ui/PageLifecycleProvider.tsx'
+import { parserTest } from '@@/lib/parser/model/parser.ts'
 import { tokenizerTest } from '@@/lib/parser/model/tokenizer.ts'
 import { useState } from 'react'
 import * as React from 'react'
 import IngameScreen from '@/screens/ingame/ui/IngameScreen.tsx'
 import SwUpdater from '@/features/sw-updater/ui/SwUpdater.tsx'
 
-tokenizerTest()
+parserTest()
 
 export default function App() {
   

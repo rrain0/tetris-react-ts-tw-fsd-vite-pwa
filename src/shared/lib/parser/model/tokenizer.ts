@@ -1,13 +1,38 @@
 
 
 
+export type TokenType =
+  | 'AND'
+  | 'OR'
+  | 'NEQ'
+  | 'GTE'
+  | 'LTE'
+  | 'DOT'
+  | 'LPAREN'
+  | 'RPAREN'
+  | 'LDQUOTE'
+  | 'RDQUOTE'
+  | 'EQ'
+  | 'GT'
+  | 'LT'
+  | 'NUMBER'
+  | 'IDENTIFIER'
+  | 'SPACE'
+  | 'STRING'
+
+export type TokenContextType =
+  | ''
+  | 'LPAREN'
+  | 'LDQUOTE'
+  
+
 export interface Token {
-  type: string
+  type: TokenType
   string?: string | undefined
   pattern?: RegExp | undefined
-  startContext?: string | undefined // задать контекст токенизации
-  endContext?: string | undefined // завершить контекст токенизации
-  inContext?: string[] | undefined // токен разрешён в этом контексте
+  startContext?: TokenContextType | undefined // задать контекст токенизации
+  endContext?: TokenContextType | undefined // завершить контекст токенизации
+  inContext: TokenContextType[] // токен разрешён в этом контексте
 }
 
 export interface Lexeme {
@@ -36,17 +61,17 @@ const spaceLx = { type: 'SPACE' as const, pattern: /^\s+/ }
 const stringLx = { type: 'STRING' as const, pattern: /^[^"]*/ }
 
 // Контекст лексем
-const opOrValOrSpCtx = { inContext: ['', 'LPAREN'] }
-const lparenCtx = { inContext: ['', 'LPAREN'], startContext: 'LPAREN' }
-const rparenCtx = { inContext: ['LPAREN'], endContext: 'LPAREN' }
-const ldquoteCtx = { inContext: ['', 'LPAREN'], startContext: 'LDQUOTE' }
-const rdquoteCtx = { inContext: ['LDQUOTE'], endContext: 'LDQUOTE' }
-const stringCtx = { inContext: ['LDQUOTE'] }
+const opOrValOrSpCtx = { inContext: ['' as const, 'LPAREN' as const] }
+const lparenCtx = { inContext: ['' as const, 'LPAREN' as const], startContext: 'LPAREN'  as const }
+const rparenCtx = { inContext: ['LPAREN' as const], endContext: 'LPAREN' as const }
+const ldquoteCtx = { inContext: ['' as const, 'LPAREN' as const], startContext: 'LDQUOTE' as const }
+const rdquoteCtx = { inContext: ['LDQUOTE' as const], endContext: 'LDQUOTE' as const }
+const stringCtx = { inContext: ['LDQUOTE' as const] }
 
 // Токены должны быть в правильном порядке.
 // Как минимум если токен фиксированная строка, длинные строки идут раньше.
 // Регулярки обычно идут в конце.
-export const finalTokens = [
+export const finalTokens: Token[] = [
   { ...andLx, ...opOrValOrSpCtx },
   { ...orLx, ...opOrValOrSpCtx },
   { ...neqLx, ...opOrValOrSpCtx },
@@ -64,9 +89,7 @@ export const finalTokens = [
   { ...idfLx, ...opOrValOrSpCtx },
   { ...spaceLx, ...opOrValOrSpCtx },
   { ...stringLx, ...stringCtx },
-] satisfies Token[]
-
-export type TokenType = typeof finalTokens[number]['type']
+]
 
 export function tokenize(input: string, tokens: Token[] = finalTokens): Lexeme[] {
   const contextToTokens = new Map<string, Token[]>()
@@ -108,8 +131,8 @@ export function tokenize(input: string, tokens: Token[] = finalTokens): Lexeme[]
         continue
       }
       
-      if (context === 'DQUOTE') {
-        const literalStart = tokens.findLast(it => it.type === 'DQUOTE')!
+      if (context === 'LDQUOTE') {
+        const literalStart = tokens.findLast(it => it.type === 'LDQUOTE')!
         throw new Error(`Незакрытая строка на позиции ${literalStart}`)
       }
       throw new Error(`Неожиданный символ '${input[i]}' на позиции ${i}`)
@@ -163,8 +186,8 @@ export function tokenizerTest() {
   inputs.forEach(it => {
     try {
       console.log('input:', it)
-      const tokens = tokenize(it)
-      console.log('tokens', tokens.map(({
+      const lexemes = tokenize(it)
+      console.log('lexemes', lexemes.map(({
         token: { type, inContext },
         start,
         value,
