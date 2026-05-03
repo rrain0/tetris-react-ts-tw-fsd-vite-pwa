@@ -1,8 +1,4 @@
-import {
-  type Lexeme, type TokenCtxType,
-  tokenize, type TokenType,
-} from '@@/lib/parser/model/tokenizer.ts'
-
+import { type Lexeme, tokenize, type TokenType } from '@@/lib/parser/model/tokenizer.ts'
 
 
 
@@ -34,12 +30,6 @@ export interface NodeInTree {
   needR?: NodeArgType[] | undefined // что нужно ноде в качестве аргумента слева
 }
 
-
-/*
-export function hasNoR<T extends NodeArg>(node: T): node is T & (LNodeArg | VNodeArg | FNodeArg) {
-  return node.argType === 'l' || node.argType === 'v' || node.argType === 'f'
-}
-*/
 
 
 export type NodeCtxType =
@@ -246,7 +236,16 @@ export function parse(lexemes: Lexeme[]): AstNode {
           `Trying close context [${currNode.endCtx}] but current context is [${ctx}]`
         )
       }
-      insertUpRToCurrL(curr, ctxAstNode)
+      const ctxUp = ctxAstNode.up
+      if (!ctxUp) {
+        throw new Error(
+          `Unreachable. Context-start node [${JSON.stringify(ctxAstNode)}] must have up node`
+        )
+      }
+      // Здесь получется например, что кто-то справа содержит ноду ')' - закрыватель контекста,
+      // которая слева содержит ноду '(' - открыватель контекста,
+      // которая справа содержит поддерево контекста.
+      insertUpRToCurrL(curr, ctxUp)
       ctxStack.length = ctxStack.length - 1
       prev = curr
       continue
@@ -386,79 +385,3 @@ export function parserTest() {
     }
   })
 }
-
-
-// Nodes
-// export const finalNodes: Node[] = [
-//   orNode,
-//   andNode,
-//   dotNode,
-//   eqNode,
-//   neqNode,
-//   gtNode,
-//   ltNode,
-//   gteNode,
-//   lteNode,
-//   ldquoteNode,
-//   rdquoteNode,
-//   lparenNode,
-//   rparenNode,
-//   idfNode,
-//   stringNode,
-//   numberNode,
-//   spaceNode,
-//   expressionNode,
-// ]
-
-
-
-/*
- if ('right' in prev && 'left' in curr) {
- throw new Error(`Left and right nodes need each other as arguments`)
- }
- if (!('right' in prev) && !('left' in currNode)) {
- throw new Error(`Left and right nodes don't need each other as arguments`)
- }
- if ('right' in prev && !('left' in currNode)) {
- prev.right = currNode
- currNode.up = prev
- }
- if (!('right' in prev) && 'left' in currNode) {
- 
- // Между () ничего нет
- if (prev.type === 'lparen' && currNode.type === 'rparen') {
- throw new Error(`Empty parentheses`)
- }
- 
- // Поднимаем текущую ноду наверх если приоритет меньше.
- // Ноды с самым высоким приоритетом являются листьями дерева AST.
- let toDown: Node | undefined = prev
- while (true) {
- if (!toDown) throw new Error(`This is unreachable`)
- if (toDown.rPrec <= currNode.lPrec) break
- 
- const up: Node | undefined = toDown.up
- if (!up) throw new Error(`This is unreachable`)
- if (hasNoR(up)) throw new Error(`This is unreachable`)
- 
- const down = currNode.left
- if (down) {
- if (hasNoR(toDown)) throw new Error(`This is unreachable`)
- down.up = toDown
- toDown.right = down
- }
- 
- currNode.left = toDown
- toDown.up = currNode
- 
- currNode.up = up
- up.right = currNode
- 
- toDown = up
- }
- if (currNode.type === 'rparen' && currNode.left?.type !== 'lparen') {
- throw new Error(`Unopened right parenthesis`)
- }
- }
- */
- 
