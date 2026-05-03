@@ -26,8 +26,8 @@ export type NodeForType =
   | NodeArgType
 
 export interface NodeInTree {
-  forL: NodeForType // чем является нода для ноды справа (имеется ввиду так, как ноды расположекны в самой строке)
-  forR: NodeForType // чем является нода для ноды слева (имеется ввиду так, как ноды расположекны в самой строке)
+  forNearL: NodeForType // чем является нода для ноды, которая физически в строке справа
+  forNearR: NodeForType // чем является нода для ноды, которая физически в строке слева
   forLPrec: number // приоритет для ноды слева
   forRPrec: number // приоритет для ноды справа
   needL?: NodeArgType[] | undefined // что нужно ноде в качестве аргумента справа
@@ -90,46 +90,56 @@ export type Node = NodeInTree & NodeCtx & NodeOp
 
 // Node tree params
 const exprInT: NodeInTree = {
-  forL: 'value', forR: 'value',
+  forNearL: 'value', forNearR: 'value',
   forLPrec: 0, forRPrec: 0,
   needR: ['value', 'idf'],
 }
 const lparenInT: NodeInTree = {
-  forL: 'value', forR: 'consumer',
+  forNearL: 'value', forNearR: 'consumer',
   forLPrec: 6, forRPrec: 1,
   needR: ['value', 'idf'],
 }
+const rparenInT: NodeInTree = {
+  forNearL: 'consumer', forNearR: 'value',
+  forLPrec: 1, forRPrec: 6,
+  needL: ['value', 'idf'],
+}
 const ldquoteInT: NodeInTree = {
-  forL: 'value', forR: 'consumer',
+  forNearL: 'value', forNearR: 'consumer',
   forLPrec: 6, forRPrec: 1,
   needR: ['string'],
 }
+const rdquoteInT: NodeInTree = {
+  forNearL: 'consumer', forNearR: 'value',
+  forLPrec: 1, forRPrec: 6,
+  needL: ['string'],
+}
 const orInT: NodeInTree = {
-  forL: 'consumer', forR: 'consumer',
+  forNearL: 'consumer', forNearR: 'consumer',
   forLPrec: 2, forRPrec: 2,
   needL: ['value', 'idf'], needR: ['value', 'idf'],
 }
 const andInT: NodeInTree = {
-  forL: 'consumer', forR: 'consumer',
+  forNearL: 'consumer', forNearR: 'consumer',
   forLPrec: 3, forRPrec: 3,
   needL: ['value', 'idf'], needR: ['value', 'idf'],
 }
 const compInT: NodeInTree = {
-  forL: 'consumer', forR: 'consumer',
+  forNearL: 'consumer', forNearR: 'consumer',
   forLPrec: 4, forRPrec: 4,
   needL: ['value', 'idf'], needR: ['value', 'idf'],
 }
 const dotInT: NodeInTree = {
-  forL: 'consumer', forR: 'consumer',
+  forNearL: 'consumer', forNearR: 'consumer',
   forLPrec: 5, forRPrec: 5,
   needL: ['idf'], needR: ['idf'],
 }
 const valInT: NodeInTree = {
-  forL: 'value', forR: 'value',
+  forNearL: 'value', forNearR: 'value',
   forLPrec: 6, forRPrec: 6,
 }
 const idfInT: NodeInTree = {
-  forL: 'idf', forR: 'idf',
+  forNearL: 'idf', forNearR: 'idf',
   forLPrec: 6, forRPrec: 6,
 }
 
@@ -155,14 +165,10 @@ export const gtNode: Node = { type: 'gt', ...compInT, ...defCtx }
 export const ltNode: Node = { type: 'lt', ...compInT, ...defCtx }
 export const gteNode: Node = { type: 'gte', ...compInT, ...defCtx }
 export const lteNode: Node = { type: 'lte', ...compInT, ...defCtx }
-export const ldquoteNode: Node = { type: 'ldquote', ...ldquoteInT, ...ldquoteCtx }
-export const rdquoteNode: Node = {
-  type: 'rdquote', ...ldquoteInT /* stub */, ...rdquoteCtx,
-}
 export const lparenNode: Node = { type: 'lparen', ...lparenInT, ...lparenCtx }
-export const rparenNode: Node = {
-  type: 'rparen', ...lparenInT /* stub */, ...rparenCtx,
-}
+export const rparenNode: Node = { type: 'rparen', ...rparenInT, ...rparenCtx }
+export const ldquoteNode: Node = { type: 'ldquote', ...ldquoteInT, ...ldquoteCtx }
+export const rdquoteNode: Node = { type: 'rdquote', ...rdquoteInT, ...rdquoteCtx }
 export const idfNode: Node = { type: 'idf', ...idfInT, ...defCtx }
 export const stringNode: Node = { type: 'string', ...valInT, ...stringCtx }
 export const numberNode: Node = { type: 'number', ...valInT, ...defCtx }
@@ -207,6 +213,7 @@ export function parse(lexemes: Lexeme[]): AstNode {
   const ctxStack: AstNode[] = [root]
   
   let prev: AstNode = root
+  
   for (let i = 0; i < lexemes.length; i++) {
     const lexeme = lexemes[i]
     const { token } = lexeme
@@ -220,7 +227,8 @@ export function parse(lexemes: Lexeme[]): AstNode {
     const currNode = currs.find(it => it.inCtx.includes(ctx))
     if (!currNode) {
       throw new Error(
-        `No nodes for ctx [${ctx}] and token type [${token.type}]. Expected nodes are [${JSON.stringify(currs)}]`
+        `No nodes for ctx [${ctx}] and token type [${token.type}]. ` + 
+        `Expected nodes are [${JSON.stringify(currs)}]`
       )
     }
     
@@ -229,19 +237,21 @@ export function parse(lexemes: Lexeme[]): AstNode {
       continue
     }
     
-    // Если нашли конец контекста то закрываем его (текущую ноду скипаем)
+    const curr: AstNode = { node: currNode }
+    
+    // Если нашли конец контекста то закрываем его
     if (currNode.endCtx) {
       if (ctx !== currNode.endCtx) {
         throw new Error(
           `Trying close context [${currNode.endCtx}] but current context is [${ctx}]`
         )
       }
-      prev = ctxAstNode
+      insertUpRToCurrL(curr, ctxAstNode)
       ctxStack.length = ctxStack.length - 1
+      prev = curr
       continue
     }
     
-    const curr: AstNode = { node: currNode }
     
     
     // Если нашли начало контекста, то добавляем его
@@ -260,42 +270,61 @@ export function parse(lexemes: Lexeme[]): AstNode {
     console.log('curr', curr)
     
     
-    // Проверяем нужен ли аргумент справа предыдущей ноде
+    // Пытаемся присвоить левой ноде текущую правую
     const { node: { needR: prevNeedR } } = prev
-    const { node: { forL: currForL } } = curr
+    const { node: { forNearL: currForNearL } } = curr
     if (prevNeedR?.length) {
-      if (!prevNeedR.includes(currForL as NodeArgType)) {
+      // Если левой ноде нужна правая, но не подоходит по типу, то кидаем ошибку
+      if (!prevNeedR.includes(currForNearL as NodeArgType)) {
         throw new Error(
-          `Node of type [${prev.node.type}] expects right arg of [${JSON.stringify(prevNeedR)}], ` +
+          `Node of type [${prev.node.type}] ` +
+          `expects right arg of [${JSON.stringify(prevNeedR)}], ` +
           `but found node [${JSON.stringify(curr.node)}]`
         )
       }
-      attachToEmptyR(curr, prev)
+      // Иначе присваиваем левой ноде правую
+      attachCurrToUpEmptyR(curr, prev)
       prev = curr
       continue
     }
     
-    // Проверяем что текущей ноде нужен аргумент слева
+    // Проверяем, что текущей правой ноде нужна левая
+    const { node: { forNearR: prevForNearR } } = prev
     const { node: { needL: currNeedL } } = curr
+    // Если текущей ноды не нужны аргументы слева, то кидаем ошибку.
+    // Потому что мы уже провирили ранее, что левой ноде тоже не нужны аргументы справа.
+    // А смежные ноды не могут не быть связаны друг с другом.
     if (!currNeedL?.length) {
       throw new Error(
-        `Expected node to be operation with at least left arg, but is [${JSON.stringify(curr.node)}]`
+        `Expected node to be operation with at least left arg, ` + 
+        `but is [${JSON.stringify(curr.node)}]`
+      )
+    }
+    // Если левая нода как аргумент не подходит правой по типу, то кидаем ошибку.
+    if (!currNeedL.includes(prevForNearR as NodeArgType)) {
+      throw new Error(
+        `Node of type [${curr.node.type}] ` +
+        `expects left arg of [${JSON.stringify(currNeedL)}], ` +
+        `but found node [${JSON.stringify(prev.node)}]`
       )
     }
     
-    // Теперь предыдущей ноде не нужен аргумент справа, а текущей нужен слева.
-    // Дальше идём вверх по дереву по приоритету, потом проверяем тип аргумента.
-    // Здесь не сможет быть такого чтобы проверяемой ноде не нужен будет правый аргумент.
-    let up = prev.up
+    // Теперь левая нода принимается правой нодой как аргумент.
+    // Но левая нода может уже быть занята другой операцией,
+    // так что идём проверять приоритеты операций.
+    // Здесь не сможет быть такого чтобы нода над левой нодой не имела правого аргумента.
+    let upLeft = prev.up
     while (true) {
-      if (!up) {
+      if (!upLeft) {
         throw new Error(
-          `Up node must be present for [${prev}]`
+          `Unreachable. Up node must be present for [${JSON.stringify(prev)}]`
         )
       }
-      if (up.node.forRPrec > curr.node.forLPrec) up = up.up
+      // Если у текущей левой ноды приоритет меньше, то идёт выше по дереву.
+      if (upLeft.node.forRPrec > curr.node.forLPrec) upLeft = upLeft.up
+      // Иначе вклиниваем текущую правую ноду
       else {
-        insertRL(curr, up)
+        insertUpRToCurrL(curr, upLeft)
         prev = curr
         break
       }
@@ -309,7 +338,7 @@ export function parse(lexemes: Lexeme[]): AstNode {
 
 
 
-function attachToEmptyR(curr: AstNode, upWithEmptyR: AstNode) {
+function attachCurrToUpEmptyR(curr: AstNode, upWithEmptyR: AstNode) {
   if (upWithEmptyR.nodeR) {
     throw new Error(
       `Trying to attach to not empty nodeR in [${upWithEmptyR}`
@@ -319,8 +348,8 @@ function attachToEmptyR(curr: AstNode, upWithEmptyR: AstNode) {
   curr.up = upWithEmptyR
 }
 
-function insertRL(curr: AstNode, up: AstNode) {
-  if (!up.nodeR) return attachToEmptyR(curr, up)
+function insertUpRToCurrL(curr: AstNode, up: AstNode) {
+  if (!up.nodeR) return attachCurrToUpEmptyR(curr, up)
   
   curr.nodeL = up.nodeR
   curr.nodeL.up = curr
