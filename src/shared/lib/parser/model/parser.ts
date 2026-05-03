@@ -1,4 +1,4 @@
-import { type Lexeme, tokenize, } from '@@/lib/parser/model/tokenizer.ts'
+import { type Lexeme, tokenize } from '@@/lib/parser/model/tokenizer.ts'
 
 
 
@@ -166,6 +166,8 @@ export function parse(lexemes: Lexeme[]): Node {
           throw new Error(`Empty parentheses`)
         }
         
+        // Поднимаем текущую ноду наверх если приоритет меньше.
+        // Ноды с самым высоким приоритетом являются листьями дерева AST.
         let toDown = prev
         while (true) {
           if (!toDown) throw new Error(`This is unreachable`)
