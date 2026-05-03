@@ -2,119 +2,126 @@ import { type Lexeme, tokenize } from '@@/lib/parser/model/tokenizer.ts'
 
 
 
-export interface OperationNode {
+export interface AnyNode { 
   up: Node | undefined
-  nodeType: 'Operation'
-  type:
-    | 'or'
-    | 'and'
-    | 'dot'
-    | 'eq'
-    | 'neq'
-    | 'gt'
-    | 'lt'
-    | 'gte'
-    | 'lte'
-    | 'lparen'
-    | 'rparen'
-    | 'expression'
-  leftPrec: number
-  rightPrec: number
-  left?: Node | undefined
-  right?: Node | undefined
 }
-export interface ValueNode {
-  up: Node | undefined
-  nodeType: 'Value'
-  type:
-    | 'number'
-    | 'string'
-  leftPrec: number
-  rightPrec: number
-  value: any
+
+export interface TypeNode extends AnyNode {
+  nodeType: 'Operation' | 'Value' | 'FieldName'
 }
-export interface FieldNameNode {
-  up: Node | undefined
-  nodeType: 'FieldName'
-  type:
-    | 'fieldName'
-  leftPrec: number
-  rightPrec: number
-  field: string
+
+export type OpType =
+  | 'or'
+  | 'and'
+  | 'dot'
+  | 'eq'
+  | 'neq'
+  | 'gt'
+  | 'lt'
+  | 'gte'
+  | 'lte'
+  | 'lparen'
+  | 'rparen'
+  | 'expression'
+  // Values
+  | 'number'
+  | 'string'
+  // Field name
+  | 'fieldName'
+
+export interface NodeOpType { type: OpType }
+
+export interface NodePrecedence { lPrec: number, rPrec: number }
+
+export type NodeMeta = TypeNode & NodeOpType & NodePrecedence
+
+export interface LNodeArg { argType: 'l', left: Node | undefined }
+export interface RNodeArg { argType: 'r', right: Node | undefined }
+export interface LRNodeArg { argType: 'lr', left: Node | undefined, right: Node | undefined }
+export interface VNodeArg { argType: 'v', value: any }
+export interface FNodeArg { argType: 'f', field: string }
+export type NodeArg = VNodeArg | FNodeArg | LNodeArg | RNodeArg | LRNodeArg
+
+export function hasNoR<T extends NodeArg>(node: T): node is T & (LNodeArg | VNodeArg | FNodeArg) {
+  return node.argType === 'l' || node.argType === 'v' || node.argType === 'f'
 }
-export type Node = OperationNode | ValueNode | FieldNameNode
+
+
+export type Node = NodeMeta & NodeArg
 
 // Node
-const anyNode = { up: undefined }
+const anyNode: AnyNode = { up: undefined }
 
-// Node Type
-const opNode = { ...anyNode, nodeType: 'Operation' as const }
-const valNode = { ...anyNode, nodeType: 'Value' as const }
-const fieldNameNode = { ...anyNode, nodeType: 'FieldName' as const }
+// Type node
+const opNode: TypeNode = { ...anyNode, nodeType: 'Operation' }
+const valNode: TypeNode = { ...anyNode, nodeType: 'Value' }
+const fieldNameNode: TypeNode = { ...anyNode, nodeType: 'FieldName' }
 
 // Precedence
-const exprPrec = { leftPrec: 0, rightPrec: 0 }
-const rparenPrec = { leftPrec: 1, rightPrec: 6 }
-const lparenPrec = { leftPrec: 6, rightPrec: 2 }
-const orPrec = { leftPrec: 2, rightPrec: 2 }
-const andPrec = { leftPrec: 3, rightPrec: 3 }
-const comparisonPrec = { leftPrec: 4, rightPrec: 4 }
-const dotPrec = { leftPrec: 5, rightPrec: 5 }
-const valuePrec = { leftPrec: 6, rightPrec: 6 }
+const exprPrec: NodePrecedence = { lPrec: 0, rPrec: 0 }
+const rparenPrec: NodePrecedence = { lPrec: 1, rPrec: 6 }
+const lparenPrec: NodePrecedence = { lPrec: 6, rPrec: 2 }
+const orPrec: NodePrecedence = { lPrec: 2, rPrec: 2 }
+const andPrec: NodePrecedence = { lPrec: 3, rPrec: 3 }
+const comparisonPrec: NodePrecedence = { lPrec: 4, rPrec: 4 }
+const dotPrec: NodePrecedence = { lPrec: 5, rPrec: 5 }
+const valuePrec: NodePrecedence = { lPrec: 6, rPrec: 6 }
 
 // Arguments
-const rightArg = { right: undefined }
-const leftArg = { left: undefined }
-const leftRightArgs = { left: undefined, right: undefined }
+const rArg: RNodeArg = { argType: 'r', right: undefined }
+const lArg: LNodeArg = { argType: 'l', left: undefined }
+const lrArg: LRNodeArg = { argType: 'lr', left: undefined, right: undefined }
+const vArg: (value: any) => VNodeArg = (value: any) => ({ argType: 'v', value })
+const fArg: (field: string) => FNodeArg = (field: string) => ({ argType: 'f', field })
 
 
 const newOrNode = (): Node => ({
-  ...opNode, type: 'or', ...orPrec, ...leftRightArgs,
+  ...opNode, type: 'or', ...orPrec, ...lrArg,
 })
 const newAndNode = (): Node => ({
-  ...opNode, type: 'and', ...andPrec, ...leftRightArgs,
+  ...opNode, type: 'and', ...andPrec, ...lrArg,
 })
 const newDotNode = (): Node => ({
-  ...opNode, type: 'dot', ...dotPrec, ...leftRightArgs,
+  ...opNode, type: 'dot', ...dotPrec, ...lrArg,
 })
 const newEqNode = (): Node => ({
-  ...opNode, type: 'eq', ...comparisonPrec, ...leftRightArgs,
+  ...opNode, type: 'eq', ...comparisonPrec, ...lrArg,
 })
 const newNeqNode = (): Node => ({
-  ...opNode, type: 'neq', ...comparisonPrec, ...leftRightArgs,
+  ...opNode, type: 'neq', ...comparisonPrec, ...lrArg,
 })
 const newGtNode = (): Node => ({
-  ...opNode, type: 'gt', ...comparisonPrec, ...leftRightArgs,
+  ...opNode, type: 'gt', ...comparisonPrec, ...lrArg,
 })
 const newLtNode = (): Node => ({
-  ...opNode, type: 'lt', ...comparisonPrec, ...leftRightArgs,
+  ...opNode, type: 'lt', ...comparisonPrec, ...lrArg,
 })
 const newGteNode = (): Node => ({
-  ...opNode, type: 'gte', ...comparisonPrec, ...leftRightArgs,
+  ...opNode, type: 'gte', ...comparisonPrec, ...lrArg,
 })
 const newLteNode = (): Node => ({
-  ...opNode, type: 'lte', ...comparisonPrec, ...leftRightArgs,
+  ...opNode, type: 'lte', ...comparisonPrec, ...lrArg,
 })
-//const newLDQuoteNode = (): Node => ({ ...opNode, type: 'ldquote', ...valuePrec, ...rightArg })
-//const newRDQuoteNode = (): Node => ({ ...opNode, type: 'rdquote', ...valuePrec, ...leftArg })
+//const newLDQuoteNode = (): Node => ({ ...opNode, type: 'ldquote', ...valuePrec, ...rArg })
+//const newRDQuoteNode = (): Node => ({ ...opNode, type: 'rdquote', ...valuePrec, ...lArg })
 const newLParenNode = (): Node => ({
-  ...opNode, type: 'lparen', ...lparenPrec, ...rightArg,
+  ...opNode, type: 'lparen', ...lparenPrec, ...rArg,
 })
 const newRParenNode = (): Node => ({
-  ...opNode, type: 'rparen', ...rparenPrec, ...leftArg,
+  ...opNode, type: 'rparen', ...rparenPrec, ...lArg,
 })
 const newIdfNode = (field: string): Node =>  ({
-  ...fieldNameNode, type: 'fieldName', field, ...valuePrec,
+  ...fieldNameNode, type: 'fieldName', ...fArg(field), ...valuePrec,
 })
 const newStringNode = (value: string): Node => ({
-  ...valNode, type: 'string', value, ...valuePrec,
+  ...valNode, type: 'string', ...vArg(value), ...valuePrec,
 })
 const newNumberNode = (value: number): Node => ({
-  ...valNode, type: 'number', value, ...valuePrec,
+  ...valNode, type: 'number', ...vArg(value), ...valuePrec,
 })
 //const newSpaceNode = (value: string): Node => ({ ...valNode, value, ...valuePrec })
 const newExprNode = (): Node => ({
-  ...opNode, type: 'expression', ...exprPrec, ...rightArg,
+  ...opNode, type: 'expression', ...exprPrec, ...rArg,
 })
 
 
@@ -168,18 +175,18 @@ export function parse(lexemes: Lexeme[]): Node {
         
         // Поднимаем текущую ноду наверх если приоритет меньше.
         // Ноды с самым высоким приоритетом являются листьями дерева AST.
-        let toDown = prev
+        let toDown: Node | undefined = prev
         while (true) {
           if (!toDown) throw new Error(`This is unreachable`)
-          if (toDown.rightPrec <= curr.leftPrec) break
+          if (toDown.rPrec <= curr.lPrec) break
           
-          const up = toDown.up
+          const up: Node | undefined = toDown.up
           if (!up) throw new Error(`This is unreachable`)
-          if (!('right' in up)) throw new Error(`This is unreachable`)
+          if (hasNoR(up)) throw new Error(`This is unreachable`)
           
           const down = curr.left
           if (down) {
-            if (!('right' in toDown)) throw new Error(`This is unreachable`)
+            if (hasNoR(toDown)) throw new Error(`This is unreachable`)
             down.up = toDown
             toDown.right = down
           }
