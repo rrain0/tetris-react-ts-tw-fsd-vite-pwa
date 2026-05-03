@@ -20,7 +20,7 @@ export type TokenType =
   | 'SPACE'
   | 'STRING'
 
-export type TokenContextType =
+export type TokenCtxType =
   | ''
   | 'LPAREN'
   | 'LDQUOTE'
@@ -32,9 +32,9 @@ export interface LexemePat {
   pattern?: RegExp | undefined
 }
 export interface TokenCtx {
-  startContext?: TokenContextType | undefined // задать контекст токенизации
-  endContext?: TokenContextType | undefined // завершить контекст токенизации
-  inContext: TokenContextType[] // токен разрешён в этом контексте
+  startCtx?: TokenCtxType | undefined // задать контекст токенизации
+  endCtx?: TokenCtxType | undefined // завершить контекст токенизации
+  inCtx: TokenCtxType[] // токен разрешён в этом контексте
 }
 
 export type Token = LexemePat & TokenCtx
@@ -65,12 +65,12 @@ const spaceLx: LexemePat = { type: 'SPACE', pattern: /^\s+/ }
 const stringLx: LexemePat = { type: 'STRING', pattern: /^[^"]*/ }
 
 // Контекст лексем
-const defCtx: TokenCtx = { inContext: ['', 'LPAREN'] }
-const lparenCtx: TokenCtx = { ...defCtx, startContext: 'LPAREN'  }
-const rparenCtx: TokenCtx = { inContext: ['LPAREN'], endContext: 'LPAREN' }
-const ldquoteCtx: TokenCtx = { ...defCtx, startContext: 'LDQUOTE' }
-const rdquoteCtx: TokenCtx = { inContext: ['LDQUOTE'], endContext: 'LDQUOTE' }
-const stringCtx: TokenCtx = { inContext: ['LDQUOTE'] }
+const defCtx: TokenCtx = { inCtx: ['', 'LPAREN'] }
+const lparenCtx: TokenCtx = { ...defCtx, startCtx: 'LPAREN'  }
+const rparenCtx: TokenCtx = { inCtx: ['LPAREN'], endCtx: 'LPAREN' }
+const ldquoteCtx: TokenCtx = { ...defCtx, startCtx: 'LDQUOTE' }
+const rdquoteCtx: TokenCtx = { inCtx: ['LDQUOTE'], endCtx: 'LDQUOTE' }
+const stringCtx: TokenCtx = { inCtx: ['LDQUOTE'] }
 
 // Сами токены
 export const andTk: Token = { ...andLx, ...defCtx }
@@ -119,39 +119,40 @@ export const finalTokens: Token[] = [
 ]
 
 export function tokenize(input: string, tokens: Token[] = finalTokens): Lexeme[] {
-  const contextToTokens = new Map<TokenContextType, Token[]>()
-  const rootContext: TokenContextType = ''
+  const ctxToTokens = new Map<TokenCtxType, Token[]>()
+  
+  const rootCtx: TokenCtxType = ''
   
   for (const token of tokens) {
-    const { inContext = [''] } = token
-    for (let context of inContext) {
-      context ??= rootContext
-      if (!contextToTokens.has(context)) contextToTokens.set(context, [token])
-      else contextToTokens.get(context)!.push(token)
+    const { inCtx = [''] } = token
+    for (let ctx of inCtx) {
+      ctx ??= rootCtx
+      if (!ctxToTokens.has(ctx)) ctxToTokens.set(ctx, [token])
+      else ctxToTokens.get(ctx)!.push(token)
     }
   }
   
   const lexemes: Lexeme[] = []
-  const contextStack: TokenContextType[] = [rootContext]
+  const ctxStack: TokenCtxType[] = [rootCtx]
+  
   let i = 0
   while (i < input.length) {
-    const context = contextStack.at(-1)!
-    
-    const availableTokens = contextToTokens.get(contextStack.at(-1)!)
+    const ctx = ctxStack.at(-1)!
+    const availableTokens = ctxToTokens.get(ctx)
     if (availableTokens) {
       
       const lexeme = matchToken(input, i, availableTokens)
       if (lexeme) {
         
-        const { type, startContext, endContext } = lexeme.token
-        if (endContext) {
-          if (context !== endContext) {
-            throw new Error(`Token of type ${type} must be in context ${context}`)
+        const { type, startCtx, endCtx } = lexeme.token
+        if (endCtx) {
+          if (ctx !== endCtx) {
+            throw new Error(`Token of type ${type} must be in ctx ${ctx}`)
           }
-          contextStack.length = contextStack.length - 1
+          ctxStack.length = ctxStack.length - 1
         }
-        if (startContext) {
-          contextStack.push(startContext)
+        if (startCtx) {
+          ctxStack.push(startCtx)
         }
         
         i = lexeme.start + lexeme.value.length
@@ -159,24 +160,24 @@ export function tokenize(input: string, tokens: Token[] = finalTokens): Lexeme[]
         continue
       }
       
-      if (context === 'LDQUOTE') {
+      if (ctx === 'LDQUOTE') {
         const literalStart = tokens.findLast(it => it.type === 'LDQUOTE')!
         throw new Error(`Незакрытая строка на позиции ${literalStart}`)
       }
       throw new Error(`Неожиданный символ '${input[i]}' на позиции ${i}`)
       throw new Error(
-        `No lexeme found at ${i} for ...${input.substring(i, i + 10)}... in context ${context}`
+        `No lexeme found at ${i} for ...${input.substring(i, i + 10)}... in ctx ${ctx}`
       )
     }
     
-    throw new Error(`No available tokens for context: ${context}`)
+    throw new Error(`No available tokens for ctx: ${ctx}`)
   }
   
-  if (JSON.stringify(contextStack) !== JSON.stringify([''])) {
-    if (contextStack.at(-1)! === 'LDQUOTE') {
+  if (JSON.stringify(ctxStack) !== JSON.stringify([''])) {
+    if (ctxStack.at(-1)! === 'LDQUOTE') {
       throw new Error(`Незакрытая строка на позиции ${i}`)
     }
-    throw new Error(`Unclosed contexts: ${contextStack.slice(1)}`)
+    throw new Error(`Unclosed ctxs: ${ctxStack.slice(1)}`)
   }
   
   return lexemes
@@ -216,11 +217,11 @@ export function tokenizerTest() {
       console.log('input:', it)
       const lexemes = tokenize(it)
       console.log('lexemes', lexemes.map(({
-        token: { type, inContext },
+        token: { type, inCtx },
         start,
         value,
       }) => ({
-        type, value, ctx: JSON.stringify(inContext), start,
+        type, value, ctx: JSON.stringify(inCtx), start,
       })))
     }
     catch (err) {
