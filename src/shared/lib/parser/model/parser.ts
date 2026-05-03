@@ -128,6 +128,10 @@ const valInT: NodeInTree = {
   forNearL: 'value', forNearR: 'value',
   forLPrec: 6, forRPrec: 6,
 }
+const stringInT: NodeInTree = {
+  forNearL: 'string', forNearR: 'string',
+  forLPrec: 6, forRPrec: 6,
+}
 const idfInT: NodeInTree = {
   forNearL: 'idf', forNearR: 'idf',
   forLPrec: 6, forRPrec: 6,
@@ -160,7 +164,7 @@ export const rparenNode: Node = { type: 'rparen', ...rparenInT, ...rparenCtx }
 export const ldquoteNode: Node = { type: 'ldquote', ...ldquoteInT, ...ldquoteCtx }
 export const rdquoteNode: Node = { type: 'rdquote', ...rdquoteInT, ...rdquoteCtx }
 export const idfNode: Node = { type: 'idf', ...idfInT, ...defCtx }
-export const stringNode: Node = { type: 'string', ...valInT, ...stringCtx }
+export const stringNode: Node = { type: 'string', ...stringInT, ...stringCtx }
 export const numberNode: Node = { type: 'number', ...valInT, ...defCtx }
 export const spaceNode: Node = { type: 'space', ...valInT, ...defCtx }
 export const expressionNode: Node = { type: 'expression', ...exprInT, ...exprCtx }
@@ -265,8 +269,8 @@ export function parse(lexemes: Lexeme[]): AstNode {
     if (currNode.type === 'idf') curr.value = lexeme.value
     
     
-    console.log('prev', prev)
-    console.log('curr', curr)
+    //console.log('prev', prev)
+    //console.log('curr', curr)
     
     
     // Пытаемся присвоить левой ноде текущую правую
@@ -329,7 +333,26 @@ export function parse(lexemes: Lexeme[]): AstNode {
       }
     }
     
-    
+  }
+  
+  
+  
+  // Просто рут может быть и без нод
+  if (prev === root) return root
+  
+  // Последняя нода должна быть закрыта аргументами
+  if (prev.node.needR?.length && !prev.nodeR) {
+    throw new Error(
+      `Expected next node of type [${JSON.stringify(prev.node.needR)}] ` +
+      `but there is no more input`
+    )
+  }
+  
+  // Все контексты, кроме root должны быть закрыты
+  if (ctxStack.length >= 2) {
+    throw new Error(
+      `Unclosed contexts [${JSON.stringify(ctxStack.slice(1))}]`
+    )
   }
   
   return root
@@ -373,7 +396,7 @@ export function parserTest() {
     //'a@b',
     '  a  =  1  ',
   ]
-  inputs.slice(6, 7).forEach(it => {
+  inputs.slice(0, 1).forEach(it => {
     try {
       console.log('input:', it)
       const lexemes = tokenize(it)

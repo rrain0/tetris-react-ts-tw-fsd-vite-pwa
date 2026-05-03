@@ -60,7 +60,7 @@ const eqLx: LexemePat = { type: 'EQ', string: '=' }
 const gtLx: LexemePat = { type: 'GT', string: '>' }
 const ltLx: LexemePat = { type: 'LT', string: '<' }
 const numberLx: LexemePat = { type: 'NUMBER', pattern: /^\d+([.]\d+)?/ }
-const idfLx: LexemePat = { type: 'IDENTIFIER', pattern: /^[a-z_]+/i }
+const idfLx: LexemePat = { type: 'IDENTIFIER', pattern: /^[a-zA-Z_]+/ }
 const spaceLx: LexemePat = { type: 'SPACE', pattern: /^\s+/ }
 const stringLx: LexemePat = { type: 'STRING', pattern: /^[^"]*/ }
 
