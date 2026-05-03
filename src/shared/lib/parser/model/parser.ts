@@ -1,4 +1,4 @@
-import { type Lexeme, tokenize } from '@@/lib/parser/model/tokenizer.ts'
+import { type Lexeme, type TokenCtx, tokenize } from '@@/lib/parser/model/tokenizer.ts'
 
 
 
@@ -33,11 +33,9 @@ export interface NodeOpType { type: OpType }
 
 export interface NodePrecedence { lPrec: number, rPrec: number }
 
-export type NodeMeta = TypeNode & NodeOpType & NodePrecedence
-
-export interface LNodeArg { argType: 'l', left: Node | undefined }
-export interface RNodeArg { argType: 'r', right: Node | undefined }
-export interface LRNodeArg { argType: 'lr', left: Node | undefined, right: Node | undefined }
+export interface LNodeArg { argType: 'l', left?: Node | undefined }
+export interface RNodeArg { argType: 'r', right?: Node | undefined }
+export interface LRNodeArg { argType: 'lr', left?: Node | undefined, right?: Node | undefined }
 export interface VNodeArg { argType: 'v', value: any }
 export interface FNodeArg { argType: 'f', field: string }
 export type NodeArg = VNodeArg | FNodeArg | LNodeArg | RNodeArg | LRNodeArg
@@ -47,15 +45,50 @@ export function hasNoR<T extends NodeArg>(node: T): node is T & (LNodeArg | VNod
 }
 
 
-export type Node = NodeMeta & NodeArg
+export type NodeCtxType =
+  | ''
+  | 'LPAREN'
+  | 'LDQUOTE'
+  | 'CHAIN'
+  | 'IDF'
+
+export interface InCtxNode { inCtx: NodeCtxType[] }
+
+export interface StartCtxNode { startCtx?: NodeCtxType | undefined, endCtxNode?: Node | undefined }
+export interface EndCtxNode { endCtx?: NodeCtxType[] | undefined, startCtxNode?: Node | undefined }
+
+export type CtxNode = StartCtxNode & EndCtxNode
+
+export type NodeCtx = InCtxNode & CtxNode
+
+
+export type Node = TypeNode & NodeOpType & NodePrecedence & NodeArg & NodeCtx
+
+
+// Контекст - требуется там,
+// где есть явный оператор открытия и явный оператор закрытия: () ""
+// Приоритет - работает внутри контекста,
+// когда 2 оператора хотят одно значение в качестве аргумента: ... or value and ...
+// Тип ноды аргумента - оператор может иметь
 
 // Node
 const anyNode: AnyNode = { up: undefined }
 
-// Type node
+// Node types
 const opNode: TypeNode = { ...anyNode, nodeType: 'Operation' }
 const valNode: TypeNode = { ...anyNode, nodeType: 'Value' }
 const fieldNameNode: TypeNode = { ...anyNode, nodeType: 'FieldName' }
+
+// Contexts
+const defCtx: NodeCtx = { inCtx: ['', 'LPAREN', 'CHAIN'] }
+const lparenCtx: NodeCtx = { ...defCtx, startCtx: 'LPAREN'  }
+const rparenCtx: NodeCtx = { inCtx: ['LPAREN'], endCtx: 'LPAREN' }
+const ldquoteCtx: NodeCtx = { ...defCtx, startCtx: 'LDQUOTE' }
+const rdquoteCtx: NodeCtx = { inCtx: ['LDQUOTE'], endCtx: 'LDQUOTE' }
+const stringCtx: NodeCtx = { inCtx: ['LDQUOTE'] }
+const chainCtx: NodeCtx = { ...defCtx, startCtx: 'CHAIN' }
+const idfCtx: NodeCtx = { ...defCtx, startCtx: 'IDF' }
+
 
 // Precedence
 const exprPrec: NodePrecedence = { lPrec: 0, rPrec: 0 }
@@ -68,18 +101,18 @@ const dotPrec: NodePrecedence = { lPrec: 5, rPrec: 5 }
 const valuePrec: NodePrecedence = { lPrec: 6, rPrec: 6 }
 
 // Arguments
-const rArg: RNodeArg = { argType: 'r', right: undefined }
-const lArg: LNodeArg = { argType: 'l', left: undefined }
-const lrArg: LRNodeArg = { argType: 'lr', left: undefined, right: undefined }
+const rArg: RNodeArg = { argType: 'r' }
+const lArg: LNodeArg = { argType: 'l' }
+const lrArg: LRNodeArg = { argType: 'lr' }
 const vArg: (value: any) => VNodeArg = (value: any) => ({ argType: 'v', value })
 const fArg: (field: string) => FNodeArg = (field: string) => ({ argType: 'f', field })
 
-
+// Nodes
 const newOrNode = (): Node => ({
-  ...opNode, type: 'or', ...orPrec, ...lrArg,
+  ...opNode, type: 'or', ...orPrec, ...lrArg, ...defCtx,
 })
 const newAndNode = (): Node => ({
-  ...opNode, type: 'and', ...andPrec, ...lrArg,
+  ...opNode, type: 'and', ...andPrec, ...lrArg, ...defCtx,
 })
 const newDotNode = (): Node => ({
   ...opNode, type: 'dot', ...dotPrec, ...lrArg,

@@ -65,30 +65,30 @@ const spaceLx: LexemePat = { type: 'SPACE', pattern: /^\s+/ }
 const stringLx: LexemePat = { type: 'STRING', pattern: /^[^"]*/ }
 
 // Контекст лексем
-const opOrValOrSpCtx: TokenCtx = { inContext: ['', 'LPAREN'] }
-const lparenCtx: TokenCtx = { inContext: ['', 'LPAREN'], startContext: 'LPAREN'  }
+const defCtx: TokenCtx = { inContext: ['', 'LPAREN'] }
+const lparenCtx: TokenCtx = { ...defCtx, startContext: 'LPAREN'  }
 const rparenCtx: TokenCtx = { inContext: ['LPAREN'], endContext: 'LPAREN' }
-const ldquoteCtx: TokenCtx = { inContext: ['', 'LPAREN'], startContext: 'LDQUOTE' }
+const ldquoteCtx: TokenCtx = { ...defCtx, startContext: 'LDQUOTE' }
 const rdquoteCtx: TokenCtx = { inContext: ['LDQUOTE'], endContext: 'LDQUOTE' }
 const stringCtx: TokenCtx = { inContext: ['LDQUOTE'] }
 
 // Сами токены
-export const andTk: Token = { ...andLx, ...opOrValOrSpCtx }
-export const orTk: Token = { ...orLx, ...opOrValOrSpCtx }
-export const neqTk: Token = { ...neqLx, ...opOrValOrSpCtx }
-export const gteTk: Token = { ...gteLx, ...opOrValOrSpCtx }
-export const lteTk: Token = { ...lteLx, ...opOrValOrSpCtx }
-export const dotTk: Token = { ...dotLx, ...opOrValOrSpCtx }
+export const andTk: Token = { ...andLx, ...defCtx }
+export const orTk: Token = { ...orLx, ...defCtx }
+export const neqTk: Token = { ...neqLx, ...defCtx }
+export const gteTk: Token = { ...gteLx, ...defCtx }
+export const lteTk: Token = { ...lteLx, ...defCtx }
+export const dotTk: Token = { ...dotLx, ...defCtx }
 export const lParenTk: Token = { ...lparenLx, ...lparenCtx }
 export const rparenTk: Token = { ...rparenLx, ...rparenCtx }
 export const ldquoteTk: Token = { ...ldquoteLx, ...ldquoteCtx }
 export const rdquoteTk: Token = { ...rdquoteLx, ...rdquoteCtx }
-export const eqTk: Token = { ...eqLx, ...opOrValOrSpCtx }
-export const gtTk: Token = { ...gtLx, ...opOrValOrSpCtx }
-export const ltTk: Token = { ...ltLx, ...opOrValOrSpCtx }
-export const numberTk: Token = { ...numberLx, ...opOrValOrSpCtx }
-export const idfTk: Token = { ...idfLx, ...opOrValOrSpCtx }
-export const spaceTk: Token = { ...spaceLx, ...opOrValOrSpCtx }
+export const eqTk: Token = { ...eqLx, ...defCtx }
+export const gtTk: Token = { ...gtLx, ...defCtx }
+export const ltTk: Token = { ...ltLx, ...defCtx }
+export const numberTk: Token = { ...numberLx, ...defCtx }
+export const idfTk: Token = { ...idfLx, ...defCtx }
+export const spaceTk: Token = { ...spaceLx, ...defCtx }
 export const stringTk: Token = { ...stringLx, ...stringCtx }
 
 // Токены должны быть в правильном порядке.
