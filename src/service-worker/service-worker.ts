@@ -1,5 +1,7 @@
 /// <reference lib="webworker"/>
 import { generateManifest } from '@/app-meta/generateManifest.ts'
+import { getAppColors } from '@/app-meta/getAppColors.ts'
+import { getAppIcons } from '@/app-meta/getAppIcons.ts'
 import { getAppMetaOrDefault } from '@/app-meta/getAppMeta.ts'
 import type { WorkboxPlugin } from 'workbox-core'
 import { ExpirationPlugin } from 'workbox-expiration'
@@ -70,34 +72,25 @@ if (!envIsDev) {
 
 
 
-// Intercept manifest.json to cache & generate dynamic manifest
-{
-  const manifestStrategy = new StaleWhileRevalidate({
-    cacheName: 'manifest',
-    plugins: [new ExpirationPlugin({ maxEntries: 130 })] as WorkboxPlugin[],
-  })
-  
-  registerRoute(
-    ({ url }) => url.pathname === `${envBaseUrl}manifest.json`,
-    async ({ request, event, url, params }) => {
-      const { searchParams } = url
-      const response = await manifestStrategy.handle({ request, event })
-      let manifest = await response.json() as Record<string, any>
-      
-      //console.log('manifest', manifest)
-      
-      const buildMode = searchParams.get('buildMode') ?? ''
-      const lang = searchParams.get('lang') ?? ''
-      const { appLang, appName, appDescription } = getAppMetaOrDefault(buildMode, lang)
-      manifest = generateManifest(buildMode, appLang, appName, appDescription)
-      
-      return new Response(JSON.stringify(manifest), {
-        // Save original headers
-        headers: response.headers,
-      })
-    }
-  )
-}
+// Intercept & generate dynamic manifest
+registerRoute(
+  ({ url }) => url.pathname === `${envBaseUrl}manifest.json`,
+  async ({ request, event, url, params }) => {
+    const { searchParams } = url
+    
+    const buildMode = searchParams.get('buildMode') ?? ''
+    const buildLang = searchParams.get('lang') ?? ''
+    
+    const appMeta = getAppMetaOrDefault({ buildMode, buildLang })
+    const appColors = getAppColors()
+    const appIcons = getAppIcons({ buildMode })
+    const manifest = generateManifest({ buildMode, ...appMeta, ...appColors, ...appIcons })
+    
+    return new Response(JSON.stringify(manifest), {
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+)
 
 
 

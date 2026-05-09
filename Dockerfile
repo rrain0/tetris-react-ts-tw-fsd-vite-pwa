@@ -9,7 +9,7 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 # Explicitly download the pnpm binary of provided version into the image during the build process
 # '--activate' explicitly sets up this pnpm version to be used globally by 'pnpm' command
-RUN corepack prepare pnpm@latest-10 --activate
+RUN corepack prepare pnpm@latest --activate
 
 # Set the current path in image
 WORKDIR /app

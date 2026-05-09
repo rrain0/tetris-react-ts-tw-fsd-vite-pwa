@@ -12,11 +12,11 @@
   },
   "@COMMENT--terser": "'terser' used by @vitejs/plugin-legacy for minification",
   "dependencies": {
-    "@tailwindcss/vite": "^4.2.4",
+    "@tailwindcss/vite": "^4.3.0",
     "react": "^19.2.6",
     "react-device-detect": "^2.2.3",
     "react-dom": "^19.2.6",
-    "tailwindcss": "^4.2.4",
+    "tailwindcss": "^4.3.0",
     "uuid": "^14.0.0",
     "zustand": "^5.0.13"
   },
@@ -29,7 +29,7 @@
     "@stylistic/eslint-plugin": "^5.10.0",
     "@svgr/plugin-jsx": "^8.1.0",
     "@svgr/plugin-svgo": "^8.1.0",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.6.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-legacy": "^8.0.1",

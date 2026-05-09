@@ -1,5 +1,5 @@
-@import './layers.css'; /* CSS Layers MUST be FIRST of all CSS */
-@import './reset.css';
+@import 'layers.css'; /* CSS Layers MUST be FIRST of all CSS */
+@import 'reset.css';
 
 
 
@@ -37,10 +37,6 @@
     width: 100%;
     height: 100%;
     overflow: auto; /* body scroll will be WINDOW scroll */
-    
-    /* ℹ️ background of body is WINDOW background */
-    /* ⚠️ "html { background: none }" creates white stripe under statusbar on my android 12 */
-    background: #212121;
   }
   
   body * {

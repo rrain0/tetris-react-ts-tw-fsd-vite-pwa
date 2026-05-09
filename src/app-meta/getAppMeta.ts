@@ -8,24 +8,28 @@ type AppMeta = ObjectValue<typeof appMetaByLang>
 const defaultLang = 'en-US'
 export const appMetaSupportedLangs = Object.keys(appMetaByLang)
 
-export function getAppMeta(
-  buildMode: string,
-  lang: string,
-) {
+export function getAppMeta({
+  buildMode, buildLang,
+}: {
+  buildMode: string
+  buildLang: string
+}) {
   const byLang = appMetaByLang as Record<string, AppMeta>
-  if (!appMetaSupportedLangs.includes(lang)) return undefined
-  const appMeta = byLang[lang]
+  if (!appMetaSupportedLangs.includes(buildLang)) return undefined
+  const appMeta = byLang[buildLang]
   
   return processAppMeta(appMeta, buildMode)
 }
 
-export function getAppMetaOrDefault(
-  buildMode: string,
-  lang: string,
-) {
+export function getAppMetaOrDefault({
+  buildMode, buildLang,
+}: {
+  buildMode: string
+  buildLang: string
+}) {
   const byLang = appMetaByLang as Record<string, AppMeta>
-  if (!appMetaSupportedLangs.includes(lang)) lang = defaultLang
-  const appMeta = byLang[lang]
+  if (!appMetaSupportedLangs.includes(buildLang)) buildLang = defaultLang
+  const appMeta = byLang[buildLang]
   
   return processAppMeta(appMeta, buildMode)
 }

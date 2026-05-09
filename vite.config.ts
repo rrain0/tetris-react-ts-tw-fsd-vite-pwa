@@ -1,4 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
+import { getAppColors } from './src/app-meta/getAppColors.ts'
+import { getAppIcons } from './src/app-meta/getAppIcons.ts'
 import { appMetaSupportedLangs, getAppMeta } from './src/app-meta/getAppMeta.ts'
 import { generateManifest } from './src/app-meta/generateManifest.ts'
 import { defineConfig, type Plugin } from 'vite'
@@ -25,7 +27,10 @@ export default defineConfig(({ command, mode: buildMode }) => {
     appLang, appName, appDescription,
     manifestSearchParams,
     buildDate, buildVer,
-  } = getAppBuildData(buildMode, appBuildConfig.lang)
+    themeColor, bgColor,
+    icon48, icon64, icon167, icon180,
+    icon192, icon192Maskable, icon512, icon512Maskable,
+  } = getAppBuildData({ buildMode, buildLang: appBuildConfig.lang })
   
   const envVarsRuntime = getEnvVarsRuntime(buildMode, buildVer)
   
@@ -38,9 +43,9 @@ export default defineConfig(({ command, mode: buildMode }) => {
     base: '/',
     
     resolve: {
-      tsconfigPaths: true,
-      // Aliases here are necessary to build paths for Workers & CSS.
-      // Aliases must be duplicated in tsconfig.app.json for ts compiler.
+      //tsconfigPaths: true, // works only for TS (excluding Workers)
+      
+      // Works for TS (+ Workers), CSS
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         '@@': fileURLToPath(new URL('./src/shared', import.meta.url)),
@@ -55,13 +60,24 @@ export default defineConfig(({ command, mode: buildMode }) => {
     },
     
     plugins: [
-      addHtmlAppHeadersPlugin(appLang, appName, appDescription, manifestSearchParams),
+      addHtmlAppHeadersPlugin({
+        appLang, appName, appDescription,
+        manifestSearchParams,
+        themeColor, bgColor,
+        icon48, icon167, icon180,
+      }),
       
       tailwindcss(),
       
       addSvgrPlugin(),
       
-      addGeneratePwaManifestPlugin(buildMode, appLang, appName, appDescription),
+      addGeneratePwaManifestPlugin({
+        buildMode,
+        appLang, appName, appDescription,
+        themeColor, bgColor,
+        icon64,
+        icon192, icon192Maskable, icon512, icon512Maskable,
+      }),
       
       addVitePwaPlugin(),
       
@@ -93,10 +109,12 @@ export default defineConfig(({ command, mode: buildMode }) => {
 
 
 
-function getAppBuildData(
-  buildMode: string,
-  buildLang: string,
-) {
+function getAppBuildData({
+  buildMode, buildLang,
+}: {
+  buildMode: string
+  buildLang: string
+}) {
   const supportedModes = ['development', 'production'] as const
   // Check if buildMode supported
   if (!supportedModes.includes(buildMode)) {
@@ -107,7 +125,7 @@ function getAppBuildData(
   }
   
   // Check if lang supported
-  const appMeta = getAppMeta(buildMode, buildLang)
+  const appMeta = getAppMeta({ buildMode, buildLang })
   if (!appMeta) {
     throw new Error(
       `Build appLang [${buildLang}] is not supported, ` +
@@ -125,11 +143,21 @@ function getAppBuildData(
   const buildDate = new Date()
   const buildVer = `${buildMode}-${buildDate.toISOString()}-${buildLang}`
   
+  const { themeColor, bgColor } = getAppColors()
+  
+  const {
+    icon48, icon64, icon167, icon180,
+    icon192, icon192Maskable, icon512, icon512Maskable,
+  } = getAppIcons({ buildMode })
+  
   
   return {
     appLang, appName, appDescription,
     manifestSearchParams,
     buildDate, buildVer,
+    themeColor, bgColor,
+    icon48, icon64, icon167, icon180,
+    icon192, icon192Maskable, icon512, icon512Maskable,
   }
 }
 
@@ -158,12 +186,22 @@ function getEnvVarsRuntime(
 
 
 
-function addHtmlAppHeadersPlugin(
-  appLang: string,
-  appName: string,
+function addHtmlAppHeadersPlugin({
+  appLang, appName, appDescription,
+  manifestSearchParams,
+  themeColor, bgColor,
+  icon48, icon167, icon180,
+}: {
+  appLang: string
+  appName: string
   appDescription: string,
-  manifestSearchParams: string,
-): Plugin {
+  manifestSearchParams: string
+  themeColor: string
+  bgColor: string
+  icon48: string
+  icon167: string
+  icon180: string
+}): Plugin {
   return {
     name: 'html-app-headers-plugin',
     transformIndexHtml(html) {
@@ -172,6 +210,11 @@ function addHtmlAppHeadersPlugin(
         .replace(/%APP_NAME%/g, appName)
         .replace(/%APP_DESCRIPTION%/g, appDescription)
         .replace(/%MANIFEST_SEARCH_PARAMS%/g, manifestSearchParams)
+        .replace(/%THEME_COLOR%/g, themeColor)
+        .replace(/%BG_COLOR%/g, bgColor)
+        .replace(/%FAVICON_48%/g, icon48)
+        .replace(/%IPAD_ICON_167%/g, icon167)
+        .replace(/%IPHONE_ICON_180%/g, icon180)
     },
   }
 }
@@ -213,15 +256,32 @@ function addSvgrPlugin() {
 
 
 
-function addGeneratePwaManifestPlugin(
-  buildMode: string,
-  appLang: string,
-  appName: string,
-  appDescription: string,
-): Plugin[] {
-  const manifestJson = JSON.stringify(
-    generateManifest(buildMode, appLang, appName, appDescription)
-  )
+function addGeneratePwaManifestPlugin({
+  buildMode,
+  appLang, appName, appDescription,
+  themeColor, bgColor,
+  icon64,
+  icon192, icon192Maskable, icon512, icon512Maskable,
+}: {
+  buildMode: string
+  appLang: string
+  appName: string
+  appDescription: string
+  themeColor: string
+  bgColor: string
+  icon64: string
+  icon192: string
+  icon192Maskable: string
+  icon512: string
+  icon512Maskable: string
+}): Plugin[] {
+  const manifestJson = JSON.stringify(generateManifest({
+    buildMode,
+    appLang, appName, appDescription,
+    themeColor, bgColor,
+    icon64,
+    icon192, icon192Maskable, icon512, icon512Maskable,
+  }))
   return [
     {
       name: 'generate-and-inject-manifest',
