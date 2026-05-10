@@ -1,9 +1,16 @@
 import { fileURLToPath, URL } from 'node:url'
-import { getAppColors } from './src/app-meta/getAppColors.ts'
-import { getAppIcons } from './src/app-meta/getAppIcons.ts'
-import { appMetaSupportedLangs, getAppMeta } from './src/app-meta/getAppMeta.ts'
-import { generateManifest } from './src/app-meta/generateManifest.ts'
-import { defineConfig, type Plugin } from 'vite'
+import { getAppDeployData } from './src/app-deploy/getAppDeployData.ts'
+import { type DeployMode, supportedDeployModes } from './src/app-deploy/deployMode.ts'
+import {
+  type DeployTheme,
+  supportedDeployThemes,
+} from './src/app-deploy/theme/getAppDeployThemeData.ts'
+import {
+  supportedDeployLocales,
+  type DeployLocale,
+} from './src/app-deploy/locale/getAppDeployLocaleData.ts'
+import { getAppManifest } from './src/app-deploy/manifest/getAppManifest.ts'
+import { defineConfig, type Plugin, type UserConfigFn } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
@@ -12,30 +19,32 @@ import svgr from 'vite-plugin-svgr'
 import { VitePWA } from 'vite-plugin-pwa'
 import legacy from '@vitejs/plugin-legacy'
 
+// TODO process test environment (process.env.VITEST === 'true', mode === 'test')
 
-
-const appBuildConfig = {
-  devPort: 40109,
-  lang: 'en-US',
-}
+type ProjectRunMode = 'dev' | 'build'
+type NodeEnv = 'development' | 'production'
 
 
 
-// https://vite.dev/config/
-export default defineConfig(({ command, mode: buildMode }) => {
+export default defineConfig(({ command, mode }) => {
+  const { envReactPort, envLocale, envTheme, envIsVitest } = getDeployEnvVars()
+  
+  const { projectRunMode, deployMode, deployLocale, deployTheme } = getAppDeployConfig({
+    command, mode, envLocale, envTheme, envIsVitest,
+  })
+  
   const {
-    appLang, appName, appDescription,
+    appName, appDescription,
     manifestSearchParams,
     buildDate, buildVer,
-    themeColor, bgColor,
+    themeColor, bgColor, iosStatusBarStyle,
     icon48, icon64, icon167, icon180,
     icon192, icon192Maskable, icon512, icon512Maskable,
-  } = getAppBuildData({ buildMode, buildLang: appBuildConfig.lang })
+  } = getAppRunAndDeployData({ deployMode, deployLocale, deployTheme })
   
-  const envVarsRuntime = getEnvVarsRuntime(buildMode, buildVer)
+  const envVarsRuntime = getEnvVarsRuntime({ projectRunMode, buildVer })
   
   return {
-    
     // Pass desired env variables to runtime
     define: envVarsRuntime,
     
@@ -55,31 +64,31 @@ export default defineConfig(({ command, mode: buildMode }) => {
     // Configure Vite Dev server
     server: {
       host: true, // expose app via IP address from local network
-      port: appBuildConfig.devPort, // react dev server port
+      port: envReactPort, // react dev server port
       allowedHosts: true, // allow any host
     },
     
     plugins: [
-      addHtmlAppHeadersPlugin({
-        appLang, appName, appDescription,
+      getHtmlAppHeadersPlugin({
+        deployLocale, appName, appDescription,
         manifestSearchParams,
-        themeColor, bgColor,
+        themeColor, bgColor, iosStatusBarStyle,
         icon48, icon167, icon180,
       }),
       
-      tailwindcss(),
+      getSvgrPlugin(),
       
-      addSvgrPlugin(),
-      
-      addGeneratePwaManifestPlugin({
-        buildMode,
-        appLang, appName, appDescription,
+      getGeneratePwaManifestPlugin({
+        deployMode,
+        deployLocale, appName, appDescription,
         themeColor, bgColor,
         icon64,
         icon192, icon192Maskable, icon512, icon512Maskable,
       }),
       
-      addVitePwaPlugin(),
+      tailwindcss(),
+      
+      getVitePwaPlugin(),
       
       react(),
       
@@ -88,20 +97,7 @@ export default defineConfig(({ command, mode: buildMode }) => {
         plugins: [babelPluginJsxCnStProps()],
       }),
       
-      // Add polyfills to final build (dev mode has no polyfills)
-      legacy({
-        polyfills: false,
-        renderLegacyChunks: false,
-        
-        modernPolyfills: true,
-        renderModernChunks: true,
-        modernTargets: [
-          `since ${buildDate.getFullYear() - 4}-01-01`,
-          // A browser is not dead
-          // if it has not been without official support or updates for 24 months.
-          'not dead',
-        ],
-      }),
+      getViteLegacyPlugin({ buildDate }),
     ],
     
   }
@@ -109,94 +105,125 @@ export default defineConfig(({ command, mode: buildMode }) => {
 
 
 
-function getAppBuildData({
-  buildMode, buildLang,
-}: {
-  buildMode: string
-  buildLang: string
-}) {
-  const supportedModes = ['development', 'production'] as const
-  // Check if buildMode supported
-  if (!supportedModes.includes(buildMode)) {
-    throw new Error(
-      `Build buildMode [${buildMode}] is not supported, ` +
-      `supported modes are [${JSON.stringify(supportedModes)}]`
-    )
-  }
-  
-  // Check if lang supported
-  const appMeta = getAppMeta({ buildMode, buildLang })
-  if (!appMeta) {
-    throw new Error(
-      `Build appLang [${buildLang}] is not supported, ` +
-      `supported langs are [${JSON.stringify(appMetaSupportedLangs)}]`
-    )
-  }
-  const { appLang, appName, appDescription } = appMeta
-  
-  
-  // Create manifest search params
-  let manifestSearchParams = new URLSearchParams({ buildMode, lang: buildLang }).toString()
-  if (manifestSearchParams) manifestSearchParams = '?' + manifestSearchParams
-  
-  
-  const buildDate = new Date()
-  const buildVer = `${buildMode}-${buildDate.toISOString()}-${buildLang}`
-  
-  const { themeColor, bgColor } = getAppColors()
-  
-  const {
-    icon48, icon64, icon167, icon180,
-    icon192, icon192Maskable, icon512, icon512Maskable,
-  } = getAppIcons({ buildMode })
-  
+function getDeployEnvVars() {
+  // Read shell variables.
+  // You need to run vite process with already applied env vars from env files.
+  const { REACT_PORT, APP_LOCALE, APP_THEME, VITEST } = process.env
   
   return {
-    appLang, appName, appDescription,
-    manifestSearchParams,
-    buildDate, buildVer,
-    themeColor, bgColor,
-    icon48, icon64, icon167, icon180,
-    icon192, icon192Maskable, icon512, icon512Maskable,
+    envReactPort: !REACT_PORT || !/\d+/.test(REACT_PORT) ? 40109 : +REACT_PORT,
+    envLocale: APP_LOCALE || 'en-US',
+    envTheme: APP_THEME || 'dark',
+    envIsVitest: VITEST === 'true',
   }
 }
 
 
 
-function getEnvVarsRuntime(
-  buildMode: string,
-  buildVer: string,
-) {
-  const envVarsRuntime = {
+function getAppDeployConfig({ command, mode, envLocale, envTheme, envIsVitest }: {
+  command: 'serve' | 'build'
+  mode: string
+  envLocale: string
+  envTheme: string
+  envIsVitest: boolean
+}) {
+  const projectRunMode: ProjectRunMode = ({
+    'serve': 'dev',
+    'build': 'build',
+  } as const)[command]
+  
+  // Check if deployMode supported
+  if (!supportedDeployModes.includes(mode)) {
+    throw new Error(
+      `Deploy mode "${mode}" is not supported, ` +
+      `supported deploy modes are "${JSON.stringify(supportedDeployModes)}"`
+    )
+  }
+  const deployMode: DeployMode = mode
+  
+  // Check if locale supported
+  if (!supportedDeployLocales.includes(envLocale)) {
+    throw new Error(
+      `Deploy locale "${envLocale}" is not supported, ` +
+      `supported deploy locales are "${JSON.stringify(supportedDeployLocales)}"`
+    )
+  }
+  const deployLocale: DeployLocale = envLocale
+  
+  // Check if theme supported
+  if (!supportedDeployThemes.includes(envTheme)) {
+    throw new Error(
+      `Deploy theme "${envTheme}" is not supported, ` +
+      `supported deploy themes are "${JSON.stringify(supportedDeployThemes)}"`
+    )
+  }
+  const deployTheme: DeployTheme = envTheme
+
+  return { projectRunMode, deployMode, deployLocale, deployTheme }
+}
+
+
+
+function getAppRunAndDeployData({ deployMode, deployLocale, deployTheme }: {
+  deployMode: DeployMode
+  deployLocale: DeployLocale
+  deployTheme: DeployTheme
+}) {
+  const {
+    appName, appDescription,
+    iosStatusBarStyle, themeColor, bgColor,
+    icon48, icon64, icon167, icon180,
+    icon192, icon192Maskable, icon512, icon512Maskable,
+    manifestSearchParams,
+  } = getAppDeployData({ deployMode, deployLocale, deployTheme })
+  
+  const buildDate = new Date()
+  const buildVer = `${deployMode}-${buildDate.toISOString()}-${deployLocale}-${deployTheme}`
+  
+  return {
+    appName, appDescription,
+    iosStatusBarStyle, themeColor, bgColor,
+    icon48, icon64, icon167, icon180,
+    icon192, icon192Maskable, icon512, icon512Maskable,
+    manifestSearchParams,
+    buildDate, buildVer,
+  }
+}
+
+
+
+function getEnvVarsRuntime({ projectRunMode, buildVer }: {
+  projectRunMode: ProjectRunMode
+  buildVer: string
+}) {
+  const projectRunModeToNodeEnv: Record<ProjectRunMode, NodeEnv> = {
+    'dev': 'development',
+    'build': 'production',
+  }
+  
+  const envVarsRuntime: Record<string, string> = {
     // Add old-fashioned 'process.env.NODE_ENV' property to support legacy libs and node
-    'process.env.NODE_ENV': JSON.stringify(buildMode),
+    'process.env.NODE_ENV': JSON.stringify(projectRunModeToNodeEnv[projectRunMode]),
     'import.meta.env.BUILD_VER': JSON.stringify(buildVer),
-    
-    // ...buildMode === 'development' && {
-    //   'import.meta.env.BACKEND_HOST': JSON.stringify('80.87.194.16'),
-    //   'import.meta.env.BACKEND_PORT': JSON.stringify('8000'),
-    // },
-    // ...buildMode === 'production' && {
-    //   'import.meta.env.BACKEND_HOST': JSON.stringify('80.87.194.16'),
-    //   'import.meta.env.BACKEND_PORT': JSON.stringify('8000'),
-    // },
-  } satisfies Record<string, string>
+  }
+  
   return envVarsRuntime
 }
 
 
 
-function addHtmlAppHeadersPlugin({
-  appLang, appName, appDescription,
+function getHtmlAppHeadersPlugin({
+  deployLocale, appName, appDescription,
   manifestSearchParams,
-  themeColor, bgColor,
+  themeColor, bgColor, iosStatusBarStyle,
   icon48, icon167, icon180,
 }: {
-  appLang: string
+  deployLocale: string
   appName: string
   appDescription: string,
   manifestSearchParams: string
   themeColor: string
+  iosStatusBarStyle: string
   bgColor: string
   icon48: string
   icon167: string
@@ -206,12 +233,13 @@ function addHtmlAppHeadersPlugin({
     name: 'html-app-headers-plugin',
     transformIndexHtml(html) {
       return html
-        .replace(/%APP_LANG%/g, appLang)
+        .replace(/%APP_LOCALE%/g, deployLocale)
         .replace(/%APP_NAME%/g, appName)
         .replace(/%APP_DESCRIPTION%/g, appDescription)
         .replace(/%MANIFEST_SEARCH_PARAMS%/g, manifestSearchParams)
         .replace(/%THEME_COLOR%/g, themeColor)
         .replace(/%BG_COLOR%/g, bgColor)
+        .replace(/%IOS_STATUS_BAR_STYLE%/g, iosStatusBarStyle)
         .replace(/%FAVICON_48%/g, icon48)
         .replace(/%IPAD_ICON_167%/g, icon167)
         .replace(/%IPHONE_ICON_180%/g, icon180)
@@ -221,7 +249,7 @@ function addHtmlAppHeadersPlugin({
 
 
 
-function addSvgrPlugin() {
+function getSvgrPlugin() {
   return svgr({
     svgrOptions: {
       // These plugins must be manually installed as dev deps
@@ -256,15 +284,15 @@ function addSvgrPlugin() {
 
 
 
-function addGeneratePwaManifestPlugin({
-  buildMode,
-  appLang, appName, appDescription,
+function getGeneratePwaManifestPlugin({
+  deployMode,
+  deployLocale, appName, appDescription,
   themeColor, bgColor,
   icon64,
   icon192, icon192Maskable, icon512, icon512Maskable,
 }: {
-  buildMode: string
-  appLang: string
+  deployMode: string
+  deployLocale: string
   appName: string
   appDescription: string
   themeColor: string
@@ -275,9 +303,9 @@ function addGeneratePwaManifestPlugin({
   icon512: string
   icon512Maskable: string
 }): Plugin[] {
-  const manifestJson = JSON.stringify(generateManifest({
-    buildMode,
-    appLang, appName, appDescription,
+  const manifestJson = JSON.stringify(getAppManifest({
+    deployMode,
+    deployLocale, appName, appDescription,
     themeColor, bgColor,
     icon64,
     icon192, icon192Maskable, icon512, icon512Maskable,
@@ -312,13 +340,14 @@ function addGeneratePwaManifestPlugin({
 
 
 
-function addVitePwaPlugin() {
+function getVitePwaPlugin() {
   return VitePWA({
     strategies: 'injectManifest', // compile custom SW and inject precache-manifest
-    srcDir: 'src/service-worker', // SW folder
+    srcDir: './src/service-worker', // SW folder
     filename: 'service-worker.ts', // SW filename
     injectRegister: 'script', // inject SW registration script
-    includeAssets: ['public/static/**'], // static assets to be precached in SW
+    //includeAssets: ['public/static/**'], // public assets to be precached in SW
+    includeAssets: [],
     
     registerType: 'prompt', // prompt user to reload page when SW was updated
     
@@ -332,5 +361,24 @@ function addVitePwaPlugin() {
     },
     
     pwaAssets: { disabled: true }, // Auto-generation of pwa assets
+  })
+}
+
+
+
+// Add polyfills to final build (dev mode has no polyfills)
+function getViteLegacyPlugin({ buildDate }: { buildDate: Date }) {
+  return legacy({
+    polyfills: false,
+    renderLegacyChunks: false,
+    
+    modernPolyfills: true,
+    renderModernChunks: true,
+    modernTargets: [
+      `since ${buildDate.getFullYear() - 4}-01-01`,
+      // A browser is not dead
+      // if it has not been without official support or updates for 24 months.
+      'not dead',
+    ],
   })
 }

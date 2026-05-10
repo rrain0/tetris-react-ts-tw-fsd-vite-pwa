@@ -1,8 +1,9 @@
 /// <reference lib="webworker"/>
-import { generateManifest } from '@/app-meta/generateManifest.ts'
-import { getAppColors } from '@/app-meta/getAppColors.ts'
-import { getAppIcons } from '@/app-meta/getAppIcons.ts'
-import { getAppMetaOrDefault } from '@/app-meta/getAppMeta.ts'
+import { getAppDeployData } from '@/app-deploy/getAppDeployData.ts'
+import { getAppManifest } from '@/app-deploy/manifest/getAppManifest.ts'
+import { getAppDeployThemeData } from '@/app-deploy/theme/getAppDeployThemeData.ts'
+import { getAppDeployIcons } from '@/app-deploy/icons/getAppDeployIcons.ts'
+import { getAppDeployLocaleData } from '@/app-deploy/locale/getAppDeployLocaleData.ts'
 import type { WorkboxPlugin } from 'workbox-core'
 import { ExpirationPlugin } from 'workbox-expiration'
 import {
@@ -78,13 +79,13 @@ registerRoute(
   async ({ request, event, url, params }) => {
     const { searchParams } = url
     
-    const buildMode = searchParams.get('buildMode') ?? ''
-    const buildLang = searchParams.get('lang') ?? ''
+    const deployMode = searchParams.get('deployMode') ?? ''
+    const locale = searchParams.get('locale') ?? ''
+    const theme = searchParams.get('theme') ?? ''
     
-    const appMeta = getAppMetaOrDefault({ buildMode, buildLang })
-    const appColors = getAppColors()
-    const appIcons = getAppIcons({ buildMode })
-    const manifest = generateManifest({ buildMode, ...appMeta, ...appColors, ...appIcons })
+    const manifest = getAppManifest(getAppDeployData({
+      deployMode, deployLocale: locale, deployTheme: theme,
+    }))
     
     return new Response(JSON.stringify(manifest), {
       headers: { 'Content-Type': 'application/json' },

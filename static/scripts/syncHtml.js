@@ -1,32 +1,34 @@
 
 
+// <script src="/static/scripts/syncHtml.js"> in "/index.html"
+// can't be bundled without type="module" attribute
 
 // TODO Html setup from Local Storage
 
 function syncHtml() {
   // eslint-disable-next-line no-undef
-  const buildMode = envBuildMode
+  const deployMode = envBuildMode
   // eslint-disable-next-line no-undef
   const baseUrl = envBaseUrl
   
-  updateTitle(buildMode)
-  updateLinkManifest(buildMode, baseUrl)
+  updateTitle(deployMode)
+  updateLinkManifest(deployMode, baseUrl)
 }
 //syncHtml()
 
 
 
-function updateTitle(buildMode) {
+function updateTitle(deployMode) {
   const title = 'Tetris'
-  const isDev = buildMode === 'development'
+  const isDev = deployMode === 'development'
   //document.title = (isDev ? 'Dev ' : '') + title
 }
 
-function updateLinkManifest(buildMode, baseUrl) {
+function updateLinkManifest(deployMode, baseUrl) {
   const linkManifest = document.querySelector('html > head > link[rel=manifest]')
   linkManifest.href = (() => {
     const manifestSearchParams = new URLSearchParams({
-      buildMode,
+      deployMode,
     }).toString()
     
     let manifestUrl = baseUrl + 'manifest.json'

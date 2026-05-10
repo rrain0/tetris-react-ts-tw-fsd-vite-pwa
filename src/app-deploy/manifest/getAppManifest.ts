@@ -3,15 +3,20 @@ import { type ManifestOptions } from 'vite-plugin-pwa'
 
 
 
-export function generateManifest({
-  buildMode,
-  appLang, appName, appDescription,
+export type ManifestPart = Partial<ManifestOptions>
+
+
+
+export function getAppManifest({
+  deployMode, deployLocale,
+  appName, appDescription,
   themeColor, bgColor,
   icon64,
   icon192, icon192Maskable, icon512, icon512Maskable,
 }: {
-  buildMode: string
-  appLang: string
+  // Types are not precise to provide default values
+  deployMode: string
+  deployLocale: string
   appName: string
   appDescription: string
   themeColor: string
@@ -21,63 +26,51 @@ export function generateManifest({
   icon192Maskable: string
   icon512: string
   icon512Maskable: string
-}) {
+}): ManifestPart {
   let manifest = manifestBase as ManifestPart
-  manifest = applyPwaId(manifest, { buildMode, appLang })
-  manifest = applyAppMeta(manifest, { appLang, appName, appDescription })
-  manifest = applyAppColors(manifest, { themeColor, bgColor })
+  manifest = applyPwaId(manifest, { deployMode, deployLocale })
+  manifest = applyLocale(manifest, { deployLocale, appName, appDescription })
+  manifest = applyColors(manifest, { themeColor, bgColor })
   manifest = applyIcons(manifest, { icon64, icon192, icon192Maskable, icon512, icon512Maskable })
   return manifest
 }
 
 
 
-type ManifestPart = Partial<ManifestOptions>
-
-function getPwaId(buildMode: string, lang: string) {
-  const project = 'tetris'
-  const framework = 'react'
-  return [project, buildMode, framework, lang].filter(it => !!it).join('-')
+function getPwaId(deployMode: string, deployLocale: string) {
+  return `tetris-${deployMode}-react-${deployLocale}`
 }
 
 function applyPwaId(
   manifest: ManifestPart,
-  {
-    buildMode,
-    appLang,
-  }: {
-    buildMode: string
-    appLang: string
+  { deployMode, deployLocale }: {
+    deployMode: string
+    deployLocale: string
   }
 ): ManifestPart {
-  return { ...manifest, id: getPwaId(buildMode, appLang) }
+  return { ...manifest, id: getPwaId(deployMode, deployLocale) }
 }
 
-function applyAppMeta(
+function applyLocale(
   manifest: ManifestPart,
-  {
-    appLang, appName, appDescription,
-  }: {
-    appLang: string
+  { deployLocale, appName, appDescription }: {
+    deployLocale: string
     appName: string
     appDescription: string
   }
 ): ManifestPart {
   return {
     ...manifest,
-    lang: appLang,
+    lang: deployLocale,
     name: appName,
     short_name: appName,
     description: appDescription,
   }
 }
 
-function applyAppColors(
+function applyColors(
   manifest: ManifestPart,
-  {
-    themeColor, bgColor,
-  }: {
-    
+  { themeColor, bgColor }: {
     themeColor: string
     bgColor: string
   }

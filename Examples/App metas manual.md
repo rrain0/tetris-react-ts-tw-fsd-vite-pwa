@@ -6,7 +6,7 @@
 
 - Manifest
   + `html <link rel='manifest' href='...'>`
-    * `html <link rel='manifest' href='/manifest.json?buildMode=development&lang=en-US'>`
+    * `html <link rel='manifest' href='/manifest.json?deployMode=development&lang=en-US'>`
 
 - Lang
   + `html <html lang='...'></html>`
@@ -33,7 +33,7 @@
     * Android status bar color.
     * Title bar color of window.
   + iOS status bar style / color
-    * `<meta name='apple-mobile-web-app-status-bar-style' content='...'>`
+    * `html <meta name='apple-mobile-web-app-status-bar-style' content='...'>`
     * Applicable if PWA mode & manifest.display: "standalone".
     * `content='black'` - чёрный фон, белый текст
     * `content='black-translucent'` - прозрачный фон, белый текст, контент приложения заходит под статус бар.
