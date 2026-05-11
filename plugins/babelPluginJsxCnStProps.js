@@ -128,10 +128,9 @@ export default function babelPluginJsxCnStProps() {
             // so transform to template literal
             // and if it evaluates to true - return container-object with attr & value,
             // otherwise return empty container-object.
-            console.log('cnAttrValue', JSON.stringify(cnAttrValue))
-            if (typeof cnAttrValue === 'string') {
-              const tlv = escapeForTemplateLiteral(cnAttrValue)
-              return exprAst`((cn) => cn ? { className: cn } : { })(\`${tlv}\`)`
+            if (t.isStringLiteral(cnAttrValue)) {
+              const tl = stringLiteralNodeToTemplateLiteralNode(cnAttrValue)
+              return exprAst`((cn) => cn ? { className: cn } : { })(${tl})`
             }
             // Otherwise, return container-object with attr & value.
             return exprAst`((cn) => cn ? { className: cn } : { })(${cnAttrValue})`
@@ -149,10 +148,10 @@ export default function babelPluginJsxCnStProps() {
             if (!hasClassNameAttr) return exprAst`{ }`
             // If className attr value is string then it can be multiline string
             // so transform to template literal
-            // and  return container-object with attr & value.
-            if (typeof classNameAttrValue === 'string') {
-              const tlv = escapeForTemplateLiteral(classNameAttrValue)
-              return exprAst`{ className: ${tlv} }`
+            // and return container-object with attr & value.
+            if (t.isStringLiteral(classNameAttrValue)) {
+              const tl = stringLiteralNodeToTemplateLiteralNode(classNameAttrValue)
+              return exprAst`{ className: \`${tl}\` }`
             }
             // Otherwise, return container-object with attr & value.
             return exprAst`{ className: ${classNameAttrValue} }`
@@ -236,7 +235,11 @@ export default function babelPluginJsxCnStProps() {
 
 
 
-const escapeForTemplateLiteral = str => str
-  .replace(/\\/g, '\\\\') // escape backslashes
-  .replace(/`/g, '\\`')   // escape backticks
-  .replace(/\$\{/g, '\\${') // escape interpolation start
+const stringLiteralNodeToTemplateLiteralNode = slNode => t.templateLiteral(
+  [t.templateElement({
+    // This is what the generator prints (it should have your escapes like \n or \\)
+    raw: slNode.value.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${'),
+    // This is the actual value JavaScript "sees" (interpreted escapes)
+    cooked: slNode.value,
+  }, true)], []
+)
