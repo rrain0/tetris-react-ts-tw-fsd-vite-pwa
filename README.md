@@ -1,4 +1,35 @@
 # Tetris
+
+
+
+## Run Configurations
+
+### Run Dev server
+#### Before run
+- You can customize dev run config by editing `./deploy-dev/tetris.react.dev.env`.
+- You can ignore `${PROXY_*}` env vars for this run configuration.
+- You need to install deps by `pnpm i`
+
+#### Run
+Under `./` run
+`make -f dev-run.mk dev-run`
+and go to `http://localhost:${REACT_PORT}`
+
+
+### Run Dev server + proxy
+#### Before run
+- You can customize dev run config by editing `./deploy-dev/tetris.react.dev.env`.
+- You need to install certificate from `./deploy-dev` on each device where you want to open site.
+- You need to add `${PROXY_HOST}` to your OS hosts or router DHCP config.
+- You need to install deps by `pnpm i` and install `docker`
+
+#### Run
+Under `./` run
+`make -f dev-run.mk dev-proxy-run`
+and go to `https://${PROXY_HOST}:${PROXY_PORT}`
+
+
+
 ### React + TS + Tailwind + FSD + Vite + PWA
 
 - Используется React 19 + React Compiler.
