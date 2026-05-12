@@ -1,9 +1,9 @@
 import {
+  type DeployMode,
   deployModeDefault,
   supportedDeployModes,
 } from '../deployMode.ts'
 import { appDeployLocalesData } from './appDeployLocalesData.ts'
-import { assertNever } from '../../shared/utils/ts/ts.ts'
 
 
 
@@ -22,16 +22,21 @@ export function getAppDeployLocaleData({ deployMode, deployLocale }: {
   deployMode: string
   deployLocale: string
 }): DeployLocaleData {
-  const m = supportedDeployModes.includes(deployMode) ? deployMode : deployModeDefault
-  const l = supportedDeployLocales.includes(deployLocale) ? deployLocale : deployLocaleDefault
-  const deployLocaleData = { ...appDeployLocalesData[l] }
+  const localeData = { ...(() => {
+    if (supportedDeployLocales.includes(deployLocale)) return appDeployLocalesData[deployLocale]
+    return appDeployLocalesData[deployLocaleDefault]
+  })() }
   
-  deployLocaleData.appName = (() => {
-    if (m === 'development') return '[Dev] ' + deployLocaleData.appName
-    if (m === 'staging') return '[Stg] ' + deployLocaleData.appName
-    if (m === 'production') return deployLocaleData.appName
-    assertNever(m)
+  localeData.appName = (() => {
+    const appNameByDeployMode: Record<DeployMode, string> = {
+      'development': '[Dev] ' + localeData.appName,
+      'staging': '[Stg] ' + localeData.appName,
+      'production': localeData.appName,
+    }
+    
+    if (supportedDeployModes.includes(deployMode)) return appNameByDeployMode[deployMode]
+    return appNameByDeployMode[deployModeDefault]
   })()
   
-  return deployLocaleData
+  return localeData
 }

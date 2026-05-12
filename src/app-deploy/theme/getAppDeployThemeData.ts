@@ -17,6 +17,9 @@ export function getAppDeployThemeData({ deployTheme }: {
   // Types are not precise to provide default values
   deployTheme: string,
 }): DeployThemeData {
-  const t = supportedDeployThemes.includes(deployTheme) ? deployTheme : deployThemeDefault
-  return appDeployThemesData[t]
+  const themeData = { ...(() => {
+    if (supportedDeployThemes.includes(deployTheme)) return appDeployThemesData[deployTheme]
+    return appDeployThemesData[deployThemeDefault]
+  })() }
+  return themeData
 }

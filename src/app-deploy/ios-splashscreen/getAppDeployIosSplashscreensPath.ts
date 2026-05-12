@@ -17,9 +17,9 @@ export function getAppDeployIosSplashscreensPath({ deployMode }: {
   deployMode: string,
 }): DeployIosSplashscreens {
   const iconsByDeployMode: Record<DeployMode, DeployIosSplashscreens> = {
-    development: { iosSplashscreensPath: './src/shared/assets/im/ios-splashscreen-dev' },
-    staging: { iosSplashscreensPath: './src/shared/assets/im/ios-splashscreen-stg' },
-    production: { iosSplashscreensPath: './src/shared/assets/im/ios-splashscreen' },
+    'development': { iosSplashscreensPath: './src/shared/assets/im/ios-splashscreen-dev' },
+    'staging': { iosSplashscreensPath: './src/shared/assets/im/ios-splashscreen-stg' },
+    'production': { iosSplashscreensPath: './src/shared/assets/im/ios-splashscreen' },
   }
   
   if (supportedDeployModes.includes(deployMode)) return iconsByDeployMode[deployMode]

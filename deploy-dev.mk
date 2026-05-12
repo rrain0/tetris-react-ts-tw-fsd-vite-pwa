@@ -10,9 +10,9 @@ endif
 
 
 
-dev-run:
+run-dev:
 	pnpm run dev
 
-dev-proxy-run:
+run-dev-proxy:
 	$(MAKE) -C ./deploy-dev -f docker-compose.dev.mk docker-compose-dev-build-up
 	pnpm run dev

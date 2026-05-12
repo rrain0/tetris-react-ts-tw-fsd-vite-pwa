@@ -24,7 +24,7 @@ export function getAppDeployIcons({ deployMode }: {
   deployMode: string,
 }): DeployIcons {
   const iconsByDeployMode: Record<DeployMode, DeployIcons> = {
-    development: (() => {
+    'development': (() => {
       const assetsPath = './src/static-dev/assets/app-icon'
       return {
         icon48: `${assetsPath}/icon-dev-48.png`,
@@ -37,7 +37,7 @@ export function getAppDeployIcons({ deployMode }: {
         icon512Maskable: `${assetsPath}/icon-dev-512-maskable.png`,
       }
     })(),
-    staging: (() => {
+    'staging': (() => {
       const assetsPath = './src/static-stg/assets/app-icon'
       return {
         icon48: `${assetsPath}/icon-stg-48.png`,
@@ -50,7 +50,7 @@ export function getAppDeployIcons({ deployMode }: {
         icon512Maskable: `${assetsPath}/icon-stg-512-maskable.png`,
       }
     })(),
-    production: (() => {
+    'production': (() => {
       const assetsPath = './src/static/assets/app-icon'
       return {
         icon48: `${assetsPath}/icon-48.png`,

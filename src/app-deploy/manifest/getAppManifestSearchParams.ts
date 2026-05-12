@@ -6,7 +6,11 @@ export function getAppManifestSearchParams({ deployMode, locale, theme }: {
   locale: string
   theme: string
 }) {
-  let manifestSearchParams = new URLSearchParams({ deployMode, locale, theme }).toString()
+  let manifestSearchParams = new URLSearchParams({
+    ...deployMode && { deployMode },
+    ...locale && { locale },
+    ...theme && { theme },
+  }).toString()
   if (manifestSearchParams) manifestSearchParams = '?' + manifestSearchParams
   return manifestSearchParams
 }
