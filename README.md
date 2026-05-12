@@ -92,8 +92,8 @@ Build project, build react nginx image, build docker nginx proxy, run project in
 
 #### Run
 Under `./` run <br/>
-`make -f deploy-stg.mk stg` <br/>
-and go to `https://${PROXY_HOST}:${PROXY_PORT}` e.g. <https://tetris.stg.rraindev:40200>
+`make -f deploy-prod.mk prod-pull-build-up` <br/>
+and go to `https://${PROXY_HOST}:${PROXY_PORT}` e.g. <https://tetris.rrain.fvds.ru:40300>
 
 
 

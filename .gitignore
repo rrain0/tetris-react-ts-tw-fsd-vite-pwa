@@ -14,6 +14,8 @@ dev-dist
 *.local
 
 /deploy-prod/*.env
+/deploy-prod/*.pem*
+/deploy-prod/*.pfx
 
 # Editor directories and files
 .vscode/*
