@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 import { getAppDeployData } from './src/app-deploy/getAppDeployData.ts'
 import { type DeployMode, supportedDeployModes } from './src/app-deploy/deployMode.ts'
+import { addDeployDataToAppManifest } from './src/app-deploy/manifest/addDeployDataToAppManifest.ts'
 import {
   type DeployTheme,
   supportedDeployThemes,
@@ -9,7 +10,6 @@ import {
   supportedDeployLocales,
   type DeployLocale,
 } from './src/app-deploy/locale/getAppDeployLocaleData.ts'
-import { getAppManifest } from './src/app-deploy/manifest/getAppManifest.ts'
 import { defineConfig, type Plugin } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
@@ -19,8 +19,13 @@ import svgr from 'vite-plugin-svgr'
 import { VitePWA } from 'vite-plugin-pwa'
 import legacy from '@vitejs/plugin-legacy'
 import fs from 'node:fs'
+import mime from 'mime/lite'
+
+
 
 // TODO process test environment (process.env.VITEST === 'true', mode === 'test')
+
+
 
 type ProjectRunMode = 'dev' | 'build'
 
@@ -43,7 +48,10 @@ export default defineConfig(({ command, mode }) => {
     icon192Path, icon192MaskablePath, icon512Path, icon512MaskablePath,
   } = getAppRunAndDeployData({ deployMode, deployLocale, deployTheme })
   
-  const manifestPathSearch = `/manifest.json${manifestSearchParams}`
+  //const manifestPathSearch = `manifest.json`
+  //const manifestPathSearch = `manifest.json${manifestSearchParams}`
+  const manifestPath = `src/manifest.json`
+  const manifestPathSearch = `${manifestPath}${manifestSearchParams}`
   
   return {
     // Make url paths absolute (relative to root)
@@ -69,8 +77,22 @@ export default defineConfig(({ command, mode }) => {
     // Pass desired env variables to runtime
     define: getEnvVarsRuntime({ projectRunMode, buildVer }),
     
+    build: {
+      rolldownOptions: {
+        output: {
+          // Intercept how Rolldown names every single asset
+          assetFileNames: (assetInfo) => {
+            const filenamePattern = '[name]-[hash].[ext]'
+            // Route 'manifest.json' to root folder
+            if (assetInfo.names.includes('manifest.json')) return filenamePattern
+            // Else use standard asset route
+            return `assets/${filenamePattern}`
+          },
+        },
+      },
+    },
+    
     plugins: [
-      
       htmlAppDeployDataPlugin({
         deployLocale, appName, appDescription,
         manifestPathSearch,
@@ -92,18 +114,42 @@ export default defineConfig(({ command, mode }) => {
       vitePwaPlugin(),
       
       generatePwaManifestPlugin({
-        projectRunMode, deployMode,
-        deployLocale, appName, appDescription,
+        projectRunMode,
+        deployMode, deployLocale, deployTheme,
+        manifestPath,
+        appName, appDescription,
         themeColor, bgColor,
         icon64Path,
         icon192Path, icon192MaskablePath, icon512Path, icon512MaskablePath,
       }),
       
       viteLegacyPlugin({ buildDate }),
+      
+      /* {
+        name: 'log-bundle',
+        generateBundle(options, bundle) {
+          const bundleData = { }
+          for (const [fileInBundle, fileInfo] of Object.entries(bundle)) {
+            // fileName: The final generated hashed name (e.g., 'assets/index-B3x9a1.js')
+            // fileInfo.name: The original filename before hashing (e.g., 'index.js')
+            if (fileInfo.type === 'asset') {
+              const { fileName, originalFileNames, names } = fileInfo
+              bundleData[fileInfo.names[0] ?? 'UNDEFINED_NAME'] = {
+                fileInBundle, fileName, originalFileNames, names,
+              }
+            }
+          }
+          console.log('bundleData:', JSON.stringify(bundleData, null, 2))
+        },
+      }, */
     ],
     
   }
 })
+
+
+
+const lastPathSegment = (path: string) => path.match(/[^/]*(?=$|[?#])/)?.[0] ?? ''
 
 
 
@@ -293,8 +339,10 @@ function svgrPlugin() {
 
 
 function generatePwaManifestPlugin({
-  projectRunMode, deployMode,
-  deployLocale, appName, appDescription,
+  projectRunMode,
+  deployMode, deployLocale, deployTheme,
+  manifestPath,
+  appName, appDescription,
   themeColor, bgColor,
   icon64Path,
   icon192Path, icon192MaskablePath, icon512Path, icon512MaskablePath,
@@ -302,6 +350,8 @@ function generatePwaManifestPlugin({
   projectRunMode: ProjectRunMode
   deployMode: string
   deployLocale: string
+  deployTheme: string
+  manifestPath: string
   appName: string
   appDescription: string
   themeColor: string
@@ -314,111 +364,128 @@ function generatePwaManifestPlugin({
 }): Plugin | Plugin[] {
   const plugins: Record<ProjectRunMode, () => Plugin | Plugin[]> = {
     'dev': () => {
-      const manifestJson = JSON.stringify(getAppManifest({
-        deployMode,
-        deployLocale, appName, appDescription,
+      const manifestJson = JSON.stringify(addDeployDataToAppManifest({
+        deployMode, deployLocale, deployTheme,
+        appName, appDescription,
         themeColor, bgColor,
+        icon64Src: icon64Path,
+        icon192Src: icon192Path,
+        icon192MaskableSrc: icon192MaskablePath,
+        icon512Src: icon512Path,
+        icon512MaskableSrc: icon512MaskablePath,
+      }), null, 2)
+      
+      const requiredPaths = [
+        manifestPath,
         icon64Path,
         icon192Path, icon192MaskablePath, icon512Path, icon512MaskablePath,
-      }), null, 2)
+      ]
+      
+      
+      //console.log('deploy data', deployMode, deployLocale, deployTheme)
+      //console.log('DEV manifestJson', manifestJson)
+      
       return {
-        name: 'generate-and-inject-manifest',
+        name: 'generate-app-manifest-dev',
         // Generate manifest for dev server
         configureServer(server) {
           server.middlewares.use((req, res, next) => {
-            const { pathname: path } = new URL(req.url || '', `http://${req.headers.host}`)
-            const manifestPathSearch = `${server.config.base}manifest.json`
-            if (path === manifestPathSearch) {
-              res.setHeader('Content-Type', 'application/json')
-              res.end(manifestJson)
+            const path = new URL(req.url || '', `http://${req.headers.host}`).pathname
+            
+            for (const requiredPath of requiredPaths) {
+              const basedPath = `${server.config.base}${requiredPath}`
+              if (path !== basedPath) continue
+              const contentType = mime.getType(basedPath)
+              if (!contentType) continue
+              const content = requiredPath === manifestPath
+                ? manifestJson
+                : fs.readFileSync(fileURLToPath(new URL(requiredPath, import.meta.url)))
+              
+              res.setHeader('Content-Type', contentType)
+              res.end(content)
               return
             }
+            
+            // const manifestDeployPath = `${server.config.base}${manifestPath}`
+            // if (path === manifestDeployPath) {
+            //   res.setHeader('Content-Type', 'application/json')
+            //   res.end(manifestJson)
+            //   return
+            // }
+            
             next()
           })
         },
       }
     },
-    'build': () => [
-      {
-        name: 'include-manifest-icons',
-        // Tell Rolldown to include the files at the start of the build
-        buildStart() {
-          ;[
-            {
-              name: 'icon-64.png',
-              absPath: fileURLToPath(new URL(
-                'src/static-deploy-dev/assets/app-icon/icon-64.png', import.meta.url
-              )),
-            },
-          ].map(it => {
-            this.emitFile({
-              type: 'asset',
-              name: it.name, // This sets fileInfo.name for the next hook
-              source: fs.readFileSync(it.absPath),
-            })
-          })
-          
-        },
-      },
-      {
-        name: 'generate-and-inject-manifest',
-        // Generate manifest file for build
-        generateBundle(options, bundle) {
-          ;({
-            icon64Path,
-            icon192Path, icon192MaskablePath, icon512Path, icon512MaskablePath,
-          } = (() => {
-            const relPaths = Object.entries({
+    'build': () => {
+      return [
+        {
+          name: 'generate-app-manifest',
+          // Tell Rolldown to include the files at the start of the build.
+          // Generate manifest file for build with a dynamic content hash.
+          buildStart() {
+            
+            const iconsPathsToBundled = {
+              icon64Path: 'icon64Bundled',
+              icon192Path: 'icon192Bundled',
+              icon192MaskablePath: 'icon192MaskableBundled',
+              icon512Path: 'icon512Bundled',
+              icon512MaskablePath: 'icon512MaskableBundled',
+            } as const
+            const iconsBundled = {
+              icon64Bundled: '',
+              icon192Bundled: '',
+              icon192MaskableBundled: '',
+              icon512Bundled: '',
+              icon512MaskableBundled: '',
+            }
+            
+            Object.entries({
               icon64Path,
               icon192Path, icon192MaskablePath, icon512Path, icon512MaskablePath,
+            }).forEach(([name, path]) => {
+              const filename = lastPathSegment(path)
+              const absPath = fileURLToPath(new URL(path, import.meta.url))
+              const filenameBundled = this.getFileName(
+                this.emitFile({
+                  type: 'asset',
+                  name: filename,
+                  originalFileName: absPath,
+                  source: fs.readFileSync(absPath),
+                })
+              )
+              iconsBundled[iconsPathsToBundled[name]] = filenameBundled
             })
-            return Object.fromEntries(Object.entries(bundle).map(([_, fileInfo]) => {
-              if (fileInfo.type === 'asset') {
-                const { originalFileNames, fileName } = fileInfo
-                for (let i = 0; i < originalFileNames.length; i++) {
-                  const orig = originalFileNames[i]
-                  for (let j = 0; j < relPaths.length; j++) {
-                    const [tag, rel] = relPaths[j]
-                    if (orig === rel) return [tag, fileName] as const
-                  }
-                }
-              }
-              return ['', ''] as const
-            }))
-          })())
-          
-          console.log('icon64Path', icon64Path)
-          
-          const manifestJson = JSON.stringify(getAppManifest({
-            deployMode,
-            deployLocale, appName, appDescription,
-            themeColor, bgColor,
-            icon64Path,
-            icon192Path, icon192MaskablePath, icon512Path, icon512MaskablePath,
-          }), null, 2)
-          
-          
-          
-          const assetMap = { }
-          for (const [fileInBundle, fileInfo] of Object.entries(bundle)) {
-            // fileName: The final generated hashed name (e.g., 'assets/index-B3x9a1.js')
-            // fileInfo.name: The original filename before hashing (e.g., 'index.js')
-            if (fileInfo.type === 'asset' /* && fileInfo.name && /[.]png$/.test(fileInfo.name) */) {
-              const { source, ...fileInfoRest } = fileInfo
-              assetMap[fileInfo.name ?? ''] = { fileInBundle, ...fileInfoRest }
-            }
-          }
-          console.log('assetMap', JSON.stringify(assetMap, null, 2))
-          
-          
-          this.emitFile({
-            type: 'asset',
-            fileName: 'manifest.json',
-            source: manifestJson,
-          })
+            
+            const manifestJson = JSON.stringify(addDeployDataToAppManifest({
+              deployMode, deployLocale, deployTheme,
+              appName, appDescription,
+              themeColor, bgColor,
+              icon64Src: iconsBundled.icon64Bundled,
+              icon192Src: iconsBundled.icon192Bundled,
+              icon192MaskableSrc: iconsBundled.icon192MaskableBundled,
+              icon512Src: iconsBundled.icon512Bundled,
+              icon512MaskableSrc: iconsBundled.icon512MaskableBundled,
+            }), null, 2)
+            
+            // Physically create manifest file
+            // just for Vite to correctly replaces its path in index.html
+            const manifestPath = 'src/manifest.json'
+            fs.writeFileSync(fileURLToPath(new URL(manifestPath, import.meta.url)), manifestJson)
+            const manifestBundled = this.getFileName(
+              this.emitFile({
+                type: 'asset',
+                name: lastPathSegment(manifestPath),
+                originalFileName: manifestPath,
+                source: manifestJson,
+              })
+            )
+            
+          },
         },
-      },
-    ],
+      ]
+    },
   }
   return plugins[projectRunMode]()
 }
@@ -441,11 +508,15 @@ function vitePwaPlugin() {
     
     registerType: 'prompt', // prompt user to reload page when SW was updated
     injectManifest: {
-      
-      // This targets the PWA plugin's internal service worker build
+      // Include any project file in the precache-manifest
+      globPatterns: ['**/*'],
       rollupOptions: {
         external: ['fsevents'],
       },
+    },
+    workbox: {
+      // Maximum file size to precache (bytes), default is 2 MB
+      //maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
     },
     
     // Disable manifest generation & html injection by plugin.

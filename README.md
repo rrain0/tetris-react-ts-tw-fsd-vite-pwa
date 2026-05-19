@@ -46,6 +46,7 @@ Run only dev server.
 #### Before run
 - You can customize development config by editing `./deploy-dev/tetris.react.dev.env`.
 - You can ignore `${PROXY_*}` env vars for this run configuration.
+- You need to install `make`, `node 22`, `pnpm`.
 - You need to install deps by `pnpm i`.
 
 #### Run
@@ -55,13 +56,13 @@ and go to `http://localhost:${REACT_PORT}` e.g. <http://localhost:40109>
 
 
 
-### Run Dev server + proxy
-Build & run docker nginx proxy and run dev server.
+### Run Dev proxy
+Build & run docker nginx proxy (you need to run dev server manually).
 #### Before run
 - You can customize development config by editing `./deploy-dev/tetris.react.dev.env`.
 - You need to install certificate from `./deploy-dev` on each device where you want to open site.
 - You need to add `${PROXY_HOST}` to your OS hosts or router DHCP config.
-- You need to install deps by `pnpm i` and install `docker`.
+- You need to install `make`, `docker`.
 
 #### Run
 Under `./` run <br/>
@@ -76,7 +77,7 @@ Build project, build react nginx image, build docker nginx proxy, run project in
 - You can customize staging config by editing `./deploy-stg/tetris.react.stg.env`.
 - You need to install certificate from `./deploy-stg` on each device where you want to open site.
 - You need to add `${PROXY_HOST}` to your OS hosts or router DHCP config.
-- You need to install `docker`.
+- You need to install `make`, `docker`.
 
 #### Run
 Under `./` run <br/>

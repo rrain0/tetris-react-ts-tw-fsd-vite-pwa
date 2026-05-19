@@ -16,4 +16,3 @@ dev:
 dev-proxy:
 	$(MAKE) -C ./deploy-dev -f docker-compose.dev.mk \
 		docker-compose-dev-build-up
-	pnpm run dev

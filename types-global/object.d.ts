@@ -3,7 +3,7 @@ import type {
   ObjectEntriesSimple,
   ObjectFromEntriesArr, ObjectKeys,
   ObjectValues,
-} from '@@/utils/object/objectTypes.ts'
+} from '../src/shared/utils/object/objectTypes.ts'
 
 
 
